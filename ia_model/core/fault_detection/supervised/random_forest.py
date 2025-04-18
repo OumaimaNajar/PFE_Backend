@@ -1,0 +1,268 @@
+# random_forest.py
+import pandas as pd
+import matplotlib.pyplot as plt
+import numpy as np
+from sklearn.model_selection import train_test_split
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.metrics import (
+    classification_report, 
+    confusion_matrix, 
+    accuracy_score,
+    precision_score,
+    recall_score,
+    f1_score
+)
+import pickle
+from sklearn.preprocessing import LabelEncoder
+import joblib
+import os
+import json
+from collections import defaultdict
+
+class RandomForestFaultDetector:
+    def __init__(self, n_estimators=100, random_state=42):
+        """Initialise le détecteur de pannes avec Random Forest"""
+        self.model = RandomForestClassifier(
+            n_estimators=n_estimators,
+            random_state=random_state,
+            class_weight='balanced'
+        )
+        self.keywords = [
+            'leak', 'stopped', 'overheating', 'failure', 'broken', 
+            'malfunction', 'error', 'defect', 'fault', 'out of order'
+        ]
+        self.features = ['LOCATION', 'STATUS', 'WOPRIORITY', 'ASSETNUM']
+        self.label_encoders = defaultdict(LabelEncoder)
+        self.feature_categories = {}
+
+    def load_and_prepare_data(self, file_path='../../../../data/clean_workorders.csv'):
+        """Charge et prépare les données"""
+        if not os.path.exists(file_path):
+            raise FileNotFoundError(f"Le fichier n'a pas été trouvé : {file_path}")
+        
+        print(f"\n{'='*50}\nChargement du fichier CSV depuis : {file_path}")
+        df = pd.read_csv(file_path, sep=';')
+        df_cleaned = df.dropna().copy()
+        
+        # Détection des pannes
+        df_cleaned.loc[:, 'PANNE'] = df_cleaned['Description'].str.contains(
+            '|'.join(self.keywords), case=False, na=False
+        ).astype(int)
+        
+        # Analyse des catégories pour chaque feature
+        for feature in self.features:
+            if df_cleaned[feature].dtype == 'object':
+                self.feature_categories[feature] = df_cleaned[feature].unique().tolist()
+                self.feature_categories[feature].append('UNKNOWN')  # Ajout de la catégorie pour valeurs inconnues
+        
+        print(f"\nDistribution des pannes :\n{df_cleaned['PANNE'].value_counts()}")
+        print(f"\nTaux de pannes : {df_cleaned['PANNE'].mean():.2%}")
+        
+        return df_cleaned
+
+    def preprocess_data(self, df):
+        """Prétraitement des données avec gestion des valeurs inconnues"""
+        print("\nPrétraitement des données...")
+        
+        for feature in self.features:
+            if feature in self.feature_categories:  # Si c'est une variable catégorielle
+                # Ajouter "UNKNOWN" comme classe valide si elle n'existe pas déjà
+                if "UNKNOWN" not in self.feature_categories[feature]:
+                    self.feature_categories[feature].append("UNKNOWN")
+                
+                # Remplacer les valeurs inconnues par "UNKNOWN"
+                df[feature] = df[feature].apply(
+                    lambda x: x if x in self.feature_categories[feature] else "UNKNOWN"
+                )
+                
+                # Encodage
+                self.label_encoders[feature].fit(self.feature_categories[feature])
+                df[feature] = self.label_encoders[feature].transform(df[feature])
+                print(f"{feature} - Classes : {self.label_encoders[feature].classes_}")
+        
+        X = df[self.features]
+        y = df['PANNE']
+        
+        return train_test_split(X, y, test_size=0.3, random_state=42, stratify=y)
+
+    def train_model(self, X_train, y_train):
+        """Entraîne le modèle Random Forest avec validation croisée intégrée"""
+        print("\nEntraînement du modèle...")
+        self.model.fit(X_train, y_train)
+        
+        # Importance des features
+        feature_importances = pd.DataFrame(
+            self.model.feature_importances_,
+            index=self.features,
+            columns=['importance']
+        ).sort_values('importance', ascending=False)
+        
+        print("\nImportance des features :")
+        print(feature_importances)
+        
+        return self.model
+
+    def evaluate_model(self, X_test, y_test):
+        """Évalue le modèle et génère les visualisations"""
+        print("\nÉvaluation du modèle...")
+        y_pred = self.model.predict(X_test)
+        y_proba = self.model.predict_proba(X_test)[:, 1]  # Probabilités pour la classe positive
+        
+        # Calcul des métriques
+        metrics = {
+            'Accuracy': accuracy_score(y_test, y_pred),
+            'Precision': precision_score(y_test, y_pred),
+            'Recall': recall_score(y_test, y_pred),
+            'F1 Score': f1_score(y_test, y_pred),
+            'ROC AUC': roc_auc_score(y_test, y_proba)
+        }
+        
+        # Affichage des résultats
+        print("\n=== Performance du modèle ===")
+        for name, value in metrics.items():
+            print(f"{name}: {value:.2%}")
+        
+        print("\nRapport de classification:")
+        print(classification_report(y_test, y_pred))
+        
+        # Matrice de confusion
+        self.plot_confusion_matrix(y_test, y_pred)
+        
+        return metrics
+
+    def plot_confusion_matrix(self, y_true, y_pred):
+        """Génère et affiche la matrice de confusion améliorée"""
+        cm = confusion_matrix(y_true, y_pred)
+        plt.figure(figsize=(10, 8))
+        
+        # Affichage avec seaborn pour plus de clarté
+        sns.heatmap(cm, annot=True, fmt='d', cmap='Blues', 
+                    xticklabels=['Fonctionnel', 'Panne'],
+                    yticklabels=['Fonctionnel', 'Panne'])
+        
+        plt.title('Matrice de Confusion - Random Forest')
+        plt.ylabel('Vérité terrain')
+        plt.xlabel('Prédiction')
+        plt.tight_layout()
+        plt.savefig('confusion_matrix.png')
+        plt.show()
+
+    def save_model(self, file_name='random_forest_model.pkl'):
+        """Sauvegarde le modèle et les préprocesseurs dans le même répertoire que le script"""
+        # Obtenir le chemin absolu du répertoire contenant ce script
+        script_dir = os.path.dirname(os.path.abspath(__file__))
+        file_path = os.path.join(script_dir, file_name)
+        
+        # Créer le répertoire s'il n'existe pas
+        os.makedirs(os.path.dirname(file_path), exist_ok=True)
+        
+        # Sauvegarder le modèle
+        model_data = {
+            'model': self.model,
+            'label_encoders': dict(self.label_encoders),
+            'features': self.features,
+            'keywords': self.keywords,
+            'feature_categories': self.feature_categories
+        }
+        
+        with open(file_path, 'wb') as f:
+            pickle.dump(model_data, f)
+        
+        print(f"\nModèle sauvegardé dans {file_path}")
+        print(f"Taille du fichier : {os.path.getsize(file_path)/1024:.2f} KB")
+
+    def predict_fault(self, input_data):
+        """Fait une prédiction à partir d'une entrée avec gestion robuste"""
+        try:
+            processed_data = {}
+            for feature in self.features:
+                if feature in self.label_encoders:
+                    le = self.label_encoders[feature]
+                    value = input_data.get(feature, 'UNKNOWN')
+                    
+                    # Gestion des valeurs inconnues
+                    if value not in le.classes_:
+                        value = 'UNKNOWN'
+                    
+                    processed_data[feature] = le.transform([value])[0]
+                else:
+                    processed_data[feature] = input_data.get(feature, 0)
+            
+            X_input = pd.DataFrame([processed_data])
+            prediction = self.model.predict(X_input)
+            proba = self.model.predict_proba(X_input)[0]
+            
+            result = {
+                "etat": "panne" if prediction[0] == 1 else "fonctionnel",
+                "confidence": float(proba.max()),
+                "probabilities": {
+                    "fonctionnel": float(proba[0]),
+                    "panne": float(proba[1])
+                }
+            }
+            
+            return result
+            
+        except Exception as e:
+            print(f"Erreur de prédiction : {str(e)}")
+            return {
+                "error": str(e),
+                "status": "error"
+            }
+
+
+def main():
+    """Fonction principale pour exécuter le pipeline complet"""
+    print("\n" + "="*50)
+    print("=== Détection de Pannes avec Random Forest ===")
+    print("="*50 + "\n")
+    
+    try:
+        detector = RandomForestFaultDetector()
+        
+        # 1. Chargement des données
+        print("[1/4] Chargement et préparation des données...")
+        df = detector.load_and_prepare_data()
+        
+        # 2. Prétraitement
+        print("[2/4] Prétraitement des données...")
+        X_train, X_test, y_train, y_test = detector.preprocess_data(df)
+        
+        # 3. Entraînement
+        print("[3/4] Entraînement du modèle...")
+        detector.train_model(X_train, y_train)
+        
+        # 4. Évaluation
+        print("[4/4] Évaluation du modèle...")
+        metrics = detector.evaluate_model(X_test, y_test)
+        
+        # Sauvegarde du modèle
+        detector.save_model()
+        
+        # Exemple de prédiction
+        print("\n[5/5] Test de prédiction...")
+        test_cases = [
+            {'LOCATION': 'BR300', 'STATUS': 'CLOSED', 'WOPRIORITY': '2', 'ASSETNUM': 'EQP123'},
+            {'LOCATION': 'NEW_LOC', 'STATUS': 'OPEN', 'WOPRIORITY': '1', 'ASSETNUM': 'NEW_EQP'},
+            {'LOCATION': 'LOC02', 'STATUS': 'IN PROGRESS', 'WOPRIORITY': '3', 'ASSETNUM': 'EQP456'}
+        ]
+        
+        for case in test_cases:
+            print(f"\nPrédiction pour : {case}")
+            result = detector.predict_fault(case)
+            print(json.dumps(result, indent=2))
+        
+        print("\n=== Processus terminé avec succès ===")
+        
+    except Exception as e:
+        print(f"\n=== ERREUR ===\n{str(e)}\n")
+        return 1
+    
+    return 0
+
+
+if __name__ == "__main__":
+    import seaborn as sns # type: ignore
+    from sklearn.metrics import roc_auc_score
+    
+    main()
