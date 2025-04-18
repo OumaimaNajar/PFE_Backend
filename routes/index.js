@@ -10,9 +10,23 @@ router.post('/predict', async (req, res) => {
     let tempFilePath = null;
     
     try {
-        // Vérifiez que les données sont présentes dans la requête
+        console.log('Received request data:', req.body);
+        
         if (!req.body || !req.body.data) {
-            return res.status(400).json({ success: false, error: "Données manquantes dans la requête." });
+            return res.status(400).json({ 
+                success: false, 
+                error: "Missing required data fields" 
+            });
+        }
+
+        // Validate required fields
+        const requiredFields = ['LOCATION', 'STATUS', 'WOPRIORITY', 'ASSETNUM'];
+        const missingFields = requiredFields.filter(field => !req.body.data[field]);
+        if (missingFields.length > 0) {
+            return res.status(400).json({
+                success: false,
+                error: `Missing required fields: ${missingFields.join(', ')}`
+            });
         }
 
         // Définissez le chemin du fichier temporaire dans le dossier supervised
@@ -82,13 +96,14 @@ router.post('/predict', async (req, res) => {
         console.log("Résultats bruts retournés par PythonShell :", output);
         
         // Trouver la dernière ligne qui contient du JSON valide
+        // Remove the first response sending
         let prediction = null;
         if (Array.isArray(output) && output.length > 0) {
             for (let i = output.length - 1; i >= 0; i--) {
                 try {
                     prediction = JSON.parse(output[i]);
                     console.log(`JSON valide trouvé à la ligne ${i}:`, prediction);
-                    break;  // Sortir de la boucle si parsing réussi
+                    break;
                 } catch (e) {
                     console.log(`Échec de parsing JSON à la ligne ${i}: ${output[i].substring(0, 100)}...`);
                 }
@@ -96,9 +111,18 @@ router.post('/predict', async (req, res) => {
         }
         
         if (prediction) {
-            res.json({ success: true, prediction });
+            const formattedResponse = {
+                success: true,
+                prediction: {
+                    ...prediction.prediction,
+                    timestamp: new Date().toISOString(),
+                    input_data: req.body.data
+                }
+            };
+            console.log('Sending response:', formattedResponse);
+            return res.status(200).json(formattedResponse);
         } else {
-            res.status(500).json({
+            return res.status(500).json({
                 success: false,
                 error: "Impossible de traiter la réponse du modèle",
                 rawOutput: output
@@ -106,18 +130,8 @@ router.post('/predict', async (req, res) => {
         }
         
     } catch (error) {
-        // En cas d'erreur, essayez de nettoyer le fichier temporaire
-        try {
-            if (tempFilePath && fs.existsSync(tempFilePath)) {
-                fs.unlinkSync(tempFilePath);
-                console.log(`Fichier temporaire supprimé en cas d'erreur : ${tempFilePath}`);
-            }
-        } catch (unlinkErr) {
-            console.error(`Erreur lors de la suppression du fichier temporaire : ${unlinkErr.message}`);
-        }
-        
-        console.error("Erreur dans la route /api/predict :", error);
-        res.status(500).json({
+        console.error("Detailed error:", error);
+        return res.status(500).json({
             success: false,
             error: "Erreur interne du serveur.",
             details: error.message || String(error)
@@ -127,61 +141,61 @@ router.post('/predict', async (req, res) => {
 
 
 // Route pour /api/svm-predict
-// router.post('/svm-predict', async (req, res) => {
-//     try {
-//         console.log("Requête reçue pour /api/svm-predict");
-//         const inputData = req.body.data;
+router.post('/svm-predict', async (req, res) => {
+    try {
+        console.log("Requête reçue pour /api/svm-predict");
+        const inputData = req.body.data;
 
-//         // Définir les champs requis pour le modèle SVM
-//         const requiredFields = ['WOPRIORITY', 'LOCATION', 'STATUS', 'ASSETNUM'];
+        // Définir les champs requis pour le modèle SVM
+        const requiredFields = ['WOPRIORITY', 'LOCATION', 'STATUS', 'ASSETNUM'];
 
-//         // Valider les données d'entrée
-//         const missingFields = requiredFields.filter((field) => !(field in inputData));
-//         if (missingFields.length > 0) {
-//             console.error(`Champs manquants : ${missingFields.join(', ')}`);
-//             return res.status(400).json({
-//                 success: false,
-//                 error: `Champs manquants : ${missingFields.join(', ')}`,
-//             });
-//         }
+        // Valider les données d'entrée
+        const missingFields = requiredFields.filter((field) => !(field in inputData));
+        if (missingFields.length > 0) {
+            console.error(`Champs manquants : ${missingFields.join(', ')}`);
+            return res.status(400).json({
+                success: false,
+                error: `Champs manquants : ${missingFields.join(', ')}`,
+            });
+        }
 
-//         console.log("Données d'entrée validées :", inputData);
+        console.log("Données d'entrée validées :", inputData);
 
-//         const options = {
-//             mode: 'text',
-//             pythonPath: 'C:\\Users\\omaim\\AppData\\Local\\Programs\\Python\\Python312\\python.exe',
-//             scriptPath: path.join(__dirname, '../ia_model/core/diagnosis'),
-//             args: [JSON.stringify(inputData)],
-//         };
+        const options = {
+            mode: 'text',
+            pythonPath: 'C:\\Users\\omaim\\AppData\\Local\\Programs\\Python\\Python312\\python.exe',
+            scriptPath: path.join(__dirname, '../ia_model/core/diagnosis'),
+            args: [JSON.stringify(inputData)],
+        };
 
-//         console.log("Options pour PythonShell :", options);
+        console.log("Options pour PythonShell :", options);
 
-//         PythonShell.run('svm_predict.py', options, (err, results) => {
-//             if (err) {
-//                 console.error('Erreur lors de l\'exécution du script Python :', err);
-//                 return res.status(500).json({ success: false, error: 'Erreur lors de l\'exécution du modèle.' });
-//             }
+        PythonShell.run('svm_predict.py', options, (err, results) => {
+            if (err) {
+                console.error('Erreur lors de l\'exécution du script Python :', err);
+                return res.status(500).json({ success: false, error: 'Erreur lors de l\'exécution du modèle.' });
+            }
 
-//             console.log("Résultats bruts retournés par PythonShell :", results);
+            console.log("Résultats bruts retournés par PythonShell :", results);
 
-//             if (!results || results.length === 0) {
-//                 console.error('Aucun résultat retourné par le script Python.');
-//                 return res.status(500).json({ success: false, error: 'Aucun résultat retourné par le modèle.' });
-//             }
+            if (!results || results.length === 0) {
+                console.error('Aucun résultat retourné par le script Python.');
+                return res.status(500).json({ success: false, error: 'Aucun résultat retourné par le modèle.' });
+            }
 
-//             try {
-//                 const prediction = JSON.parse(results[0]);
-//                 console.log("Prédiction retournée :", prediction);
-//                 res.json({ success: true, prediction });
-//             } catch (parseError) {
-//                 console.error('Erreur lors du parsing des résultats Python :', parseError);
-//                 res.status(500).json({ success: false, error: 'Erreur lors du traitement des résultats.' });
-//             }
-//         });
-//     } catch (error) {
-//         console.error('Erreur interne du serveur :', error);
-//         res.status(500).json({ success: false, error: 'Erreur interne du serveur.' });
-//     }
-// });
+            try {
+                const prediction = JSON.parse(results[0]);
+                console.log("Prédiction retournée :", prediction);
+                res.json({ success: true, prediction });
+            } catch (parseError) {
+                console.error('Erreur lors du parsing des résultats Python :', parseError);
+                res.status(500).json({ success: false, error: 'Erreur lors du traitement des résultats.' });
+            }
+        });
+    } catch (error) {
+        console.error('Erreur interne du serveur :', error);
+        res.status(500).json({ success: false, error: 'Erreur interne du serveur.' });
+    }
+});
 
 module.exports = router;

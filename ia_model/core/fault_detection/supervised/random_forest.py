@@ -172,42 +172,76 @@ class RandomForestFaultDetector:
         print(f"Taille du fichier : {os.path.getsize(file_path)/1024:.2f} KB")
 
     def predict_fault(self, input_data):
-        """Fait une prédiction à partir d'une entrée avec gestion robuste"""
         try:
             processed_data = {}
+            risk_factors = []
+            risk_score = 0.2  # Base risk score
+            
             for feature in self.features:
                 if feature in self.label_encoders:
                     le = self.label_encoders[feature]
-                    value = input_data.get(feature, 'UNKNOWN')
+                    value = str(input_data.get(feature, 'UNKNOWN')).upper()
                     
-                    # Gestion des valeurs inconnues
+                    # Risk assessment for unknown values
                     if value not in le.classes_:
+                        risk_factors.append(f"Unknown {feature}: {value}")
+                        risk_score += 0.3
                         value = 'UNKNOWN'
                     
                     processed_data[feature] = le.transform([value])[0]
-                else:
-                    processed_data[feature] = input_data.get(feature, 0)
+                    
+                    # Feature-specific risk assessment
+                    if feature == 'STATUS':
+                        status_risk = self.status_risk.get(value, 0.4)
+                        risk_score += status_risk
+                        if status_risk > 0.3:
+                            risk_factors.append(f"Status risk: {value}")
+                    elif feature == 'WOPRIORITY':
+                        try:
+                            priority = int(value)
+                            if priority <= 2:
+                                risk_score += 0.3
+                                risk_factors.append("High priority work order")
+                        except ValueError:
+                            risk_score += 0.2
+            
+            # Description analysis
+            description = str(input_data.get('description', '')).lower()
+            found_keywords = [k for k in self.keywords if k in description]
+            if found_keywords:
+                keyword_score = min(0.5, 0.15 * len(found_keywords))
+                risk_score += keyword_score
+                risk_factors.append(f"Maintenance keywords found: {', '.join(found_keywords)}")
             
             X_input = pd.DataFrame([processed_data])
-            prediction = self.model.predict(X_input)
-            proba = self.model.predict_proba(X_input)[0]
+            base_proba = self.model.predict_proba(X_input)[0]
             
-            result = {
-                "etat": "panne" if prediction[0] == 1 else "fonctionnel",
-                "confidence": float(proba.max()),
-                "probabilities": {
-                    "fonctionnel": float(proba[0]),
-                    "panne": float(proba[1])
+            # Final probability calculation
+            final_fault_prob = min(0.95, base_proba[1] + risk_score)
+            final_ok_prob = 1 - final_fault_prob
+            
+            return {
+                "success": True,
+                "prediction": {
+                    "state": "En panne" if final_fault_prob > 0.5 else "Fonctionnel",
+                    "details": {
+                        "confidence": f"{max(final_fault_prob, final_ok_prob) * 100:.2f}%",
+                        "risk_level": "Élevé" if final_fault_prob > 0.7 else 
+                                    "Moyen" if final_fault_prob > 0.3 else "Faible",
+                        "probabilities": {
+                            "fonctionnel": f"{final_ok_prob * 100:.2f}%",
+                            "panne": f"{final_fault_prob * 100:.2f}%"
+                        },
+                        "risk_factors": risk_factors
+                    }
                 }
             }
             
-            return result
-            
         except Exception as e:
-            print(f"Erreur de prédiction : {str(e)}")
             return {
+                "success": False,
                 "error": str(e),
-                "status": "error"
+                "details": {"error_type": str(type(e).__name__)}
             }
 
 
