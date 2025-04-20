@@ -8,8 +8,10 @@ const router = express.Router();
 // Route pour /predict for random forest
 router.post('/predict', async (req, res) => {
     let tempFilePath = null;
+    let pyshell = null;
     
     try {
+        // Remove the req.setTimeout as it's not needed
         console.log('Received request data:', req.body);
         
         if (!req.body || !req.body.data) {
@@ -29,27 +31,31 @@ router.post('/predict', async (req, res) => {
             });
         }
 
-        // Définissez le chemin du fichier temporaire dans le dossier supervised
+        // Add description if not present
+        const inputData = {
+            ...req.body.data,
+            description: req.body.data.description || ''
+        };
+
+        // Write complete data including description
         const supervisedDir = path.join(__dirname, '..', 'ia_model', 'core', 'fault_detection', 'supervised');
         tempFilePath = path.join(supervisedDir, `temp_input_${Date.now()}.json`);
-        fs.writeFileSync(tempFilePath, JSON.stringify(req.body.data));
+        fs.writeFileSync(tempFilePath, JSON.stringify(inputData));
         console.log(`Fichier temporaire créé : ${tempFilePath}`);
 
         // Configurez les options pour exécuter le script Python
         const options = {
             mode: 'text',
             pythonPath: 'C:\\Users\\omaim\\AppData\\Local\\Programs\\Python\\Python312\\python.exe',
-            pythonOptions: ['-u', '-X', 'utf8'],  // Mode non bufferisé important!
+            pythonOptions: ['-u', '-X', 'utf8'],
             scriptPath: supervisedDir,
             args: [tempFilePath],
-            timeout: 30000, // Timeout de 30 secondes
-            stderrParser: line => console.error(`[Python stderr]: ${line}`)
+            timeout: 30000, // Increased timeout to 30 seconds
+            stderrParser: line => console.error(`[Python stderr]: ${line}`),
+            terminalOptions: { windowsHide: true }
         };
-        console.log(`Chemin Python utilisé : ${options.pythonPath}`);
-        console.log(`Options pour PythonShell :`, options);
 
-        // Utilisez une implémentation personnalisée pour plus de contrôle
-        const pyshell = new PythonShell('predict.py', options);
+        pyshell = new PythonShell('predict.py', options);
         
         let output = [];
         let hasError = false;
@@ -62,6 +68,8 @@ router.post('/predict', async (req, res) => {
         
         pyshell.on('stderr', function(stderr) {
             console.error(`[Python stderr]: ${stderr}`);
+            hasError = true;
+            errorMessage = stderr;
         });
         
         pyshell.on('error', function(err) {
@@ -70,10 +78,16 @@ router.post('/predict', async (req, res) => {
             console.error(`[Python error]: ${err.message}`);
         });
         
-        // Attendez que le script se termine
-        await new Promise((resolve) => {
-            pyshell.on('close', resolve);
+        // Add timeout promise
+        const timeoutPromise = new Promise((_, reject) => {
+            setTimeout(() => reject(new Error('Timeout')), 30000);
         });
+
+        // Wait for either completion or timeout
+        await Promise.race([
+            new Promise((resolve) => pyshell.on('close', resolve)),
+            timeoutPromise
+        ]);
         
         // Nettoyez le fichier temporaire
         try {
@@ -116,9 +130,11 @@ router.post('/predict', async (req, res) => {
                 prediction: {
                     ...prediction.prediction,
                     timestamp: new Date().toISOString(),
-                    input_data: req.body.data
+                    input_data: inputData
                 }
             };
+            
+            // Log complete response including any fault diagnosis
             console.log('Sending response:', formattedResponse);
             return res.status(200).json(formattedResponse);
         } else {
@@ -131,9 +147,35 @@ router.post('/predict', async (req, res) => {
         
     } catch (error) {
         console.error("Detailed error:", error);
+        
+        // Cleanup pyshell if it exists
+        if (pyshell) {
+            try {
+                pyshell.terminate();
+            } catch (termError) {
+                console.error("Error terminating Python shell:", termError);
+            }
+        }
+
+        // Cleanup temp file if it exists
+        if (tempFilePath && fs.existsSync(tempFilePath)) {
+            try {
+                fs.unlinkSync(tempFilePath);
+            } catch (unlinkError) {
+                console.error("Error deleting temp file:", unlinkError);
+            }
+        }
+
+        let errorMessage = "Erreur lors du traitement de la requête";
+        if (error.message === 'Timeout') {
+            errorMessage = "Le serveur met trop de temps à répondre";
+        } else if (error.message.includes('ENOENT')) {
+            errorMessage = "Erreur de configuration Python";
+        }
+
         return res.status(500).json({
             success: false,
-            error: "Erreur interne du serveur.",
+            error: errorMessage,
             details: error.message || String(error)
         });
     }

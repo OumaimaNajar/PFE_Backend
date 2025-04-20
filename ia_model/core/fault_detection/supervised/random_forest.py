@@ -19,6 +19,11 @@ import os
 import json
 from collections import defaultdict
 
+
+# Add to imports at the top
+import seaborn as sns
+from sklearn.metrics import roc_auc_score
+
 class RandomForestFaultDetector:
     def __init__(self, n_estimators=100, random_state=42):
         """Initialise le détecteur de pannes avec Random Forest"""
@@ -34,6 +39,14 @@ class RandomForestFaultDetector:
         self.features = ['LOCATION', 'STATUS', 'WOPRIORITY', 'ASSETNUM']
         self.label_encoders = defaultdict(LabelEncoder)
         self.feature_categories = {}
+        self.status_risk = {
+            'OPEN': 0.4,
+            'INPRG': 0.3,
+            'WAPPR': 0.3,
+            'CLOSE': 0.1,
+            'COMP': 0.1,
+            'UNKNOWN': 0.4
+        }
 
     def load_and_prepare_data(self, file_path='../../../../data/clean_workorders.csv'):
         """Charge et prépare les données"""
@@ -106,7 +119,7 @@ class RandomForestFaultDetector:
         """Évalue le modèle et génère les visualisations"""
         print("\nÉvaluation du modèle...")
         y_pred = self.model.predict(X_test)
-        y_proba = self.model.predict_proba(X_test)[:, 1]  # Probabilités pour la classe positive
+        y_proba = self.model.predict_proba(X_test)[:, 1]
         
         # Calcul des métriques
         metrics = {
@@ -126,6 +139,7 @@ class RandomForestFaultDetector:
         print(classification_report(y_test, y_pred))
         
         # Matrice de confusion
+        # Fix parameter name in plot_confusion_matrix call
         self.plot_confusion_matrix(y_test, y_pred)
         
         return metrics
@@ -205,25 +219,16 @@ class RandomForestFaultDetector:
                         except ValueError:
                             risk_score += 0.2
             
-            # Description analysis
-            description = str(input_data.get('description', '')).lower()
-            found_keywords = [k for k in self.keywords if k in description]
-            if found_keywords:
-                keyword_score = min(0.5, 0.15 * len(found_keywords))
-                risk_score += keyword_score
-                risk_factors.append(f"Maintenance keywords found: {', '.join(found_keywords)}")
-            
             X_input = pd.DataFrame([processed_data])
             base_proba = self.model.predict_proba(X_input)[0]
             
-            # Final probability calculation
             final_fault_prob = min(0.95, base_proba[1] + risk_score)
             final_ok_prob = 1 - final_fault_prob
             
             return {
                 "success": True,
                 "prediction": {
-                    "state": "En panne" if final_fault_prob > 0.5 else "Fonctionnel",
+                    "etat": "En panne" if final_fault_prob > 0.5 else "Fonctionnel",
                     "details": {
                         "confidence": f"{max(final_fault_prob, final_ok_prob) * 100:.2f}%",
                         "risk_level": "Élevé" if final_fault_prob > 0.7 else 
@@ -296,7 +301,4 @@ def main():
 
 
 if __name__ == "__main__":
-    import seaborn as sns # type: ignore
-    from sklearn.metrics import roc_auc_score
-    
     main()

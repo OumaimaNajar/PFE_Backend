@@ -21,7 +21,15 @@ app.use(rateLimit({
     windowMs: 15 * 60 * 1000,
     max: 100
 }));
-app.use(express.json({ limit: '10kb' }));
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+
+// Add CORS configuration for fault diagnosis
+app.use((req, res, next) => {
+    res.header('Access-Control-Allow-Origin', '*');
+    res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
+    next();
+});
 app.use(express.urlencoded({ extended: true }));
 
 // Logging simplifié
