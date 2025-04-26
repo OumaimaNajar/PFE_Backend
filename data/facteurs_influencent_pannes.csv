@@ -1,51 +1,49 @@
-type_panne;facteur;valeur;pourcentage;Description;description;action_recommandee;action_secondaire;code_probleme;code_defaillance
-TURN WESTERN;Duree moyenne;3.44 heures;100.0;Duree moyenne des pannes de type 'AUTRE';aa;action ici ici;action ici ici;PB_GEN;PB_GEN
-AUTRE;Gravite;Moyenne;41.66666666666667;Niveau de gravite le plus frequent pour les pannes de type 'AUTRE';aaa;action ici ici;action ici ici;PB_GEN;PB_GEN
-AUTRE;Machine;Pompe;25.0;Machine la plus frequente pour les pannes de type 'AUTRE';aaa;action ici ici;action ici ici;PB_GEN;PB_GEN
-AUTRE;Site;Usine D;25.0;Site le plus frequent pour les pannes de type 'AUTRE';aaa;action ici ici;action ici ici;PB_GEN;PB_GEN
-AUTRE;Action recommandee;Inconnue;0.0;Action la plus recommandee pour les pannes de type 'AUTRE';aaa;action ici ici;action ici ici;PB_GEN;PB_GEN
-BLOCAGE;Gravite;elevee;100.0;Niveau de gravite le plus frequent pour les pannes de type 'BLOCAGE';nnn;action ici ici;action ici ici;PB_GEN;PB_GEN
-BLOCAGE;Duree moyenne;4.25 heures;100.0;Duree moyenne des pannes de type 'BLOCAGE';aa;action ici ici;action ici ici;PB_GEN;PB_GEN
-BLOCAGE;Action recommandee;Nettoyer et debloquer les mecanismes;100.0;Action la plus recommandee pour les pannes de type 'BLOCAGE';nnn;action ici ici;action ici ici;PB_GEN;PB_GEN
-BLOCAGE;Machine;Convoyeur;50.0;Machine la plus frequente pour les pannes de type 'BLOCAGE';nnn;action ici ici;action ici ici;PB_GEN;PB_GEN
-BLOCAGE;Site;Usine D;50.0;Site le plus frequent pour les pannes de type 'BLOCAGE';nnn;action ici ici;action ici ici;PB_GEN;PB_GEN
-COLMATAGE;Machine;Filtre;100.0;Machine la plus frequente pour les pannes de type 'COLMATAGE';sss;action ici ici;action ici ici;PB_GEN;PB_GEN
-COLMATAGE;Gravite;elevee;100.0;Niveau de gravite le plus frequent pour les pannes de type 'COLMATAGE';sss;action ici ici;action ici ici;PB_GEN;PB_GEN
-COLMATAGE;Duree moyenne;3.00 heures;100.0;Duree moyenne des pannes de type 'COLMATAGE';aa;action ici ici;action ici ici;PB_GEN;PB_GEN
-COLMATAGE;Site;Usine B;100.0;Site le plus frequent pour les pannes de type 'COLMATAGE';sss;action ici ici;action ici ici;PB_GEN;PB_GEN
-COLMATAGE;Action recommandee;Nettoyer ou remplacer les filtres;100.0;Action la plus recommandee pour les pannes de type 'COLMATAGE';sss;action ici ici;action ici ici;PB_GEN;PB_GEN
-DEFAILLANCE MECANIQUE;Machine;Roulement;100.0;Machine la plus frequente pour les pannes de type 'DEFAILLANCE MECANIQUE';;action ici ici;action ici ici;PB_GEN;PB_GEN
-DEFAILLANCE MECANIQUE;Gravite;elevee;100.0;Niveau de gravite le plus frequent pour les pannes de type 'DEFAILLANCE MECANIQUE';;action ici ici;action ici ici;PB_GEN;PB_GEN
-DEFAILLANCE MECANIQUE;Duree moyenne;3.80 heures;100.0;Duree moyenne des pannes de type 'DEFAILLANCE MECANIQUE';aa;action ici ici;action ici ici;PB_GEN;PB_GEN
-DEFAILLANCE MECANIQUE;Site;Usine B;100.0;Site le plus frequent pour les pannes de type 'DEFAILLANCE MECANIQUE';;action ici ici;action ici ici;PB_GEN;PB_GEN
-DEFAILLANCE MECANIQUE;Action recommandee;Remplacer les pièces usees;100.0;Action la plus recommandee pour les pannes de type DA;;action ici ici;action ici ici;;PB_GEN
-DEFAILLANCE SYSTEME;Gravite;Critique;100.0;Niveau de gravite le plus frequent pour les pannes de type 'DEFAILLANCE SYSTEME';;action ici ici;action ici ici;;
-DEFAILLANCE SYSTEME;Duree moyenne;5.83 heures;100.0;Duree moyenne des pannes de type 'DEFAILLANCE SYSTEME';aa;action ici ici;action ici ici;;
-DEFAILLANCE SYSTEME;Action recommandee;Redemarrer le systeme et verifier la configuration;100.0;Action la plus recommandee pour;;action ici ici;action ici ici;;
-DEFAILLANCE SYSTEME;Machine;Automate;66.66666666666666;Machine la plus frequente pour les pannes de type 'DEFAILLANCE SYSTEME';;action ici ici;action ici ici;;
-DEFAILLANCE SYSTEME;Site;Usine A;66.66666666666666;Site le plus frequent pour les pannes de type 'DEFAILLANCE SYSTEME';;action ici ici;action ici ici;;
-FUITE;Duree moyenne;3.34 heures;100.0;Duree moyenne des pannes de type 'FUITE';aa;action ici ici;action ici ici;;
-FUITE;Action recommandee;Remplacer les joints et verifier l'etancheite;100.0;Action la plus recommandee pour les pannes de type;uuu;action ici ici;action ici ici;;
-FUITE;Gravite;Critique;60.0;Niveau de gravite le plus frequent pour les pannes de type 'FUITE';aaa;action ici ici;action ici ici;;
-FUITE;Site;Usine E;60.0;Site le plus frequent pour les pannes de type 'FUITE';aaa;action ici ici;action ici ici;;
-FUITE;Machine;Reservoir;40.0;Machine la plus frequente pour les pannes de type 'FUITE';aaa;action ici ici;action ici ici;;
-PANNE ELECTRIQUE;Machine;Moteur;100.0;Machine la plus frequente pour les pannes de type 'PANNE ELECTRIQUE';;action ici ici;action ici ici;;
-PANNE ELECTRIQUE;Gravite;Critique;100.0;Niveau de gravite le plus frequent pour les pannes de type 'PANNE ELECTRIQUE';;action ici ici;action ici ici;;
-PANNE ELECTRIQUE;Duree moyenne;5.50 heures;100.0;Duree moyenne des pannes de type 'PANNE ELECTRIQUE';aa;action ici ici;action ici ici;;
-PANNE ELECTRIQUE;Site;Usine E;100.0;Site le plus frequent pour les pannes de type 'PANNE ELECTRIQUE';;action ici ici;action ici ici;;
-PANNE ELECTRIQUE;Action recommandee;Remplacer les composants electriques defectueux;100.0;Action la plus recommandee pour les pannes;;action ici ici;action ici ici;;
-RUPTURE MECANIQUE;Machine;Courroie;100.0;Machine la plus frequente pour les pannes de type 'RUPTURE MECANIQUE';;action ici ici;action ici ici;;
-RUPTURE MECANIQUE;Gravite;elevee;100.0;Niveau de gravite le plus frequent pour les pannes de type 'RUPTURE MECANIQUE';;action ici ici;action ici ici;;
-RUPTURE MECANIQUE;Duree moyenne;3.00 heures;100.0;Duree moyenne des pannes de type 'RUPTURE MECANIQUE';aa;action ici ici;action ici ici;;
-RUPTURE MECANIQUE;Action recommandee;Remplacer les pieces cassees;100.0;Action la plus recommandee pour les pannes de type 'RUPTURE';;action ici ici;;;
-RUPTURE MECANIQUE;Site;Usine B;50.0;Site le plus frequent pour les pannes de type 'RUPTURE MECANIQUE';;action ici ici;;;
-SURCHAUFFE;Gravite;Critique;100.0;Niveau de gravitee le plus frequent pour les pannes de type 'SURCHAUFFE';   ;action ici ici;;;
-SURCHAUFFE;Duree moyenne;4.75 heures;100.0;Duree moyenne des pannes de type 'SURCHAUFFE';aa;action ici ici;;;
-SURCHAUFFE;Site;Usine D;100.0;Site le plus frequent pour les pannes de type 'SURCHAUFFE';   ;action ici ici;;;
-SURCHAUFFE;Action recommandee;Verifier le systeme de refroidissement;100.0;Action la plus recommandee pour les pannes de type 'SUR;sss;action ici ici;;;
-SURCHAUFFE;Machine;Moteur;50.0;Machine la plus frequente pour les pannes de type 'SURCHAUFFE';   ;action ici ici;;;
-VIBRATION EXCESSIVE;Machine;Pompe;100.0;Machine la plus frequente pour les pannes de type 'VIBRATION EXCESSIVE';;action ici ici;;;
-VIBRATION EXCESSIVE;Gravite;Critique;100.0;Niveau de gravite le plus frequent pour les pannes de type 'VIBRATION EXCESSIVE';;action ici ici;;;
-VIBRATION EXCESSIVE;Duree moyenne;6.50 heures;100.0;Duree moyenne des pannes de type 'VIBRATION EXCESSIVE';aa;action ici ici;;;
-VIBRATION EXCESSIVE;Site;Usine B;100.0;Site le plus frequent pour les pannes de type 'VIBRATION EXCESSIVE';;action ici ici;;;
-VIBRATION EXCESSIVE;Action recommandee;Verifier l'alignement et les fixations;100.0;Action la plus recommandee pour les pannes de t;;action ici ici;;;
+type_panne;facteur;valeur;pourcentage;description;;action_recommandee;action_secondaire;code_probleme;code_defaillance
+Defaillance capteur;Duree moyenne;3.44 heures;100.0;Duree moyenne des pannes de type 'AUTRE';;Vérifier l'état des capteurs;Remplacer les capteurs défectueux;DF_CAP;PB_CAP
+SURCHAUFFE;Gravite;Moyenne;41.66666666666667;Niveau de gravite le plus frequent pour les pannes de type 'AUTRE';;Inspecter le système de refroidissement;Nettoyer les ventilateurs;PB_SUR;PB_CHAU
+Defaillance capteur;Machine;Pompe;25.0;Machine la plus frequente pour les pannes de type 'AUTRE';;Vérifier l'état des capteurs;Remplacer les capteurs défectueux;DF_CAP;PB_CAP
+TURN WESTERN;Duree moyenne;3.44 heures;100.0;Duree moyenne des pannes de type 'AUTRE';;Vérifier l'état des capteurs;Remplacer les composants usés;DF_GEN;PB_GEN
+SURCHAUFFE;Action recommandee;Inconnue;0.0;Action la plus recommandee pour les pannes de type 'AUTRE';;Inspecter le système de refroidissement;Nettoyer les ventilateurs;PB_SUR;PB_SUR
+Fuite hydraulique;Gravite;elevee;100.0;Niveau de gravite le plus frequent pour les pannes de type 'BLOCAGE';;Identifier la source de la fuite;Remplacer les joints;PB_HYD;PB_HYD
+VIBRATION EXCESSIVE;Duree moyenne;4.25 heures;100.0;Duree moyenne des pannes de type 'BLOCAGE';;Équilibrer les pièces;Vérifier les fixations;PB_VIB;PB_VIB
+Usure mecanique;Action recommandee;Nettoyer et debloquer les mecanismes;100.0;Action la plus recommandee pour les pannes de type 'BLOCAGE';;Remplacer la courroie;Vérifier l'alignement;PB_MECA;PB_MECA
+Panne pneumatique;Machine;Convoyeur;50.0;Machine la plus frequente pour les pannes de type 'BLOCAGE';;Inspecter le système pneumatique;Remplacer les composants usés;PB_PNEU;PB_PNEU
+Fuite hydraulique;Site;Usine D;50.0;Site le plus frequent pour les pannes de type 'BLOCAGE';;Identifier la source de la fuite;Remplacer les joints;PB_HYD;PB_HYD
+SURCHAUFFE;Machine;Filtre;100.0;Machine la plus frequente pour les pannes de type 'COLMATAGE';;Inspecter le système de refroidissement;Nettoyer les ventilateurs;PB_SUR;PB_SUR
+Fuite hydraulique;Gravite;elevee;100.0;Niveau de gravite le plus frequent pour les pannes de type 'COLMATAGE';;Identifier la source de la fuite;Remplacer les joints;PB_HYD;PB_HYD
+Fuite hydraulique;Duree moyenne;3.00 heures;100.0;Duree moyenne des pannes de type 'COLMATAGE';;Identifier la source de la fuite;Remplacer les joints;PB_HYD;PB_HYD
+Fuite hydraulique;Site;Usine B;100.0;Site le plus frequent pour les pannes de type 'COLMATAGE';;Identifier la source de la fuite;Remplacer les joints;PB_HYD;PB_HYD
+Panne pneumatique;Action recommandee;Nettoyer ou remplacer les filtres;100.0;Action la plus recommandee pour les pannes de type 'COLMATAGE';;Inspecter le système pneumatique;Remplacer les composants usés;PB_PNEU;PB_PNEU
+SURCHAUFFE;Machine;Roulement;100.0;Machine la plus frequente pour les pannes de type 'DEFAILLANCE MECANIQUE';;Inspecter le système de refroidissement;Nettoyer les ventilateurs;PB_SUR;PB_SUR
+Fuite hydraulique;Gravite;elevee;100.0;Niveau de gravite le plus frequent pour les pannes de type 'DEFAILLANCE MECANIQUE';;Identifier la source de la fuite;Remplacer les joints;PB_HYD;PB_HYD
+Fuite hydraulique;Duree moyenne;3.80 heures;100.0;Duree moyenne des pannes de type 'DEFAILLANCE MECANIQUE';;Identifier la source de la fuite;Remplacer les joints;PB_HYD;PB_HYD
+Fuite hydraulique;Site;Usine B;100.0;Site le plus frequent pour les pannes de type 'DEFAILLANCE MECANIQUE';;Identifier la source de la fuite;Remplacer les joints;PB_HYD;PB_HYD
+Panne pneumatique;Action recommandee;Remplacer les pièces usees;100.0;Action la plus recommandee pour les pannes de type DA;;Inspecter le système pneumatique;Remplacer les composants usés;PB_PNEU;PB_PNEU
+Fuite hydraulique;Gravite;Critique;100.0;Niveau de gravite le plus frequent pour les pannes de type 'DEFAILLANCE SYSTEME';;Identifier la source de la fuite;Remplacer les joints;PB_HYD;PB_HYD
+DAfaut logiciel;Duree moyenne;5.83 heures;100.0;Duree moyenne des pannes de type 'DEFAILLANCE SYSTEME';;Redémarrer le système;Vérifier les logs d'erreur;PB_LOG;PB_LOG
+DAfaut logiciel;Action recommandee;Redemarrer le systeme et verifier la configuration;100.0;Action la plus recommandee pour;;Redémarrer le système;Vérifier les logs d'erreur;PB_LOG;PB_LOG
+DAfaut logiciel;Machine;Automate;66.66666666666666;Machine la plus frequente pour les pannes de type 'DEFAILLANCE SYSTEME';;Redémarrer le système;Vérifier les logs d'erreur;PB_LOG;PB_LOG
+ProblAme de;Site;Usine A;66.66666666666666;Site le plus frequent pour les pannes de type 'DEFAILLANCE SYSTEME';;"""Vérifier les connexions électriques";Tester les composants;PB_ELEC;PB_ELEC
+ProblAme de;Duree moyenne;3.34 heures;100.0;Duree moyenne des pannes de type 'FUITE';;Vérifier les connexions électriques;Tester les composants;PB_ELEC;PB_ELEC
+ProblAme de;Action recommandee;Remplacer les joints et verifier l'etancheite;100.0;Action la plus recommandee pour les pannes de type;;Vérifier les connexions électriques;Tester les composants;PB_ELEC;PB_ELEC
+ProblAme de;Gravite;Critique;60.0;Niveau de gravite le plus frequent pour les pannes de type 'FUITE';;Vérifier les connexions électriques;Tester les composants;PB_ELEC;PB_ELEC
+Panne pneumatique;Site;Usine E;60.0;Site le plus frequent pour les pannes de type 'FUITE';;Inspecter le système pneumatique;Remplacer les composants usés;PB_PNEU;PB_PNEU
+ProblAme de;Machine;Reservoir;40.0;Machine la plus frequente pour les pannes de type 'FUITE';;Vérifier les connexions électriques;Tester les composants;PB_ELEC;PB_ELEC
+ProblAme de;Machine;Moteur;100.0;Machine la plus frequente pour les pannes de type 'PANNE ELECTRIQUE';;Vérifier les connexions électriques;Tester les composants;PB_ELEC;PB_ELEC
+Surchauffe moteur;Gravite;Critique;100.0;Niveau de gravite le plus frequent pour les pannes de type 'PANNE ELECTRIQUE';;Remplacer la courroie;Vérifier l'alignement;PB_MECA;PB_MECA
+Surchauffe moteur;Duree moyenne;5.50 heures;100.0;Duree moyenne des pannes de type 'PANNE ELECTRIQUE';;Inspecter le système de refroidissement;Nettoyer les ventilateurs;PB_SUR;PB_SUR
+ProblAme de;Site;Usine E;100.0;Site le plus frequent pour les pannes de type 'PANNE ELECTRIQUE';;"""Vérifier les connexions électriques";Tester les composants;PB_ELEC;PB_ELEC
+ProblAme de;Action recommandee;Remplacer les composants electriques defectueux;100.0;Action la plus recommandee pour les pannes;;"""Vérifier les connexions électriques";Tester les composants;PB_ELEC;PB_ELEC
+ProblAme de;Machine;Courroie;100.0;Machine la plus frequente pour les pannes de type 'RUPTURE MECANIQUE';;"""Vérifier les connexions électriques";Tester les composants;PB_ELEC;PB_ELEC
+Surchauffe moteur;Gravite;elevee;100.0;Niveau de gravite le plus frequent pour les pannes de type 'RUPTURE MECANIQUE';;Inspecter le système de refroidissement;Nettoyer les ventilateurs;PB_SUR;PB_SUR
+DAfaut logiciel;Duree moyenne;3.00 heures;100.0;Duree moyenne des pannes de type 'RUPTURE MECANIQUE';;Redémarrer le système;Vérifier les logs d'erreur;PB_LOG;PB_LOG
+DAfaut logiciel;Action recommandee;Remplacer les pieces cassees;100.0;Action la plus recommandee pour les pannes de type 'RUPTURE';;Redémarrer le système;Vérifier les logs d'erreur;PB_LOG;PB_LOG
+DAfaut logiciel;Site;Usine B;50.0;Site le plus frequent pour les pannes de type 'RUPTURE MECANIQUE';;Redémarrer le système;Vérifier les logs d'erreur;PB_LOG;PB_LOG
+Fuite hydraulique;Gravite;Critique;100.0;Niveau de gravitee le plus frequent pour les pannes de type 'SURCHAUFFE';;Identifier la source de la fuite;Remplacer les joints;pb_HYD;pb_HYD
+Panne pneumatique;Duree moyenne;4.75 heures;100.0;Duree moyenne des pannes de type 'SURCHAUFFE';;Inspecter le système pneumatique;Remplacer les composants usés;PB_PNEU;PB_PNEU
+Panne pneumatique;Site;Usine D;100.0;Site le plus frequent pour les pannes de type 'SURCHAUFFE';;Inspecter le système pneumatique;Remplacer les composants usés;PB_PNEU;PB_PNEU
+Usure mAcanique;Action recommandee;Verifier le systeme de refroidissement;100.0;Action la plus recommandee pour les pannes de type 'SUR;;Remplacer la courroie;Vérifier l'alignement;PB_MECA;PB_MECA
+Usure mAcanique;Machine;Moteur;50.0;Machine la plus frequente pour les pannes de type 'SURCHAUFFE';;Remplacer la courroie;Vérifier l'alignement;PB_MECA;PB_MECA
+Fuite hydraulique;Machine;Pompe;100.0;Machine la plus frequente pour les pannes de type 'VIBRATION EXCESSIVE';;Identifier la source de la fuite;Remplacer les joints;PB_HYD;PB_HYD
+Fuite hydraulique;Gravite;Critique;100.0;Niveau de gravite le plus frequent pour les pannes de type 'VIBRATION EXCESSIVE';;Identifier la source de la fuite;Remplacer les joints;PB_HYD;PB_HYD
+Fuite hydraulique;Duree moyenne;6.50 heures;100.0;Duree moyenne des pannes de type 'VIBRATION EXCESSIVE';;Identifier la source de la fuite;Remplacer les joints;PB_HYD;PB_HYD

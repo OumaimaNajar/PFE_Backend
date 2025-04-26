@@ -16,7 +16,7 @@ class FaultTypeClassifier:
                                    'data', 'pannes_industrielles_organisees.csv')
             
             # Chargement des données
-            self.df = pd.read_csv(csv_path)
+            self.df = pd.read_csv(csv_path, sep=';', encoding='utf-8')
             
             # Vérifier les colonnes du CSV et ajouter des colonnes manquantes si nécessaire
             required_columns = ['type_panne', 'machine', 'description', 'gravite', 
