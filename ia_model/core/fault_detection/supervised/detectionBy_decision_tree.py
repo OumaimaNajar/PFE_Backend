@@ -1,9 +1,9 @@
-# random_forest.py
+# decision_tree.py
 import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
 from sklearn.model_selection import train_test_split
-from sklearn.ensemble import RandomForestClassifier
+from sklearn.tree import DecisionTreeClassifier, plot_tree
 from sklearn.metrics import (
     classification_report, 
     confusion_matrix, 
@@ -19,16 +19,15 @@ import os
 import json
 from collections import defaultdict
 
-
 # Add to imports at the top
 import seaborn as sns
 from sklearn.metrics import roc_auc_score
 
-class RandomForestFaultDetector:
-    def __init__(self, n_estimators=100, random_state=42):
-        """Initialise le détecteur de pannes avec Random Forest"""
-        self.model = RandomForestClassifier(
-            n_estimators=n_estimators,
+class DecisionTreeFaultDetector:
+    def __init__(self, max_depth=10, random_state=42):
+        """Initialise le détecteur de pannes avec Decision Tree"""
+        self.model = DecisionTreeClassifier(
+            max_depth=max_depth,
             random_state=random_state,
             class_weight='balanced'
         )
@@ -99,7 +98,7 @@ class RandomForestFaultDetector:
         return train_test_split(X, y, test_size=0.3, random_state=42, stratify=y)
 
     def train_model(self, X_train, y_train):
-        """Entraîne le modèle Random Forest avec validation croisée intégrée"""
+        """Entraîne le modèle Decision Tree"""
         print("\nEntraînement du modèle...")
         self.model.fit(X_train, y_train)
         
@@ -139,8 +138,10 @@ class RandomForestFaultDetector:
         print(classification_report(y_test, y_pred))
         
         # Matrice de confusion
-        # Fix parameter name in plot_confusion_matrix call
-        self.plot_confusion_matrix(y_true, y_pred)
+        self.plot_confusion_matrix(y_test, y_pred)
+        
+        # Visualisation de l'arbre de décision
+        self.visualize_tree(X_train.columns)
         
         return metrics
 
@@ -154,14 +155,27 @@ class RandomForestFaultDetector:
                     xticklabels=['Fonctionnel', 'Panne'],
                     yticklabels=['Fonctionnel', 'Panne'])
         
-        plt.title('Matrice de Confusion - Random Forest')
+        plt.title('Matrice de Confusion - Decision Tree')
         plt.ylabel('Vérité terrain')
         plt.xlabel('Prédiction')
         plt.tight_layout()
-        plt.savefig('confusion_matrix.png')
+        plt.savefig('confusion_matrix_dt.png')
         plt.show()
 
-    def save_model(self, file_name='random_forest_model.pkl'):
+    def visualize_tree(self, feature_names, max_depth=3):
+        """Visualise l'arbre de décision (limité à max_depth pour la lisibilité)"""
+        plt.figure(figsize=(20, 10))
+        plot_tree(self.model, 
+                  max_depth=max_depth, 
+                  feature_names=feature_names,
+                  class_names=['Fonctionnel', 'En panne'],
+                  filled=True, 
+                  rounded=True)
+        plt.title(f'Visualisation de l\'arbre de décision (profondeur max: {max_depth})')
+        plt.savefig('decision_tree_visualisation.png')
+        plt.show()
+
+    def save_model(self, file_name='decision_tree_model.pkl'):
         """Sauvegarde le modèle et les préprocesseurs dans le même répertoire que le script"""
         # Obtenir le chemin absolu du répertoire contenant ce script
         script_dir = os.path.dirname(os.path.abspath(__file__))
@@ -253,11 +267,11 @@ class RandomForestFaultDetector:
 def main():
     """Fonction principale pour exécuter le pipeline complet"""
     print("\n" + "="*50)
-    print("=== Détection de Pannes avec Random Forest ===")
+    print("=== Détection de Pannes avec Decision Tree ===")
     print("="*50 + "\n")
     
     try:
-        detector = RandomForestFaultDetector()
+        detector = DecisionTreeFaultDetector()
         
         # 1. Chargement des données
         print("[1/4] Chargement et préparation des données...")
@@ -302,28 +316,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-
-import pandas as pd
-
-def afficher_facteurs_influents(type_panne, chemin_csv="c:/Users/omaim/backend_ia/data/facteurs_influencent_pannes.csv"):
-    """
-    Affiche les facteurs influençant le type de panne détecté.
-    :param type_panne: (str) Le type de panne détecté (ex: 'SURCHAUFFE')
-    :param chemin_csv: (str) Chemin vers le fichier CSV des facteurs
-    """
-    try:
-        df = pd.read_csv(chemin_csv, sep=';')
-        facteurs = df[df['type_panne'].str.upper() == type_panne.upper()]
-        if facteurs.empty:
-            print(f"Aucun facteur trouvé pour le type de panne : {type_panne}")
-        else:
-            print(f"Facteurs influençant la panne '{type_panne}':")
-            for _, row in facteurs.iterrows():
-                print(f"- {row['facteur']} : {row['valeur']} ({row['pourcentage']}%) -> {row['description']}")
-    except Exception as e:
-        print(f"Erreur lors de la lecture des facteurs : {e}")
-
-# Exemple d'utilisation après la classification :
-# type_panne_detecte = "SURCHAUFFE"
-# afficher_facteurs_influents(type_panne_detecte)

@@ -1,0 +1,9 @@
+{
+  "LOCATION": "PUMP-123", 
+  "STATUS": "CRITICAL", 
+  "WOPRIORITY": 1, 
+  "ASSETNUM": "A1234", 
+  "fault_probability": "75%", 
+  "risk_level": "High", 
+  "fault_type": "DÉFAILLANCE MÉCANIQUE"
+}

@@ -15,19 +15,8 @@ def load_model():
         print(f"Failed to load model: {str(e)}")
         raise
 
-def predict():
-    if len(sys.argv) != 2:
-        print(json.dumps({"error": "Input file path required"}))
-        return
-
-    input_file = sys.argv[1]
-    
+def predict(input_data):
     try:
-        # Load and validate input data
-        print(f"Reading input from: {input_file}")
-        with open(input_file, 'r') as f:
-            input_data = json.load(f)
-        
         # Load model
         model_data = load_model()
         
@@ -46,10 +35,13 @@ def predict():
         
         # If fault detected, classify it
         fault_diagnosis = None
+        influencing_factors = []
         if is_fault:
             classifier = FaultTypeClassifier()
             fault_diagnosis = classifier.predict_fault_type(input_data)
-        
+            if fault_diagnosis and "type" in fault_diagnosis:
+                influencing_factors = get_influencing_factors(fault_diagnosis["type"])
+
         result = {
             "success": True,
             "prediction": {
@@ -62,16 +54,17 @@ def predict():
                         "panne": f"{final_fault_prob * 100:.2f}%"
                     },
                     "risk_factors": get_risk_factors(input_data),
-                    "fault_diagnosis": fault_diagnosis
+                    "fault_diagnosis": fault_diagnosis,
+                    "influencing_factors": influencing_factors
                 },
                 "message": "Analyse complétée avec succès"
             }
         }
         
-        print(json.dumps(result))
+        return result
         
     except Exception as e:
-        print(json.dumps({
+        return {
             "success": False,
             "error": str(e),
             "prediction": {
@@ -88,7 +81,7 @@ def predict():
                 },
                 "message": "Une erreur s'est produite lors de l'analyse"
             }
-        }))
+        }
 
 def process_input_data(input_data, model_data):
     processed_data = {}
@@ -158,5 +151,67 @@ def get_risk_level(fault_prob):
         return "Moyen"
     return "Faible"
 
+def get_influencing_factors(fault_type):
+    try:
+        base_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(__file__)))))
+        csv_path = os.path.join(base_dir, 'data', 'facteurs_influencent_pannes.csv')
+        
+        if not os.path.exists(csv_path):
+            print(f"[ERREUR] Fichier CSV non trouvé : {csv_path}")
+            return []
+            
+        # Lecture du CSV avec gestion des encodages
+        try:
+            df = pd.read_csv(csv_path, sep=';', encoding='utf-8')
+        except UnicodeDecodeError:
+            df = pd.read_csv(csv_path, sep=';', encoding='latin1')
+            
+        # Normalisation du type de panne (suppression des guillemets et du point)
+        fault_type_norm = fault_type.upper().strip().replace('"', '').replace('.', '')
+        
+        # Recherche des facteurs
+        facteurs = df[df['type_panne'].str.upper().str.strip() == fault_type_norm]
+        
+        if facteurs.empty:
+            # Recherche partielle si aucune correspondance exacte
+            for type_existant in df['type_panne'].unique():
+                if fault_type_norm in type_existant.upper().strip():
+                    facteurs = df[df['type_panne'] == type_existant]
+                    break
+            
+        if not facteurs.empty:
+            result = []
+            for _, row in facteurs.iterrows():
+                factor = {
+                    "facteur": str(row['facteur']),
+                    "valeur": str(row['valeur']),
+                    "pourcentage": float(row['pourcentage']),
+                    "description": str(row.get('Description', '')),  # Utilisation de 'Description' au lieu de 'description'
+                    "action_recommandee": str(row.get('action_recommandee', '')),
+                    "action_secondaire": str(row.get('action_secondaire', '')),
+                    "code_probleme": str(row.get('code_probleme', '')),
+                    "code_defaillance": str(row.get('code_defaillance', ''))
+                }
+                result.append(factor)
+            return result
+        
+        return []
+        
+    except Exception as e:
+        print(f"[ERREUR] Exception lors de la lecture des facteurs : {str(e)}")
+        return [{"error": str(e)}]
+
 if __name__ == "__main__":
-    predict()
+    if len(sys.argv) != 2:
+        print(json.dumps({"error": "Input file path required"}))
+        sys.exit(1)
+
+    input_file = sys.argv[1]
+    try:
+        with open(input_file, 'r') as f:
+            input_data = json.load(f)
+        result = predict(input_data)
+        print(json.dumps(result))
+    except Exception as e:
+        print(json.dumps({"error": str(e)}))
+        sys.exit(1)

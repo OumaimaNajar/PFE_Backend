@@ -1,0 +1,11 @@
+{
+  "LOCATION": "BR430",
+  "STATUS": "COMP",
+  "WOPRIORITY": "6",
+  "ASSETNUM": "11430",
+  "Description": "Condensate Return Pump Quarterly Service",
+  "description": "",
+  "fault_type": "TURN WESTERN",
+  "fault_probability": "83.72%",
+  "risk_level": "Élevé"
+}

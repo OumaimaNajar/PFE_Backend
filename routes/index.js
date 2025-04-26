@@ -134,9 +134,52 @@ router.post('/predict', async (req, res) => {
                 }
             };
             
-            // Log complete response including any fault diagnosis
-            console.log('Sending response:', formattedResponse);
-            return res.status(200).json(formattedResponse);
+            // If fault is detected, analyze factors
+            if (prediction.prediction.etat === "En panne") {
+                try {
+                    const classifierOptions = {
+                        mode: 'text',
+                        pythonPath: 'C:\\Users\\omaim\\AppData\\Local\\Programs\\Python\\Python312\\python.exe',
+                        pythonOptions: ['-u', '-X', 'utf8'],
+                        scriptPath: path.join(__dirname, '..', 'ia_model', 'core', 'fault_detection', 'supervised'),
+                        args: [prediction.prediction.type], 
+                        terminalOptions: { windowsHide: true }
+                    };
+
+                    const classifierResult = await new Promise((resolve, reject) => {
+                        const pyshellClassifier = new PythonShell('fault_classifier.py', classifierOptions);
+                        let output = [];
+                        pyshellClassifier.on('message', (message) => {
+                            console.log('[Facteurs Influents]:', message);
+                            output.push(message);
+                        });
+                        pyshellClassifier.on('error', (err) => {
+                            console.error('[Facteurs Influents Error]:', err);
+                            reject(err);
+                        });
+                        pyshellClassifier.on('close', () => resolve(output));
+                    });
+
+                    if (classifierResult && classifierResult.length > 0) {
+                        const facteurs = JSON.parse(classifierResult[classifierResult.length - 1]);
+                        formattedResponse.prediction.facteurs_influents = facteurs;
+                        
+                        // Ajout des colonnes si disponibles
+                        if (facteurs && Array.isArray(facteurs)) {
+                            formattedResponse.prediction.facteurs_columns = Object.keys(facteurs[0] || {});
+                        } else {
+                            formattedResponse.prediction.facteurs_columns = [];
+                        }
+                    }
+                } catch (classifierError) {
+                    console.error("Erreur fault_classifier:", classifierError);
+                    formattedResponse.prediction.facteurs_influents = [];
+                    formattedResponse.prediction.facteurs_columns = [];
+                }
+            }
+
+            // Envoi de la réponse finale
+            return res.json(formattedResponse);
         } else {
             return res.status(500).json({
                 success: false,
@@ -182,62 +225,5 @@ router.post('/predict', async (req, res) => {
 });
 
 
-// Route pour /api/svm-predict
-router.post('/svm-predict', async (req, res) => {
-    try {
-        console.log("Requête reçue pour /api/svm-predict");
-        const inputData = req.body.data;
-
-        // Définir les champs requis pour le modèle SVM
-        const requiredFields = ['WOPRIORITY', 'LOCATION', 'STATUS', 'ASSETNUM'];
-
-        // Valider les données d'entrée
-        const missingFields = requiredFields.filter((field) => !(field in inputData));
-        if (missingFields.length > 0) {
-            console.error(`Champs manquants : ${missingFields.join(', ')}`);
-            return res.status(400).json({
-                success: false,
-                error: `Champs manquants : ${missingFields.join(', ')}`,
-            });
-        }
-
-        console.log("Données d'entrée validées :", inputData);
-
-        const options = {
-            mode: 'text',
-            pythonPath: 'C:\\Users\\omaim\\AppData\\Local\\Programs\\Python\\Python312\\python.exe',
-            scriptPath: path.join(__dirname, '../ia_model/core/diagnosis'),
-            args: [JSON.stringify(inputData)],
-        };
-
-        console.log("Options pour PythonShell :", options);
-
-        PythonShell.run('svm_predict.py', options, (err, results) => {
-            if (err) {
-                console.error('Erreur lors de l\'exécution du script Python :', err);
-                return res.status(500).json({ success: false, error: 'Erreur lors de l\'exécution du modèle.' });
-            }
-
-            console.log("Résultats bruts retournés par PythonShell :", results);
-
-            if (!results || results.length === 0) {
-                console.error('Aucun résultat retourné par le script Python.');
-                return res.status(500).json({ success: false, error: 'Aucun résultat retourné par le modèle.' });
-            }
-
-            try {
-                const prediction = JSON.parse(results[0]);
-                console.log("Prédiction retournée :", prediction);
-                res.json({ success: true, prediction });
-            } catch (parseError) {
-                console.error('Erreur lors du parsing des résultats Python :', parseError);
-                res.status(500).json({ success: false, error: 'Erreur lors du traitement des résultats.' });
-            }
-        });
-    } catch (error) {
-        console.error('Erreur interne du serveur :', error);
-        res.status(500).json({ success: false, error: 'Erreur interne du serveur.' });
-    }
-});
 
 module.exports = router;
