@@ -190,7 +190,7 @@ class FaultTypeClassifier:
         return {
             "type": predicted_type,
             "confidence": f"{confidence * 100:.2f}%",
-            "suggested_actions": self.get_suggested_actions(predicted_type),
+            
             "maximo_codes": self.get_maximo_codes(predicted_type),
             "matched_patterns": {
                 "keywords": [k for k in self.fault_types[predicted_type]['keywords'] 

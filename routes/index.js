@@ -134,6 +134,41 @@ router.post('/predict', async (req, res) => {
                 }
             };
             
+            // Calculer et afficher l'accuracy
+            try {
+                const accuracyOptions = {
+                    mode: 'text',
+                    pythonPath: 'C:\\Users\\omaim\\AppData\\Local\\Programs\\Python\\Python312\\python.exe',
+                    pythonOptions: ['-u', '-X', 'utf8'],
+                    scriptPath: path.join(__dirname, '..', 'ia_model', 'core', 'fault_detection', 'supervised'),
+                    terminalOptions: { windowsHide: true }
+                };
+
+                const accuracyResult = await new Promise((resolve, reject) => {
+                    const pyshellAccuracy = new PythonShell('test_accuracy.py', accuracyOptions);
+                    let output = [];
+                    
+                    pyshellAccuracy.on('message', (message) => {
+                        console.log('[Accuracy Metrics]:', message);
+                        output.push(message);
+                    });
+                    
+                    pyshellAccuracy.on('error', (err) => {
+                        console.error('[Accuracy Error]:', err);
+                        reject(err);
+                    });
+                    
+                    pyshellAccuracy.on('close', () => resolve(output));
+                });
+
+                // Ajouter les métriques d'accuracy à la réponse
+                if (accuracyResult && accuracyResult.length > 0) {
+                    formattedResponse.prediction.accuracy_metrics = accuracyResult;
+                }
+            } catch (accuracyError) {
+                console.error("Erreur lors du calcul de l'accuracy:", accuracyError);
+            }
+
             // If fault is detected, analyze factors
             if (prediction.prediction.etat === "En panne") {
                 try {
