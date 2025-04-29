@@ -138,9 +138,8 @@ class RandomForestFaultDetector:
         print("\nRapport de classification:")
         print(classification_report(y_test, y_pred))
         
-        # Matrice de confusion
-        # Fix parameter name in plot_confusion_matrix call
-        self.plot_confusion_matrix(y_true, y_pred)
+        # Matrice de confusion - Correction de y_true en y_test
+        self.plot_confusion_matrix(y_test, y_pred)
         
         return metrics
 

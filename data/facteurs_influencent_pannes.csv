@@ -1,49 +1,19 @@
-type_panne;facteur;valeur;pourcentage;description;;action_recommandee;action_secondaire;code_probleme;code_defaillance
-Defaillance capteur;TempÈrature ambiante - HumiditÈ - ¬ge du capteur;>45∞C;100.0;Duree moyenne des pannes de type 'AUTRE';;VÈrifier l'Ètat des capteurs;Remplacer les capteurs dÈfectueux;DF_CAP;PB_CAP
-SURCHAUFFE;Niveau de liquide de refroidissement - Encrassement du radiateur - Vitesse du ventilateur;1500 RPM;41.66666666666667;Niveau de gravite le plus frequent pour les pannes de type 'AUTRE';;Inspecter le systËme de refroidissement;Nettoyer les ventilateurs;PB_SUR;PB_CHAU
-Defaillance capteur;TempÈrature ambiante - HumiditÈ - ¬ge du capteur;>45∞C;25.0;Machine la plus frequente pour les pannes de type 'AUTRE';;VÈrifier l'Ètat des capteurs;Remplacer les capteurs dÈfectueux;DF_CAP;PB_CAP
-TURN WESTERN;"	Pression du systËme";>45∞C;100.0;Duree moyenne des pannes de type 'AUTRE';;VÈrifier l'Ètat des capteurs;Remplacer les composants usÈs;DF_GEN;PB_GEN
-SURCHAUFFE;Niveau de liquide de refroidissement - Encrassement du radiateur - Vitesse du ventilateur;>45∞C;0.0;Action la plus recommandee pour les pannes de type 'AUTRE';;Inspecter le systËme de refroidissement;Nettoyer les ventilateurs;PB_SUR;PB_SUR
-Fuite hydraulique;"	Pression du systËme";FissurÈs;100.0;Niveau de gravite le plus frequent pour les pannes de type 'BLOCAGE';;Identifier la source de la fuite;Remplacer les joints;PB_HYD;PB_HYD
-VIBRATION EXCESSIVE;DÈsÈquilibre rotor - Fixations desserrÈes - Usure des roulements;>45∞C;100.0;Duree moyenne des pannes de type 'BLOCAGE';;…quilibrer les piËces;VÈrifier les fixations;PB_VIB;PB_VIB
-Usure mecanique;Charge appliquÈe - Fatigue du matÈriau - Lubrification;1500 RPM;100.0;Action la plus recommandee pour les pannes de type 'BLOCAGE';;Remplacer la courroie;VÈrifier l'alignement;PB_MECA;PB_MECA
-Panne pneumatique;Pression d'air - Fuites dans le circuit - QualitÈ de l'air;FissurÈs;50.0;Machine la plus frequente pour les pannes de type 'BLOCAGE';;Inspecter le systËme pneumatique;Remplacer les composants usÈs;PB_PNEU;PB_PNEU
-Fuite hydraulique;"	Pression du systËme";FissurÈs;50.0;Site le plus frequent pour les pannes de type 'BLOCAGE';;Identifier la source de la fuite;Remplacer les joints;PB_HYD;PB_HYD
-SURCHAUFFE;Niveau de liquide de refroidissement - Encrassement du radiateur - Vitesse du ventilateur;1500 RPM;100.0;Machine la plus frequente pour les pannes de type 'COLMATAGE';;Inspecter le systËme de refroidissement;Nettoyer les ventilateurs;PB_SUR;PB_SUR
-Fuite hydraulique;Pression du systËme - …tat des joints - Type de fluide;1500 RPM;100.0;Niveau de gravite le plus frequent pour les pannes de type 'COLMATAGE';;Identifier la source de la fuite;Remplacer les joints;PB_HYD;PB_HYD
-Fuite hydraulique;Pression du systËme - …tat des joints - Type de fluide;FissurÈs;100.0;Duree moyenne des pannes de type 'COLMATAGE';;Identifier la source de la fuite;Remplacer les joints;PB_HYD;PB_HYD
-Fuite hydraulique;Pression du systËme - …tat des joints - Type de fluide;>45∞C;100.0;Site le plus frequent pour les pannes de type 'COLMATAGE';;Identifier la source de la fuite;Remplacer les joints;PB_HYD;PB_HYD
-Panne pneumatique;Pression d'air - Fuites dans le circuit - QualitÈ de l'air;>45∞C;100.0;Action la plus recommandee pour les pannes de type 'COLMATAGE';;Inspecter le systËme pneumatique;Remplacer les composants usÈs;PB_PNEU;PB_PNEU
-SURCHAUFFE;"	Pression du systËme";FissurÈs;100.0;Machine la plus frequente pour les pannes de type 'DEFAILLANCE MECANIQUE';;Inspecter le systËme de refroidissement;Nettoyer les ventilateurs;PB_SUR;PB_SUR
-Fuite hydraulique;Pression du systËme - …tat des joints - Type de fluide;>45∞C;100.0;Niveau de gravite le plus frequent pour les pannes de type 'DEFAILLANCE MECANIQUE';;Identifier la source de la fuite;Remplacer les joints;PB_HYD;PB_HYD
-Fuite hydraulique;Pression du systËme - …tat des joints - Type de fluide;>45∞C;100.0;Duree moyenne des pannes de type 'DEFAILLANCE MECANIQUE';;Identifier la source de la fuite;Remplacer les joints;PB_HYD;PB_HYD
-Fuite hydraulique;Pression du systËme - …tat des joints - Type de fluide;85 dB;100.0;Site le plus frequent pour les pannes de type 'DEFAILLANCE MECANIQUE';;Identifier la source de la fuite;Remplacer les joints;PB_HYD;PB_HYD
-Panne pneumatique;"	Pression du systËme";>45∞C;100.0;Action la plus recommandee pour les pannes de type DA;;Inspecter le systËme pneumatique;Remplacer les composants usÈs;PB_PNEU;PB_PNEU
-Fuite hydraulique;Pression du systËme - …tat des joints - Type de fluide;1500 RPM;100.0;Niveau de gravite le plus frequent pour les pannes de type 'DEFAILLANCE SYSTEME';;Identifier la source de la fuite;Remplacer les joints;PB_HYD;PB_HYD
-DAfaut logiciel;Version du firmware - CPU Usage - Erreurs mÈmoire;1500 RPM;100.0;Duree moyenne des pannes de type 'DEFAILLANCE SYSTEME';;RedÈmarrer le systËme;VÈrifier les logs d'erreur;PB_LOG;PB_LOG
-DAfaut logiciel;Version du firmware - CPU Usage - Erreurs mÈmoire;>45∞C;100.0;Action la plus recommandee pour;;RedÈmarrer le systËme;VÈrifier les logs d'erreur;PB_LOG;PB_LOG
-DAfaut logiciel;Version du firmware - CPU Usage - Erreurs mÈmoire;85 dB;66.66666666666666;Machine la plus frequente pour les pannes de type 'DEFAILLANCE SYSTEME';;RedÈmarrer le systËme;VÈrifier les logs d'erreur;PB_LOG;PB_LOG
-ProblAme de;Tension d'alimentation - Isolation des c‚bles - TempÈrature des composants;85 dB;66.66666666666666;Site le plus frequent pour les pannes de type 'DEFAILLANCE SYSTEME';;"""VÈrifier les connexions Èlectriques";Tester les composants;PB_ELEC;PB_ELEC
-ProblAme de;Tension d'alimentation - Isolation des c‚bles - TempÈrature des composants;85 dB;100.0;Duree moyenne des pannes de type 'FUITE';;VÈrifier les connexions Èlectriques;Tester les composants;PB_ELEC;PB_ELEC
-ProblAme de;Tension d'alimentation - Isolation des c‚bles - TempÈrature des composants;85 dB;100.0;Action la plus recommandee pour les pannes de type;;VÈrifier les connexions Èlectriques;Tester les composants;PB_ELEC;PB_ELEC
-ProblAme de;Tension d'alimentation - Isolation des c‚bles - TempÈrature des composants;85 dB;60.0;Niveau de gravite le plus frequent pour les pannes de type 'FUITE';;VÈrifier les connexions Èlectriques;Tester les composants;PB_ELEC;PB_ELEC
-Panne pneumatique;Pression d'air - Fuites dans le circuit - QualitÈ de l'air;85 dB;60.0;Site le plus frequent pour les pannes de type 'FUITE';;Inspecter le systËme pneumatique;Remplacer les composants usÈs;PB_PNEU;PB_PNEU
-ProblAme de;Tension d'alimentation - Isolation des c‚bles - TempÈrature des composants;85 dB;40.0;Machine la plus frequente pour les pannes de type 'FUITE';;VÈrifier les connexions Èlectriques;Tester les composants;PB_ELEC;PB_ELEC
-ProblAme de;Tension d'alimentation - Isolation des c‚bles - TempÈrature des composants;85 dB;100.0;Machine la plus frequente pour les pannes de type 'PANNE ELECTRIQUE';;VÈrifier les connexions Èlectriques;Tester les composants;PB_ELEC;PB_ELEC
-Surchauffe moteur;Niveau de liquide de refroidissement - Encrassement du radiateur - Vitesse du ventilateur;85 dB;100.0;Niveau de gravite le plus frequent pour les pannes de type 'PANNE ELECTRIQUE';;Remplacer la courroie;VÈrifier l'alignement;PB_MECA;PB_MECA
-Surchauffe moteur;Niveau de liquide de refroidissement - Encrassement du radiateur - Vitesse du ventilateur;85 dB;100.0;Duree moyenne des pannes de type 'PANNE ELECTRIQUE';;Inspecter le systËme de refroidissement;Nettoyer les ventilateurs;PB_SUR;PB_SUR
-ProblAme de;Tension d'alimentation - Isolation des c‚bles - TempÈrature des composants;HumiditÈ: 90% RH;100.0;Site le plus frequent pour les pannes de type 'PANNE ELECTRIQUE';;"""VÈrifier les connexions Èlectriques";Tester les composants;PB_ELEC;PB_ELEC
-ProblAme de;Tension d'alimentation - Isolation des c‚bles - TempÈrature des composants;HumiditÈ: 90% RH;100.0;Action la plus recommandee pour les pannes;;"""VÈrifier les connexions Èlectriques";Tester les composants;PB_ELEC;PB_ELEC
-ProblAme de;Tension d'alimentation - Isolation des c‚bles - TempÈrature des composants;HumiditÈ: 90% RH;100.0;Machine la plus frequente pour les pannes de type 'RUPTURE MECANIQUE';;"""VÈrifier les connexions Èlectriques";Tester les composants;PB_ELEC;PB_ELEC
-Surchauffe moteur;"	Pression du systËme";HumiditÈ: 90% RH;100.0;Niveau de gravite le plus frequent pour les pannes de type 'RUPTURE MECANIQUE';;Inspecter le systËme de refroidissement;Nettoyer les ventilateurs;PB_SUR;PB_SUR
-DAfaut logiciel;Version du firmware - CPU Usage - Erreurs mÈmoire;HumiditÈ: 90% RH;100.0;Duree moyenne des pannes de type 'RUPTURE MECANIQUE';;RedÈmarrer le systËme;VÈrifier les logs d'erreur;PB_LOG;PB_LOG
-DAfaut logiciel;Version du firmware - CPU Usage - Erreurs mÈmoire;HumiditÈ: 90% RH;100.0;Action la plus recommandee pour les pannes de type 'RUPTURE';;RedÈmarrer le systËme;VÈrifier les logs d'erreur;PB_LOG;PB_LOG
-DAfaut logiciel;Version du firmware - CPU Usage - Erreurs mÈmoire;HumiditÈ: 90% RH;50.0;Site le plus frequent pour les pannes de type 'RUPTURE MECANIQUE';;RedÈmarrer le systËme;VÈrifier les logs d'erreur;PB_LOG;PB_LOG
-Fuite hydraulique;Pression du systËme - …tat des joints - Type de fluide;HumiditÈ: 90% RH;100.0;Niveau de gravitee le plus frequent pour les pannes de type 'SURCHAUFFE';;Identifier la source de la fuite;Remplacer les joints;pb_HYD;pb_HYD
-Panne pneumatique;Pression d'air - Fuites dans le circuit - QualitÈ de l'air;1500 RPM;100.0;Duree moyenne des pannes de type 'SURCHAUFFE';;Inspecter le systËme pneumatique;Remplacer les composants usÈs;PB_PNEU;PB_PNEU
-Panne pneumatique;Pression d'air - Fuites dans le circuit - QualitÈ de l'air;HumiditÈ: 90% RH;100.0;Site le plus frequent pour les pannes de type 'SURCHAUFFE';;Inspecter le systËme pneumatique;Remplacer les composants usÈs;PB_PNEU;PB_PNEU
-Usure mAcanique;"	Pression du systËme";1500 RPM;100.0;Action la plus recommandee pour les pannes de type 'SUR;;Remplacer la courroie;VÈrifier l'alignement;PB_MECA;PB_MECA
-Usure mAcanique;Charge appliquÈe - Fatigue du matÈriau - Lubrification;HumiditÈ: 90% RH;50.0;Machine la plus frequente pour les pannes de type 'SURCHAUFFE';;Remplacer la courroie;VÈrifier l'alignement;PB_MECA;PB_MECA
-Fuite hydraulique;Pression du systËme - …tat des joints - Type de fluide;>45∞C;100.0;Machine la plus frequente pour les pannes de type 'VIBRATION EXCESSIVE';;Identifier la source de la fuite;Remplacer les joints;PB_HYD;PB_HYD
-Fuite hydraulique;Pression du systËme - …tat des joints - Type de fluide;>45∞C;100.0;Niveau de gravite le plus frequent pour les pannes de type 'VIBRATION EXCESSIVE';;Identifier la source de la fuite;Remplacer les joints;PB_HYD;PB_HYD
-Fuite hydraulique;Pression du systËme - …tat des joints - Type de fluide;1500 RPM;100.0;Duree moyenne des pannes de type 'VIBRATION EXCESSIVE';;Identifier la source de la fuite;Remplacer les joints;PB_HYD;PB_HYD
+TYPE_PANNE;CATEGORIE;FACTEUR;IMPACT;DESCRIPTION
+FUITE;MAINTENANCE;Joints us√©s;√âlev√©;Les joints d'√©tanch√©it√© qui n'ont pas √©t√© remplac√©s r√©guli√®rement
+FUITE;ENVIRONNEMENT;Temp√©rature √©lev√©e;Moyen;Environnement de travail avec des temp√©ratures √©lev√©es qui d√©t√©riorent les joints
+FUITE;UTILISATION;Surpression;√âlev√©;Utilisation de l'√©quipement au-del√† des pressions recommand√©es
+SURCHAUFFE;MAINTENANCE;Ventilation obstru√©e;√âlev√©;Grilles de ventilation ou radiateurs obstru√©s par la poussi√®re
+SURCHAUFFE;ENVIRONNEMENT;Temp√©rature ambiante;Moyen;Temp√©rature ambiante trop √©lev√©e dans l'atelier
+SURCHAUFFE;UTILISATION;Surcharge;√âlev√©;Utilisation de l'√©quipement au-del√† de sa capacit√© nominale
+PANNE_ELECTRIQUE;MAINTENANCE;Connexions desserr√©es;√âlev√©;Connexions √©lectriques qui se sont desserr√©es avec le temps
+PANNE_ELECTRIQUE;ENVIRONNEMENT;Humidit√©;√âlev√©;Pr√©sence d'humidit√© dans l'environnement √©lectrique
+PANNE_ELECTRIQUE;UTILISATION;Fluctuations √©lectriques;Moyen;Fluctuations importantes dans l'alimentation √©lectrique
+BLOCAGE;MAINTENANCE;Lubrification insuffisante;√âlev√©;Manque de lubrification des pi√®ces mobiles
+BLOCAGE;ENVIRONNEMENT;Contamination;Moyen;Pr√©sence de contaminants comme la poussi√®re ou des d√©bris
+BLOCAGE;UTILISATION;Mauvais alignement;√âlev√©;Mauvais alignement des composants m√©caniques
+USURE;MAINTENANCE;Remplacement tardif;Moyen;Pi√®ces d'usure non remplac√©es selon le calendrier recommand√©
+USURE;ENVIRONNEMENT;Abrasifs;√âlev√©;Pr√©sence de particules abrasives dans l'environnement
+USURE;UTILISATION;Utilisation intensive;Moyen;Utilisation de l'√©quipement au-del√† des cycles recommand√©s
+GENERAL;MAINTENANCE;Maintenance pr√©ventive;√âlev√©;Absence ou retard dans la maintenance pr√©ventive planifi√©e
+GENERAL;FORMATION;Formation op√©rateur;Moyen;Manque de formation des op√©rateurs sur l'utilisation correcte
+GENERAL;QUALITE;Qualit√© des pi√®ces;√âlev√©;Utilisation de pi√®ces de rechange de qualit√© inf√©rieure

@@ -190,14 +190,14 @@ class FaultTypeClassifier:
         return {
             "type": predicted_type,
             "confidence": f"{confidence * 100:.2f}%",
-            
             "maximo_codes": self.get_maximo_codes(predicted_type),
             "matched_patterns": {
                 "keywords": [k for k in self.fault_types[predicted_type]['keywords'] 
                            if k in description],
                 "location_match": location in self.fault_types[predicted_type]['locations'],
                 "description_utilisee": description
-            }
+            },
+            "influencing_factors": influencing_factors  # Add the influencing factors to the output
         }
         
     def get_suggested_actions(self, fault_type):
@@ -348,223 +348,63 @@ class FaultTypeClassifier:
             if not os.path.exists(csv_path):
                 print(f"Fichier des facteurs non trouvé: {csv_path}")
                 return []
-            # Log pour vérifier le chemin et l'encodage
-            print(f"[LOG] Tentative de lecture du fichier CSV des facteurs: {csv_path} avec encodage utf-8")
-            try:
-                df = pd.read_csv(csv_path, sep=';', encoding='utf-8')
-                print("[LOG] Lecture réussie avec encodage utf-8")
-            except UnicodeDecodeError:
-                print("[LOG] Échec avec utf-8, tentative avec latin1")
-                try:
-                    df = pd.read_csv(csv_path, sep=';', encoding='latin1')
-                    print("[LOG] Lecture réussie avec encodage latin1")
-                except Exception as e2:
-                    print(f"[LOG] Échec avec latin1: {e2}")
-                    print("[LOG] Tentative avec iso-8859-1")
-                    df = pd.read_csv(csv_path, sep=';', encoding='iso-8859-1')
-                    print("[LOG] Lecture réussie avec encodage iso-8859-1")
-            # Filtrer les lignes correspondant au type de panne (insensible à la casse et accents)
+
+            print(f"[LOG] Tentative de lecture du fichier CSV des facteurs: {csv_path}")
+            df = pd.read_csv(csv_path, sep=';', encoding='utf-8')
+            print("[LOG] Lecture réussie du fichier CSV des facteurs")
+
+            # Vérifier et normaliser les noms de colonnes
+            df.columns = [col.strip().upper() for col in df.columns]
+            print(f"[LOG] Colonnes disponibles dans le CSV: {df.columns.tolist()}")
+
+            # Vérifier la présence des colonnes requises
+            required_columns = ['TYPE_PANNE', 'FACTEUR', 'CATEGORIE', 'IMPACT', 'DESCRIPTION']
+            missing_columns = [col for col in required_columns if col not in df.columns]
+            if missing_columns:
+                print(f"[LOG] Colonnes manquantes dans le CSV: {', '.join(missing_columns)}")
+                return []
+
+            # Normalisation pour la comparaison
             def normalize(s):
                 import unicodedata
                 return ''.join(c for c in unicodedata.normalize('NFD', str(s)) if unicodedata.category(c) != 'Mn').upper().strip()
+
+            # Recherche plus flexible des facteurs
             fault_type_norm = normalize(fault_type)
-            facteurs = df[df['type_panne'].apply(normalize) == fault_type_norm]
+            
+            # Recherche par correspondance exacte d'abord
+            facteurs = df[df['TYPE_PANNE'].apply(lambda x: normalize(str(x)) == fault_type_norm)]
+            
+            # Si aucun résultat, essayer une correspondance partielle
             if facteurs.empty:
-                return []
-            return [
-                {
-                    "facteur": row['facteur'],
-                    "valeur": row['valeur'],
-                    "pourcentage": row['pourcentage'],
-                    "description": row['description']
-                }
-                for _, row in facteurs.iterrows()
-            ]
-        except Exception as e:
-            print(f"Erreur lors de la lecture des facteurs influents: {e}")
+                facteurs = df[df['TYPE_PANNE'].apply(lambda x: any(
+                    normalize(kw) in normalize(str(x)) 
+                    for kw in fault_type_norm.split()
+                    if len(kw) > 3
+                ))]
+
+            if not facteurs.empty:
+                print(f"[LOG] {len(facteurs)} facteurs trouvés pour le type de panne: {fault_type}")
+                result = []
+                for _, row in facteurs.iterrows():
+                    factor = {}
+                    for col in ['FACTEUR', 'CATEGORIE', 'IMPACT', 'DESCRIPTION']:
+                        try:
+                            value = str(row[col]).strip() if pd.notna(row[col]) else ""
+                            factor[col.lower()] = value
+                        except Exception as e:
+                            print(f"[ERREUR] Erreur lors de l'accès à la colonne {col}: {str(e)}")
+                            factor[col.lower()] = ""
+                    result.append(factor)
+                return result
+
+            print(f"[LOG] Aucun facteur trouvé pour le type de panne: {fault_type}")
             return []
 
-    def calculate_accuracy(self, test_data=None, num_samples=50, min_description_length=20):
-        """
-        Calcule et affiche la précision du modèle sur un ensemble de données de test.
-        
-        Args:
-            test_data (list, optional): Liste de dictionnaires contenant les données de test.
-                Si None, les données seront extraites du CSV.
-            num_samples (int, optional): Nombre d'échantillons à utiliser si test_data est None.
-            min_description_length (int, optional): Longueur minimale des descriptions à considérer.
-            
-        Returns:
-            dict: Dictionnaire contenant les métriques de performance
-        """
-        try:
-            # Si aucune donnée de test n'est fournie, extraire du CSV
-            if test_data is None:
-                # Charger le CSV
-                csv_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(__file__))))), 
-                                      'data', 'pannes_industrielles_organisees.csv')
-                
-                if not os.path.exists(csv_path):
-                    raise FileNotFoundError(f"Fichier CSV non trouvé: {csv_path}")
-                    
-                df = pd.read_csv(csv_path)
-                
-                # Filtrer les entrées avec des descriptions suffisantes
-                df = df.dropna(subset=['description', 'type_panne'])
-                df = df[df['description'].str.len() >= min_description_length]
-                
-                if len(df) == 0:
-                    raise ValueError("Aucune donnée ne correspond aux critères de filtrage.")
-                
-                # Sélectionner des échantillons
-                samples = df.sample(min(num_samples, len(df)))
-                
-                # Préparer les données de test
-                test_data = []
-                for _, row in samples.iterrows():
-                    test_data.append({
-                        'LOCATION': row.get('site', 'UNKNOWN'),
-                        'ASSETNUM': row.get('machine', 'UNKNOWN'),
-                        'description': row.get('description', ''),
-                        'STATUS': row.get('gravite', 'NORMAL'),
-                        'actual_type': row.get('type_panne', '').upper()
-                    })
-            
-            # Effectuer les prédictions
-            results = []
-            y_true = []
-            y_pred = []
-            
-            for item in test_data:
-                actual_type = item.get('actual_type', '')
-                if not actual_type:
-                    continue
-                    
-                try:
-                    prediction = self.predict_fault_type(item)
-                    predicted_type = prediction['type']
-                    
-                    match = actual_type == predicted_type
-                    results.append({
-                        'actual_type': actual_type,
-                        'predicted_type': predicted_type,
-                        'match': match,
-                        'confidence': prediction['confidence']
-                    })
-                    
-                    y_true.append(actual_type)
-                    y_pred.append(predicted_type)
-                except Exception as e:
-                    print(f"Erreur lors de la prédiction: {str(e)}")
-            
-            # Calculer les métriques
-            if not results:
-                raise ValueError("Aucune prédiction réussie pour calculer la précision.")
-                
-            accuracy = sum(1 for r in results if r['match']) / len(results)
-            
-            # Afficher les résultats
-            print(f"\n=== Performance du modèle de classification de pannes ===")
-            print(f"Précision globale: {accuracy * 100:.2f}% sur {len(results)} échantillons")
-            
-            # Générer un rapport de classification détaillé si possible
-            try:
-                report = classification_report(y_true, y_pred, output_dict=True)
-                report_df = pd.DataFrame(report).transpose()
-                print("\nRapport de classification détaillé:")
-                print(report_df)
-                
-                # Analyser l'impact de la confiance sur la précision
-                confidence_bins = [0.0, 0.25, 0.5, 0.75, 1.0]
-                print("\nPrécision par niveau de confiance:")
-                for i in range(len(confidence_bins)-1):
-                    lower = confidence_bins[i]
-                    upper = confidence_bins[i+1]
-                    bin_results = [r for r in results if lower <= float(r['confidence'].rstrip('%'))/100 < upper]
-                    if bin_results:
-                        bin_accuracy = sum(1 for r in bin_results if r['match']) / len(bin_results)
-                        print(f"  Confiance {lower:.2f}-{upper:.2f}: {bin_accuracy*100:.2f}% ({len(bin_results)} échantillons)")
-                
-                # Afficher la matrice de confusion
-                print("\nMatrice de confusion:")
-                cm = confusion_matrix(y_true, y_pred)
-                print(cm)
-                
-                # Analyser les erreurs les plus fréquentes
-                print("\nErreurs les plus fréquentes:")
-                errors = [(actual, pred) for actual, pred in zip(y_true, y_pred) if actual != pred]
-                error_counts = {}
-                for actual, pred in errors:
-                    key = f"{actual} -> {pred}"
-                    error_counts[key] = error_counts.get(key, 0) + 1
-                
-                for error, count in sorted(error_counts.items(), key=lambda x: x[1], reverse=True)[:5]:
-                    print(f"  {error}: {count} occurrences")
-                
-            except Exception as e:
-                print(f"Impossible de générer le rapport détaillé: {str(e)}")
-            
-            # Retourner les métriques
-            return {
-                'accuracy': accuracy,
-                'sample_count': len(results),
-                'results': results,
-                'classification_report': report if 'report' in locals() else None,
-                'confusion_matrix': cm.tolist() if 'cm' in locals() else None,
-                'common_errors': error_counts if 'error_counts' in locals() else None
-            }
-            
         except Exception as e:
-            print(f"Erreur lors du calcul de la précision: {str(e)}")
-            return {
-                'accuracy': 0,
-                'sample_count': 0,
-                'error': str(e)
-            }
-
-
-    def get_influencing_factors(self, fault_type):
-        """Retourne les facteurs influençant ce type de panne à partir du CSV facteurs_influencent_pannes.csv"""
-        try:
-            csv_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(__file__))))),
-                                   'data', 'facteurs_influencent_pannes.csv')
-            if not os.path.exists(csv_path):
-                print(f"Fichier des facteurs non trouvé: {csv_path}")
-                return []
-            # Log pour vérifier le chemin et l'encodage
-            print(f"[LOG] Tentative de lecture du fichier CSV des facteurs: {csv_path} avec encodage utf-8")
-            try:
-                df = pd.read_csv(csv_path, sep=';', encoding='utf-8')
-                print("[LOG] Lecture réussie avec encodage utf-8")
-            except UnicodeDecodeError:
-                print("[LOG] Échec avec utf-8, tentative avec latin1")
-                try:
-                    df = pd.read_csv(csv_path, sep=';', encoding='latin1')
-                    print("[LOG] Lecture réussie avec encodage latin1")
-                except Exception as e2:
-                    print(f"[LOG] Échec avec latin1: {e2}")
-                    print("[LOG] Tentative avec iso-8859-1")
-                    df = pd.read_csv(csv_path, sep=';', encoding='iso-8859-1')
-                    print("[LOG] Lecture réussie avec encodage iso-8859-1")
-            # Filtrer les lignes correspondant au type de panne (insensible à la casse et accents)
-            def normalize(s):
-                import unicodedata
-                return ''.join(c for c in unicodedata.normalize('NFD', str(s)) if unicodedata.category(c) != 'Mn').upper().strip()
-            fault_type_norm = normalize(fault_type)
-            facteurs = df[df['type_panne'].apply(normalize) == fault_type_norm]
-            if facteurs.empty:
-                return []
-            return [
-                {
-                    "facteur": row['facteur'],
-                    "valeur": row['valeur'],
-                    "pourcentage": row['pourcentage'],
-                    "description": row['description']
-                }
-                for _, row in facteurs.iterrows()
-            ]
-        except Exception as e:
-            print(f"Erreur lors de la lecture des facteurs influents: {e}")
+            print(f"[ERREUR] Exception lors de la lecture des facteurs : {str(e)}")
+            import traceback
+            print(f"[DEBUG] Traceback complet : {traceback.format_exc()}")
             return []
 
     def calculate_accuracy(self, test_data=None, num_samples=50, min_description_length=20):
