@@ -13,14 +13,20 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from collections import defaultdict
 
 class RandomForestFaultDetector:
+
+    #Initialise trois modèles Random Forest distincts
+    #detection_model : Pour détecter si un équipement est en panne
+    #classification_model : Pour classer les pannes en fonction de leur type
+    #factors_model : Pour identifier les facteurs qui influencent les pannes
+    
     def __init__(self, n_estimators=100, random_state=42):
         """Initialise le détecteur de pannes avec Random Forest"""
         # Modèle pour la détection de panne (fonctionnel vs en panne)
         self.detection_model = RandomForestClassifier(
             n_estimators=n_estimators,
             random_state=random_state,
-            class_weight='balanced',
-            min_samples_leaf=2  # Ensure at least 2 samples per leaf
+            class_weight='balanced', # pour gérer le déséquilibre de classes
+            min_samples_leaf=2  # pour éviter le surapprentissage
         )
         
         # Modèle pour la classification du type de panne
@@ -28,33 +34,39 @@ class RandomForestFaultDetector:
             n_estimators=n_estimators,
             random_state=random_state,
             class_weight='balanced',
-            min_samples_leaf=1  # Allow single sample leaves for rare faults
+            min_samples_leaf=1  # pour permettre la classification de pannes rares
         )
         
         # Modèle pour l'analyse des facteurs influençant les pannes
-        self.factors_model = RandomForestClassifier(
+        self.factors_model = RandomForestClassifier( # Pour déterminer les facteurs contribuant aux pannes
             n_estimators=n_estimators,
             random_state=random_state,
             class_weight='balanced'
         )
         
-        # Préprocesseurs
+        # Préprocesseurs : utilisés pour les features catégorielles et textuelle
+
+         # LabelEncoder pour les variables catégorielles
         self.label_encoders = defaultdict(LabelEncoder)
+        # TfidfVectorizer pour les descriptions
         self.vectorizer = TfidfVectorizer(max_features=1000, stop_words='english')
         
         # Paramètres
+        # Les features utilisées pour la détection de pannes
         self.features = ['LOCATION', 'STATUS', 'WOPRIORITY', 'ASSETNUM']
-        self.text_features = ['Description']
-        self.fault_keywords = {}
-        self.feature_categories = {}
-        self.fault_types = {}
-        self.factors = {}
+        self.text_features = ['Description'] #Les features utilisées pour la détection de pannes
+        self.fault_keywords = {} # Dictionnaire des mots-clés par type de panne
+        self.feature_categories = {} 
+        self.fault_types = {} # Dictionnaire des types de pannes
+        self.factors = {} 
         
-        # État d'entraînement
-        self.detection_trained = False
-        self.classification_trained = False
+        # État d'entraînement des modèles
+        self.detection_trained = False 
+        self.classification_trained = False #
         self.factors_trained = False
 
+
+    # Charge les données depuis trois fichiers CSV
     def load_data(self):
         """Charge les données depuis les fichiers CSV"""
         # Chemins absolus des fichiers
@@ -79,11 +91,14 @@ class RandomForestFaultDetector:
         print(f"\n{'='*50}")
         print("Chargement des données...")
         
+        # Chargement des données
         workorders_df = pd.read_csv(workorders_path, sep=';')
         fault_types_df = pd.read_csv(fault_types_path, sep=';')
         factors_df = pd.read_csv(factors_path, sep=';')
         
         # Afficher un aperçu des données
+        # Afficher les premières lignes des DataFrames
+        # Afficher les colonnes des DataFrames
         print("\nAperçu des ordres de travail:")
         print(workorders_df.head(2))
         print("\nColonnes des ordres de travail:", workorders_df.columns.tolist())
@@ -103,14 +118,15 @@ class RandomForestFaultDetector:
         
         return workorders_df, fault_types_df, factors_df
 
+    # Prétraitement des données des wo pour la détection de pannes
     def preprocess_workorders(self, df):
-        """Prétraite les données des ordres de travail pour la détection de pannes"""
+        """Prétraite les données des workorder pour la détection de pannes"""
         print("\nPrétraitement des ordres de travail...")
         
         # Nettoyage des données
         df_cleaned = df.dropna(subset=self.features + self.text_features).copy()
         
-        # Détection des pannes (à adapter selon vos données)
+        # Détection des pannes 
         # Si la colonne 'PANNE' existe déjà, l'utiliser, sinon la créer
         if 'PANNE' not in df_cleaned.columns:
             # Mots-clés pour détecter les pannes dans la description
@@ -118,25 +134,31 @@ class RandomForestFaultDetector:
                 'panne', 'défaillance', 'problème', 'dysfonctionnement', 'arrêt',
                 'brisé', 'cassé', 'fuite', 'surchauffe', 'erreur', 'défaut'
             ]
+            # Création de la colonne PANNE
+            # Si la colonne 'Description' existe, utilise-la, sinon utilise 'Description'
             df_cleaned['PANNE'] = df_cleaned['Description'].str.contains(
                 '|'.join(keywords), case=False, na=False
             ).astype(int)
         
         # Analyse des catégories pour chaque feature
         for feature in self.features:
+            # Si la colonne est catégorielle
             if df_cleaned[feature].dtype == 'object':
+                #
                 self.feature_categories[feature] = df_cleaned[feature].unique().tolist()
+                # Ajouter une catégorie 'UNKNOWN' pour les valeurs inconnues
                 self.feature_categories[feature].append('UNKNOWN')  # Pour les valeurs inconnues
                 
                 # Encodage des valeurs
                 self.label_encoders[feature].fit(self.feature_categories[feature])
+                # Transformation des valeurs
                 df_cleaned[feature] = df_cleaned[feature].apply(
                     lambda x: x if x in self.feature_categories[feature] else "UNKNOWN"
                 )
                 df_cleaned[feature] = self.label_encoders[feature].transform(df_cleaned[feature])
         
         print(f"Distribution des pannes: {df_cleaned['PANNE'].value_counts().to_dict()}")
-        
+        # Afficher les classes après l'encodage
         return df_cleaned
 
     def preprocess_fault_types(self, df, workorders_df):
@@ -156,11 +178,12 @@ class RandomForestFaultDetector:
         missing_columns = [col for col in required_columns if col not in df.columns]
         
         if missing_columns:
+            # Afficher les colonnes manquantes pour le débogage
             raise ValueError(f"Colonnes manquantes dans le fichier des types de pannes: {missing_columns}")
         
         # Nettoyage des données
         df_cleaned = df.dropna(subset=['type_panne']).copy()
-        
+    
         # Encodage du type de panne
         self.label_encoders['type_panne'].fit(df_cleaned['type_panne'].unique())
         
@@ -188,6 +211,7 @@ class RandomForestFaultDetector:
         
         return df_cleaned
 
+    # Fonction pour normaliser les noms des types de pannes
     def normalize_fault_type(self, fault_type):
         """Normalise les noms des types de pannes"""
         # Mapping des types de pannes avec plus de variations
@@ -203,6 +227,7 @@ class RandomForestFaultDetector:
         }
         
         # Normaliser l'entrée
+        # Supprimer les espaces et convertir en minuscules
         fault_type = str(fault_type).strip()
         fault_type_lower = fault_type.lower()
         
@@ -217,6 +242,7 @@ class RandomForestFaultDetector:
         # Si aucune correspondance n'est trouvée, retourner une version normalisée
         return fault_type.upper().replace(' ', '_')
 
+    # Prétraitement des données des facteurs influençant les pannes
     def preprocess_factors(self, df):
         """Prétraite les données des facteurs influençant les pannes"""
         print("\nPrétraitement des facteurs influençant...")
@@ -259,6 +285,8 @@ class RandomForestFaultDetector:
         
         return df_cleaned
 
+    # Entraîne les trois modèles (détection, classification, facteurs)
+    # Fonction d'entraînement
     def train(self):
         """Entraîne les trois modèles (détection, classification, facteurs)"""
         try:
@@ -273,14 +301,47 @@ class RandomForestFaultDetector:
             # 1. Entraînement du modèle de détection de panne
             print("\n" + "="*50)
             print("Entraînement du modèle de détection de panne...")
-            
+
+            # Séparation des features et de la target
             X_detect = workorders_processed[self.features]
             y_detect = workorders_processed['PANNE']
             
+            # Vérification de la distribution des classes
+            class_dist = pd.Series(y_detect).value_counts()
+            print("\nDistribution des classes avant équilibrage:")
+            print(class_dist)
+            
+            # Équilibrage des classes
+            # Vérification de la distribution des classes
+            # Si le nombre de classes est inférieur à 2 ou si la classe minoritaire est inférieure à 10%
+            # Appliquer un rééchantillonnage
+            if len(class_dist) < 2 or class_dist.min() < 10:
+                print("\nATTENTION: Déséquilibre important des classes ou données insuffisantes!")
+                print("Considérez l'utilisation de techniques de rééchantillonnage.")
+            
+            # Ajustement des poids des classes
+            class_weights = dict(zip(
+                class_dist.index,
+                [len(y_detect)/(len(class_dist)*x) for x in class_dist]
+            ))
+            
+            # Création du modèle
+            print("\nCréation du modèle...")
+            print(f"Poids des classes: {class_weights}")
+
+            # Création du modèle avec les poids ajustés
+            self.detection_model = RandomForestClassifier(
+                n_estimators=100,
+                class_weight=class_weights,  # Utilisation des poids calculés
+                random_state=42
+            )
+            
+            # Entraînement du modèle
             X_train_detect, X_test_detect, y_train_detect, y_test_detect = train_test_split(
                 X_detect, y_detect, test_size=0.3, random_state=42, stratify=y_detect
             )
             
+            # Entraînement du modèle
             self.detection_model.fit(X_train_detect, y_train_detect)
             self.detection_trained = True
             
@@ -288,6 +349,32 @@ class RandomForestFaultDetector:
             y_pred_detect = self.detection_model.predict(X_test_detect)
             print("\nRésultats du modèle de détection:")
             print(classification_report(y_test_detect, y_pred_detect))
+            
+            # Visualisation de l'importance des features pour le modèle de détection
+            plt.figure(figsize=(10, 6))
+            importances = self.detection_model.feature_importances_
+            indices = np.argsort(importances)[::-1]
+            plt.title('Importance des Features - Modèle de Détection')
+            plt.bar(range(X_detect.shape[1]), importances[indices])
+            plt.xticks(range(X_detect.shape[1]), [X_detect.columns[i] for i in indices], rotation=45)
+            plt.tight_layout()
+            plt.savefig('detection_feature_importance.png', dpi=300, bbox_inches='tight')
+            plt.show()  # Ajout de plt.show()
+            plt.close()
+            
+            # Matrice de confusion pour le modèle de détection
+            plt.figure(figsize=(8, 6))
+            cm = confusion_matrix(y_test_detect, y_pred_detect)
+            sns.heatmap(cm, annot=True, fmt='d', cmap='Blues', 
+                       xticklabels=['Non-Panne', 'Panne'],
+                       yticklabels=['Non-Panne', 'Panne'])
+            plt.title('Matrice de Confusion - Modèle de Détection')
+            plt.ylabel('Vraies étiquettes')
+            plt.xlabel('Prédictions')
+            plt.tight_layout()
+            plt.savefig('detection_confusion_matrix.png', dpi=300, bbox_inches='tight')
+            plt.show()  # Ajout de plt.show()
+            plt.close()
             
             # 2. Entraînement du modèle de classification des types de pannes
             print("\n" + "="*50)
@@ -301,6 +388,7 @@ class RandomForestFaultDetector:
             unique_classes, class_counts = np.unique(y_class, return_counts=True)
             min_samples = np.min(class_counts)
             
+            # Check if we have enough samples per class
             if min_samples < 2:
                 print(f"Warning: Some fault types have less than 2 samples (minimum: {min_samples})")
                 # Use regular train_test_split without stratification
@@ -313,6 +401,7 @@ class RandomForestFaultDetector:
                     X_text, y_class, test_size=0.3, random_state=42, stratify=y_class
                 )
             
+            # Création du modèle
             self.classification_model.fit(X_train_class, y_train_class)
             self.classification_trained = True
             
@@ -333,7 +422,7 @@ class RandomForestFaultDetector:
                 'ENVIRONNEMENT': ['environnement', 'temperature', 'humidite', 'climat'],
                 'OPERATION': ['operation', 'utilisation', 'manipulation'],
                 'QUALITE': ['qualite', 'defaut', 'materiau']
-            }  # Suppression de la virgule ici
+            }
             
             # Correction du traitement des facteurs filtrés
             factors_filtered = pd.DataFrame({
@@ -372,10 +461,12 @@ class RandomForestFaultDetector:
                 print("ATTENTION: Pas assez de classes distinctes pour l'entraînement du modèle des facteurs")
                 self.factors_trained = False
             else:
+                # Entraînement
                 X_train_factors, X_test_factors, y_train_factors, y_test_factors = train_test_split(
                     X_factors, y_factors, test_size=0.3, random_state=42
                 )
-                
+
+                # Entraînement du modèle d'analyse des facteurs
                 self.factors_model.fit(X_train_factors, y_train_factors)
                 self.factors_trained = True
                 
@@ -384,27 +475,37 @@ class RandomForestFaultDetector:
                 print("\nRésultats du modèle d'analyse des facteurs:")
                 print(classification_report(y_test_factors, y_pred_factors, zero_division=0))
             
+            # Retour des scores
             return {
+                # Ajout du score de F1 pour le modèle de détection
                 'detection': {
                     'accuracy': accuracy_score(y_test_detect, y_pred_detect),
                     'f1': f1_score(y_test_detect, y_pred_detect, average='weighted')
                 },
+                # Ajout du score de F1 pour le modèle de classification
                 'classification': {
                     'accuracy': accuracy_score(y_test_class, y_pred_class),
                     'f1': f1_score(y_test_class, y_pred_class, average='weighted')
                 },
+                # Ajout du score de F1 pour le modèle d'analyse des facteurs
                 'factors': {
                     'accuracy': accuracy_score(y_test_factors, y_pred_factors) if self.factors_trained else 0.0,
                     'f1': f1_score(y_test_factors, y_pred_factors, average='weighted', zero_division=0) if self.factors_trained else 0.0
                 }
             }
-            
+        
+        # Gestion des erreurs
         except Exception as e:
             print(f"Erreur lors de l'entraînement : {str(e)}")
             raise
 
+    # Fonction de prédiction :Effectue une prédiction complète pour un équipement
+    # Détecte si l'équipement est en panne
+    # Si en panne, prédit le type de panne
+    # Si le type de panne est connu, prédit les facteurs influençants
     def predict(self, input_data):
         """Effectue une prédiction complète pour un équipement"""
+        # Vérification de l'entraînement du modèle de détection
         if not self.detection_trained:
             return {"error": "Le modèle de détection n'a pas été entraîné"}
         
@@ -429,6 +530,7 @@ class RandomForestFaultDetector:
             is_fault = self.detection_model.predict(X_detect)[0]
             fault_proba = self.detection_model.predict_proba(X_detect)[0][1]
             
+            # Construction du résultat
             result = {
                 "success": True,
                 "prediction": {
@@ -445,7 +547,7 @@ class RandomForestFaultDetector:
                 
                 fault_type_idx = self.classification_model.predict(X_text)[0]
                 fault_type = self.label_encoders['type_panne'].inverse_transform([fault_type_idx])[0]
-                
+                # Ajout du type de panne au résultat
                 result["prediction"]["type_panne"] = fault_type
                 
                 # 3. Analyse des facteurs influençant
@@ -455,7 +557,7 @@ class RandomForestFaultDetector:
                     
                     factor_idx = self.factors_model.predict(X_factors)[0]
                     factor = self.label_encoders['facteur'].inverse_transform([factor_idx])[0]
-                    
+                    # Ajout des facteurs au résultat
                     result["prediction"]["facteurs_influencants"] = [factor]
                     
                     # Ajouter d'autres facteurs connus pour ce type de panne
@@ -474,6 +576,7 @@ class RandomForestFaultDetector:
                 "details": {"error_type": str(type(e).__name__)}
             }
 
+    # Fonction de sauvegarde du modèle
     def save_model(self, file_path=None):
         """Sauvegarde le modèle entraîné"""
         if file_path is None:
@@ -508,6 +611,7 @@ class RandomForestFaultDetector:
         
         return file_path
 
+    # Fonction de chargement du modèle
     @classmethod
     def load_model(cls, file_path):
         """Charge un modèle préalablement entraîné"""
@@ -531,6 +635,7 @@ class RandomForestFaultDetector:
         for key, encoder in model_data['label_encoders'].items():
             model.label_encoders[key] = encoder
         
+        # Restaurer les autres attributs
         model.vectorizer = model_data['vectorizer']
         model.features = model_data['features']
         model.text_features = model_data['text_features']
@@ -582,7 +687,7 @@ if __name__ == "__main__":
     main()
 
 
-    import requests
+import requests
 import json
 
 # Sample data to send to the API
