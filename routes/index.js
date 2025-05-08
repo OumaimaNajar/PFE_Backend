@@ -166,15 +166,15 @@ router.post('/predict', async (req, res) => {
 
             if (prediction.prediction.etat === "En panne") {
                 try {
-                    // COMMENTÉ POUR TESTS
-                    // const classifierOptions = {
-                    //     mode: 'text',
-                    //     pythonPath: 'C:\\Users\\omaim\\AppData\\Local\\Programs\\Python\\Python312\\python.exe',
-                    //     pythonOptions: ['-u', '-X', 'utf8'],
-                    //     scriptPath: path.join(__dirname, '..', 'ia_model', 'core', 'fault_detection', 'supervised'),
-                    //     args: [prediction.prediction.type], 
-                    //     terminalOptions: { windowsHide: true }
-                    // };
+                    // Définir classifierOptions avant de l'utiliser
+                    const classifierOptions = {
+                        mode: 'text',
+                        pythonPath: 'C:\\Users\\omaim\\AppData\\Local\\Programs\\Python\\Python312\\python.exe',
+                        pythonOptions: ['-u', '-X', 'utf8'],
+                        scriptPath: path.join(__dirname, '..', 'ia_model', 'core', 'fault_detection', 'supervised'),
+                        args: [prediction.prediction.details?.fault_diagnosis?.etat || ''], 
+                        terminalOptions: { windowsHide: true }
+                    };
 
                     const classifierResult = await new Promise((resolve, reject) => {
                         const pyshellClassifier = new PythonShell('fault_classifier.py', classifierOptions);
@@ -191,8 +191,21 @@ router.post('/predict', async (req, res) => {
                     });
 
                     if (classifierResult && classifierResult.length > 0) {
-                        const facteurs = JSON.parse(classifierResult[classifierResult.length - 1]);
-                        formattedResponse.prediction.facteurs_influents = facteurs;
+                        try {
+                            const facteurs = JSON.parse(classifierResult[classifierResult.length - 1]);
+                            formattedResponse.prediction.facteurs_influents = facteurs;
+                            
+                            // S'assurer d'ajouter tous les facteurs d'influence à la réponse
+                            if (formattedResponse.prediction.details && 
+                                formattedResponse.prediction.details.influencing_factors) {
+                                formattedResponse.prediction.details.influencing_factors.forEach(factor => {
+                                    // S'assurer que PB et FC sont bien présents dans la réponse
+                                    console.log(`Facteur avec PB: ${factor.PB}, FC: ${factor.FC}`);
+                                });
+                            }
+                        } catch (parseError) {
+                            console.error("Erreur lors du parsing des facteurs influents:", parseError);
+                        }
                     }
                 } catch (classifierError) {
                     console.error("Erreur lors de l'analyse des facteurs influents:", classifierError);

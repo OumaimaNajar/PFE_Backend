@@ -2148,3 +2148,68 @@ weighted avg       0.97      0.97      0.97       208
 2025-05-08 10:32:56,733 - RandomForestFaultDetector - INFO - Probabilité finale de panne: 95.00%, Score de risque: 3.0
 2025-05-08 10:32:56,735 - RandomForestFaultDetector - WARNING - Impossible de récupérer les facteurs influents: No module named 'ia_model'
 2025-05-08 10:32:56,736 - RandomForestFaultDetector - INFO - Résultat de la prédiction: {'success': True, 'prediction': {'etat': 'En panne', 'details': {'confidence': '95.00%', 'risk_level': 'Élevé', 'probabilities': {'fonctionnel': '5.00%', 'panne': '95.00%'}, 'risk_factors': ['Mot-clé détecté: malfunction', 'Mot-clé détecté: equipment', 'Multiple mots-clés détectés: malfunction, equipment'], 'fault_diagnosis': 'Dysfonctionnement général', 'influencing_factors': []}, 'message': 'Analyse complétée avec succès', 'timestamp': '2025-05-08T10:32:56.736250', 'input_data': {'LOCATION': 'LOC02', 'STATUS': 'WAPPR', 'WOPRIORITY': '1', 'ASSETNUM': 'EQP456', 'Description': 'Equipment malfunction detected'}}}
+2025-05-08 13:41:46,849 - RandomForestFaultDetector - INFO - Initialisation du détecteur de pannes avec Random Forest
+2025-05-08 13:41:46,851 - RandomForestFaultDetector - INFO - Features utilisées: ['LOCATION', 'ASSETNUM', 'Description', 'location_description', 'assetnum_description']
+2025-05-08 13:41:46,852 - RandomForestFaultDetector - INFO - Chargement des données depuis: C:\Users\omaim\backend_ia\data\clean_workorders.csv
+2025-05-08 13:41:46,998 - RandomForestFaultDetector - INFO - Données chargées: 67687 enregistrements
+2025-05-08 13:41:47,000 - RandomForestFaultDetector - INFO - Chargement des données de location depuis: C:\Users\omaim\backend_ia\data\table_location.csv
+2025-05-08 13:41:47,066 - RandomForestFaultDetector - INFO - Données de location fusionnées avec succès
+2025-05-08 13:41:47,067 - RandomForestFaultDetector - INFO - Chargement des données d'assetnum depuis: C:\Users\omaim\backend_ia\data\table_assetnum.csv
+2025-05-08 13:41:47,122 - RandomForestFaultDetector - INFO - Données d'assetnum fusionnées avec succès
+2025-05-08 13:41:47,154 - RandomForestFaultDetector - INFO - Après nettoyage: 693 enregistrements
+2025-05-08 13:41:47,179 - RandomForestFaultDetector - INFO - Catégories pour LOCATION: 21 valeurs uniques
+2025-05-08 13:41:47,180 - RandomForestFaultDetector - INFO - Catégories pour ASSETNUM: 64 valeurs uniques
+2025-05-08 13:41:47,180 - RandomForestFaultDetector - INFO - Catégories pour Description: 158 valeurs uniques
+2025-05-08 13:41:47,181 - RandomForestFaultDetector - INFO - Catégories pour location_description: 7 valeurs uniques
+2025-05-08 13:41:47,182 - RandomForestFaultDetector - INFO - Catégories pour assetnum_description: 30 valeurs uniques
+2025-05-08 13:41:47,191 - RandomForestFaultDetector - INFO - Distribution des pannes: {0: 597, 1: 96}
+2025-05-08 13:41:47,198 - RandomForestFaultDetector - INFO - Début du prétraitement des données
+2025-05-08 13:41:47,205 - RandomForestFaultDetector - INFO - Encodage de LOCATION terminé avec 21 classes
+2025-05-08 13:41:47,209 - RandomForestFaultDetector - INFO - Encodage de ASSETNUM terminé avec 64 classes
+2025-05-08 13:41:47,214 - RandomForestFaultDetector - INFO - Encodage de Description terminé avec 158 classes
+2025-05-08 13:41:47,219 - RandomForestFaultDetector - INFO - Encodage de location_description terminé avec 6 classes
+2025-05-08 13:41:47,225 - RandomForestFaultDetector - INFO - Encodage de assetnum_description terminé avec 29 classes
+2025-05-08 13:41:47,236 - RandomForestFaultDetector - INFO - Données divisées: 485 échantillons d'entraînement, 208 échantillons de test
+2025-05-08 13:41:47,237 - RandomForestFaultDetector - INFO - Début de l'entraînement du modèle
+2025-05-08 13:41:47,464 - RandomForestFaultDetector - INFO - Modèle entraîné avec succès
+2025-05-08 13:41:47,487 - RandomForestFaultDetector - INFO - Importance des features: {'importance': {'ASSETNUM': 0.30429074087046903, 'LOCATION': 0.2946457365132293, 'Description': 0.28461524686048556, 'assetnum_description': 0.09338953386633327, 'location_description': 0.02305874188948284}}
+2025-05-08 13:41:47,489 - RandomForestFaultDetector - INFO - Début de l'évaluation du modèle
+2025-05-08 13:41:47,559 - RandomForestFaultDetector - INFO - Métriques d'évaluation: {'Accuracy': 0.9663461538461539, 'Precision': 0.84375, 'Recall': 0.9310344827586207, 'F1 Score': 0.8852459016393442, 'ROC AUC': np.float64(0.9577152764399921)}
+2025-05-08 13:41:47,560 - RandomForestFaultDetector - INFO - Rapport de classification:
+              precision    recall  f1-score   support
+
+           0       0.99      0.97      0.98       179
+           1       0.84      0.93      0.89        29
+
+    accuracy                           0.97       208
+   macro avg       0.92      0.95      0.93       208
+weighted avg       0.97      0.97      0.97       208
+
+2025-05-08 13:41:47,560 - RandomForestFaultDetector - INFO - Génération de la matrice de confusion
+2025-05-08 13:41:49,644 - RandomForestFaultDetector - INFO - Matrice de confusion sauvegardée dans 'confusion_matrix.png'
+2025-05-08 13:41:51,400 - RandomForestFaultDetector - INFO - Sauvegarde du modèle dans: C:\Users\omaim\backend_ia\ia_model\core\fault_detection\supervised\random_forest_model.pkl
+2025-05-08 13:41:51,423 - RandomForestFaultDetector - INFO - Modèle sauvegardé avec succès. Taille: 528.49 KB
+2025-05-08 13:41:51,425 - RandomForestFaultDetector - INFO - Précision du modèle sauvegardée: 0.9663461538461539
+2025-05-08 13:41:51,426 - RandomForestFaultDetector - INFO - Mot-clé de panne détecté: stopped
+2025-05-08 13:41:51,427 - RandomForestFaultDetector - INFO - Mot-clé de panne détecté: overheating
+2025-05-08 13:41:51,427 - RandomForestFaultDetector - INFO - Mot-clé de panne détecté: machine
+2025-05-08 13:41:51,438 - RandomForestFaultDetector - INFO - Description de location trouvée: High risk of mechanical stress and vibrations impacting equipment lifespan
+2025-05-08 13:41:51,446 - RandomForestFaultDetector - WARNING - Aucune description trouvée pour l'assetnum: EQP123
+2025-05-08 13:41:51,466 - RandomForestFaultDetector - INFO - Probabilités de base: [1. 0.]
+2025-05-08 13:41:51,466 - RandomForestFaultDetector - INFO - Probabilité finale de panne: 95.00%, Score de risque: 4.800000000000001
+2025-05-08 13:41:51,467 - RandomForestFaultDetector - WARNING - Impossible de récupérer les facteurs influents: No module named 'ia_model'
+2025-05-08 13:41:51,479 - RandomForestFaultDetector - INFO - Résultat de la prédiction: {'success': True, 'prediction': {'etat': 'En panne', 'details': {'confidence': '95.00%', 'risk_level': 'Élevé', 'probabilities': {'fonctionnel': '5.00%', 'panne': '95.00%'}, 'risk_factors': ['Mot-clé détecté: stopped', 'Mot-clé détecté: overheating', 'Mot-clé détecté: machine', 'Multiple mots-clés détectés: stopped, overheating, machine'], 'fault_diagnosis': 'Surchauffe détectée', 'influencing_factors': []}, 'message': 'Analyse complétée avec succès', 'timestamp': '2025-05-08T13:41:51.468699', 'input_data': {'LOCATION': 'BR300', 'STATUS': 'OPEN', 'WOPRIORITY': '2', 'ASSETNUM': 'EQP123', 'Description': 'Machine stopped due to overheating'}}}
+2025-05-08 13:41:51,483 - RandomForestFaultDetector - WARNING - Aucune description trouvée pour la location: NEW_LOC
+2025-05-08 13:41:51,487 - RandomForestFaultDetector - WARNING - Aucune description trouvée pour l'assetnum: NEW_EQP
+2025-05-08 13:41:51,550 - RandomForestFaultDetector - INFO - Probabilités de base: [1. 0.]
+2025-05-08 13:41:51,565 - RandomForestFaultDetector - INFO - Probabilité finale de panne: 40.00%, Score de risque: 0.2
+2025-05-08 13:41:51,574 - RandomForestFaultDetector - WARNING - Impossible de récupérer les facteurs influents: No module named 'ia_model'
+2025-05-08 13:41:51,583 - RandomForestFaultDetector - INFO - Résultat de la prédiction: {'success': True, 'prediction': {'etat': 'Fonctionnel', 'details': {'confidence': '60.00%', 'risk_level': 'Moyen', 'probabilities': {'fonctionnel': '60.00%', 'panne': '40.00%'}, 'risk_factors': [], 'fault_diagnosis': None, 'influencing_factors': []}, 'message': 'Analyse complétée avec succès', 'timestamp': '2025-05-08T13:41:51.583764', 'input_data': {'LOCATION': 'NEW_LOC', 'STATUS': 'INPRG', 'WOPRIORITY': '3', 'ASSETNUM': 'NEW_EQP', 'Description': 'Regular maintenance check'}}}
+2025-05-08 13:41:51,708 - RandomForestFaultDetector - INFO - Mot-clé de panne détecté: malfunction
+2025-05-08 13:41:51,712 - RandomForestFaultDetector - INFO - Mot-clé de panne détecté: equipment
+2025-05-08 13:41:51,720 - RandomForestFaultDetector - WARNING - Aucune description trouvée pour la location: LOC02
+2025-05-08 13:41:51,727 - RandomForestFaultDetector - WARNING - Aucune description trouvée pour l'assetnum: EQP456
+2025-05-08 13:41:51,787 - RandomForestFaultDetector - INFO - Probabilités de base: [1. 0.]
+2025-05-08 13:41:51,829 - RandomForestFaultDetector - INFO - Probabilité finale de panne: 95.00%, Score de risque: 3.0
+2025-05-08 13:41:51,885 - RandomForestFaultDetector - WARNING - Impossible de récupérer les facteurs influents: No module named 'ia_model'
+2025-05-08 13:41:51,886 - RandomForestFaultDetector - INFO - Résultat de la prédiction: {'success': True, 'prediction': {'etat': 'En panne', 'details': {'confidence': '95.00%', 'risk_level': 'Élevé', 'probabilities': {'fonctionnel': '5.00%', 'panne': '95.00%'}, 'risk_factors': ['Mot-clé détecté: malfunction', 'Mot-clé détecté: equipment', 'Multiple mots-clés détectés: malfunction, equipment'], 'fault_diagnosis': 'Dysfonctionnement général', 'influencing_factors': []}, 'message': 'Analyse complétée avec succès', 'timestamp': '2025-05-08T13:41:51.885066', 'input_data': {'LOCATION': 'LOC02', 'STATUS': 'WAPPR', 'WOPRIORITY': '1', 'ASSETNUM': 'EQP456', 'Description': 'Equipment malfunction detected'}}}

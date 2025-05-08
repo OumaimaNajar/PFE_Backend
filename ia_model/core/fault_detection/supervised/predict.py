@@ -5,6 +5,7 @@ import os
 import pandas as pd
 from fault_classifier import FaultTypeClassifier
 import joblib
+import re
 
 def load_model():
     try:
@@ -24,6 +25,61 @@ def load_facteur_model():
     except Exception as e:
         print(f"Failed to load facteur model: {str(e)}", file=sys.stderr)
         return None
+
+def load_factors_csv():
+    """Chargement du CSV des facteurs d'influence avec gestion de plusieurs encodages."""
+    csv_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), '..', '..', 'data', 'facteurs_influencent_pannes.csv')
+    
+    if not os.path.exists(csv_path):
+        print(f"[ERREUR] Fichier CSV non trouvé : {csv_path}", file=sys.stderr)
+        return None
+        
+    # Liste des encodages à tester
+    encodings = ['latin1', 'utf-8-sig', 'iso-8859-1', 'cp1252', 'utf-8']
+    
+    for encoding in encodings:
+        try:
+            df = pd.read_csv(csv_path, sep=';', encoding=encoding)
+            print(f"[INFO] CSV chargé avec succès. Encodage: {encoding}", file=sys.stderr)
+            print(f"[DEBUG] Colonnes disponibles: {df.columns.tolist()}", file=sys.stderr)
+            
+            # Vérifier si les colonnes nécessaires existent
+            required_columns = ['type_panne', 'facteur']
+            numerical_columns = ['PB', 'FC', 'oil_level', 'downtime']
+            
+            missing_columns = [col for col in required_columns if col not in df.columns]
+            if missing_columns:
+                print(f"[AVERTISSEMENT] Colonnes manquantes dans le CSV: {missing_columns}", file=sys.stderr)
+            
+            # Ajouter les colonnes numériques si elles n'existent pas
+            for col in numerical_columns:
+                if col not in df.columns:
+                    print(f"[INFO] Ajout de la colonne manquante '{col}' avec valeurs par défaut", file=sys.stderr)
+                    df[col] = '0.0'  # Utiliser une chaîne par défaut au lieu d'un nombre
+                    
+            # Ne pas convertir les colonnes PB et FC en nombres, les garder comme strings
+            # Pour les autres colonnes numériques, les convertir en nombres
+            for col in ['oil_level', 'downtime']:
+                if col in df.columns:
+                    df[col] = pd.to_numeric(df[col], errors='coerce').fillna(0)
+            
+            return df
+        except Exception as e:
+            print(f"[ERREUR] Échec de chargement avec encodage {encoding}: {str(e)}", file=sys.stderr)
+            continue
+    
+    print("[ERREUR] Impossible de charger le CSV avec tous les encodages testés", file=sys.stderr)
+    return None
+
+def normalize_string(text):
+    """Normalise les chaînes pour une comparaison cohérente."""
+    if not isinstance(text, str):
+        return ""
+    # Supprimer les accents, mettre en majuscule, supprimer la ponctuation et les espaces multiples
+    text = text.upper().strip()
+    text = re.sub(r'[^\w\s]', '', text)
+    text = re.sub(r'\s+', ' ', text)
+    return text
 
 def predict(input_data):
     try:
@@ -46,26 +102,127 @@ def predict(input_data):
         # If fault detected, classify it and analyze factors
         fault_diagnosis = None
         influencing_factors = []
+        
         if is_fault:
+            # Classifier le type de panne
             classifier = FaultTypeClassifier()
             fault_diagnosis = classifier.predict_fault_type(
                 input_data.get("Description", ""),
                 input_data.get("ASSETNUM", "")
             )
-            # Charger le modèle de facteurs influents
-            facteur_model = load_facteur_model()
-            if facteur_model:
-                type_encoder = facteur_model['type_encoder']
-                facteur_encoder = facteur_model['facteur_encoder']
-                rf_model = facteur_model['model']
-                type_panne = fault_diagnosis["etat"]
-                type_panne_enc = type_encoder.transform([type_panne])
-                pred = rf_model.predict(type_panne_enc.reshape(-1, 1))
-                facteur = facteur_encoder.inverse_transform(pred)[0]
-                influencing_factors = [{"facteur_principal": facteur}]
+            
+            # Récupérer le type de panne
+            type_panne = fault_diagnosis.get("etat", "")
+            print(f"[DEBUG] Type de panne détecté: {type_panne}", file=sys.stderr)
+            
+            if type_panne:
+                # Approche 1: Utiliser le modèle de facteurs
+                facteur_model = load_facteur_model()
+                facteur_principal = ""
+                
+                if facteur_model:
+                    try:
+                        type_encoder = facteur_model.get('type_encoder')
+                        facteur_encoder = facteur_model.get('facteur_encoder')
+                        rf_model = facteur_model.get('model')
+                        
+                        if type_encoder and facteur_encoder and rf_model:
+                            # Vérifier si le type de panne est connu par l'encodeur
+                            if type_panne in type_encoder.classes_:
+                                type_panne_enc = type_encoder.transform([type_panne])
+                                pred = rf_model.predict(type_panne_enc.reshape(-1, 1))
+                                facteur_principal = facteur_encoder.inverse_transform(pred)[0]
+                                print(f"[INFO] Facteur principal prédit par le modèle: {facteur_principal}", file=sys.stderr)
+                            else:
+                                print(f"[AVERTISSEMENT] Type de panne '{type_panne}' inconnu du modèle", file=sys.stderr)
+                    except Exception as e:
+                        print(f"[ERREUR] Échec de prédiction du facteur: {str(e)}", file=sys.stderr)
+                
+                # Approche 2: Rechercher le type de panne dans le CSV
+                df = load_factors_csv()
+                if df is not None:
+                    # Normaliser pour la comparaison
+                    df['type_panne_norm'] = df['type_panne'].apply(normalize_string)
+                    type_panne_norm = normalize_string(type_panne)
+                    
+                    print(f"[DEBUG] Recherche du type de panne normalisé: '{type_panne_norm}'", file=sys.stderr)
+                    
+                    # Chercher d'abord une correspondance exacte
+                    panne_match = df[df['type_panne_norm'] == type_panne_norm]
+                    
+                    # Si aucune correspondance exacte, essayer une correspondance partielle
+                    if panne_match.empty:
+                        print(f"[DEBUG] Aucune correspondance exacte, essai de correspondance partielle", file=sys.stderr)
+                        for idx, row in df.iterrows():
+                            if type_panne_norm in row['type_panne_norm'] or row['type_panne_norm'] in type_panne_norm:
+                                panne_match = df.iloc[[idx]]
+                                print(f"[DEBUG] Correspondance partielle trouvée: {row['type_panne']}", file=sys.stderr)
+                                break
+                    
+                    if not panne_match.empty:
+                        panne_data = panne_match.iloc[0]
+                        
+                        # Utiliser le facteur du modèle s'il existe, sinon prendre celui du CSV
+                        if not facteur_principal:
+                            facteur_principal = panne_data.get('facteur', "")
+                        
+                        # Récupérer les valeurs telles quelles pour PB et FC, sans conversion
+                        pb_value = str(panne_data.get('PB', '0.0')) if pd.notnull(panne_data.get('PB')) else '0.0'
+                        fc_value = str(panne_data.get('FC', '0.0')) if pd.notnull(panne_data.get('FC')) else '0.0'
+                        
+                        # Pour les autres valeurs, conversion en float
+                        try:
+                            oil_level_value = float(panne_data.get('oil_level', 0)) if pd.notnull(panne_data.get('oil_level')) else 0
+                            downtime_value = float(panne_data.get('downtime', 0)) if pd.notnull(panne_data.get('downtime')) else 0
+                        except Exception as e:
+                            print(f"[ERREUR] Conversion des valeurs numériques oil_level/downtime: {str(e)}", file=sys.stderr)
+                            oil_level_value = downtime_value = 0
+                            
+                        print(f"[DEBUG] Valeurs brutes - PB: '{pb_value}', FC: '{fc_value}'", file=sys.stderr)
+                        
+                        influencing_factors = [{
+                            "facteur_principal": facteur_principal,
+                            "type_panne": type_panne,
+                            "PB": pb_value,  # Garder comme string
+                            "FC": fc_value,  # Garder comme string
+                            "oil_level": oil_level_value,
+                            "downtime": downtime_value
+                        }]
+                    else:
+                        print(f"[AVERTISSEMENT] Aucune correspondance trouvée pour le type de panne: {type_panne}", file=sys.stderr)
+                        influencing_factors = [{
+                            "facteur_principal": facteur_principal if facteur_principal else "Inconnu",
+                            "type_panne": type_panne,
+                            "PB": "0.0",  # Utiliser une chaîne par défaut
+                            "FC": "0.0",  # Utiliser une chaîne par défaut
+                            "oil_level": 0,
+                            "downtime": 0,
+                            "message": "Type de panne non trouvé dans la base de données"
+                        }]
+                else:
+                    # Cas où le CSV n'a pas pu être chargé
+                    influencing_factors = [{
+                        "facteur_principal": facteur_principal if facteur_principal else "Inconnu",
+                        "type_panne": type_panne,
+                        "PB": "0.0",  # Utiliser une chaîne par défaut
+                        "FC": "0.0",  # Utiliser une chaîne par défaut
+                        "oil_level": 0,
+                        "downtime": 0,
+                        "message": "Impossible de charger la base de données des facteurs"
+                    }]
             else:
-                influencing_factors = []
+                # Cas où aucun type de panne n'a été détecté
+                influencing_factors = [{
+                    "facteur_principal": "Inconnu",
+                    "type_panne": "Non spécifié",
+                    "PB": "0.0",  # Utiliser une chaîne par défaut
+                    "FC": "0.0",  # Utiliser une chaîne par défaut
+                    "oil_level": 0,
+                    "downtime": 0,
+                    "message": "Type de panne non détecté"
+                }]
 
+        # Construire le résultat final
         result = {
             "success": True,
             "prediction": {
@@ -77,8 +234,12 @@ def predict(input_data):
                         "fonctionnel": f"{final_ok_prob * 100:.2f}%",
                         "panne": f"{final_fault_prob * 100:.2f}%"
                     },
-                   # "risk_factors": get_risk_factors(input_data),
-                    "fault_diagnosis": fault_diagnosis, 
+                    "fault_diagnosis": {
+                        "etat": str(fault_diagnosis.get("etat", "")),
+                        "type": str(fault_diagnosis.get("type", "")),
+                        "cause": str(fault_diagnosis.get("cause", "")),
+                        "solution": str(fault_diagnosis.get("solution", ""))
+                    } if fault_diagnosis else None,
                     "influencing_factors": influencing_factors
                 },
                 "message": "Analyse complétée avec succès"
@@ -88,6 +249,10 @@ def predict(input_data):
         return result
         
     except Exception as e:
+        print(f"[ERREUR] Exception dans predict(): {str(e)}", file=sys.stderr)
+        import traceback
+        traceback.print_exc(file=sys.stderr)
+        
         return {
             "success": False,
             "error": str(e),
@@ -101,7 +266,16 @@ def predict(input_data):
                         "panne": "0%"
                     },
                     "risk_factors": [],
-                    "fault_diagnosis": None
+                    "fault_diagnosis": None,
+                    "influencing_factors": [{
+                        "facteur_principal": "Erreur",
+                        "type_panne": "Inconnu",
+                        "PB": "0.0",  # Utiliser une chaîne par défaut
+                        "FC": "0.0",  # Utiliser une chaîne par défaut
+                        "oil_level": 0,
+                        "downtime": 0,
+                        "error": str(e)
+                    }]
                 },
                 "message": "Une erreur s'est produite lors de l'analyse"
             }
@@ -117,7 +291,12 @@ def process_input_data(input_data, model_data):
             # Ensure value exists in label encoder classes
             if value not in model_data['label_encoders'][feature].classes_:
                 value = 'UNKNOWN'
-            processed_data[feature] = model_data['label_encoders'][feature].transform([value])[0]
+                
+            try:
+                processed_data[feature] = model_data['label_encoders'][feature].transform([value])[0]
+            except Exception as e:
+                print(f"[ERREUR] Échec de transformation pour {feature}: {str(e)}", file=sys.stderr)
+                processed_data[feature] = 0
         else:
             processed_data[feature] = value
             
@@ -146,28 +325,6 @@ def calculate_risk_score(input_data):
     
     return risk_score
 
-def get_risk_factors(input_data):
-    risk_factors = []
-    
-    # Priority-based factors
-    if input_data.get('WOPRIORITY') == '1':
-        risk_factors.append("High priority work order")
-    
-    # Status-based factors
-    status = input_data.get('STATUS', '').upper()
-    if status == 'OPEN':
-        risk_factors.append("Open work order")
-    elif status == 'INPRG':
-        risk_factors.append("Work in progress")
-    
-    # Location-based factors
-    location = input_data.get('LOCATION', '').upper()
-    critical_locations = ['SHIPPING', 'RECEIVING', 'PRODUCTION']
-    if location in critical_locations:
-        risk_factors.append(f"Critical location: {location}")
-    
-    return risk_factors
-
 def get_risk_level(fault_prob):
     if fault_prob > 0.7:
         return "Élevé"
@@ -175,86 +332,46 @@ def get_risk_level(fault_prob):
         return "Moyen"
     return "Faible"
 
-def get_influencing_factors(fault_type):
-    try:
-        csv_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), '..', '..', 'data', 'facteurs_influencent_pannes.csv')
-        
-        if not os.path.exists(csv_path):
-            print(f"[ERREUR] Fichier CSV non trouvé : {csv_path}", file=sys.stderr)
-            return []
-
-        # Essayer plusieurs encodages avec latin1 en premier
-        try:
-            df = pd.read_csv(csv_path, sep=';', encoding='latin1')
-        except UnicodeDecodeError:
-            try:
-                df = pd.read_csv(csv_path, sep=';', encoding='utf-8-sig')
-            except Exception as e:
-                print(f"[ERREUR] Impossible de lire le fichier CSV: {str(e)}", file=sys.stderr)
-                return []
-        
-        # Liste des encodages à tester avec priorité pour le français
-        encodings = ['utf-8-sig', 'iso-8859-1', 'cp1252', 'latin1', 'utf-8']
-        
-        for encoding in encodings:
-            try:
-                # Test de lecture avec pandas
-                df = pd.read_csv(csv_path, sep=';', encoding=encoding)
-                print(f"Encodage réussi avec {encoding}", file=sys.stderr)
-                break
-            except (UnicodeDecodeError, pd.errors.EmptyDataError) as e:
-                print(f"Échec avec l'encodage {encoding}: {str(e)}", file=sys.stderr)
-                continue
-        else:
-            print("[ERREUR] Aucun encodage valide trouvé", file=sys.stderr)
-            return []
-            
-        # Normalisation du type de panne (suppression des guillemets et du point)
-        fault_type_norm = fault_type.upper().strip().replace('"', '').replace('.', '')
-        
-        # Recherche des facteurs
-        facteurs = df[df['type_panne'].str.upper().str.strip() == fault_type_norm]
-        
-        if facteurs.empty:
-            # Recherche partielle si aucune correspondance exacte
-            for type_existant in df['type_panne'].unique():
-                if fault_type_norm in type_existant.upper().strip():
-                    facteurs = df[df['type_panne'] == type_existant]
-                    break
-            
-        if not facteurs.empty:
-            result = []
-            for _, row in facteurs.iterrows():
-                factor = {
-                    "facteur": str(row['facteur']),
-                    "valeur": str(row['valeur']),
-                    "pourcentage": float(row['pourcentage']),
-                    "description": str(row.get('Description', '')),  # Utilisation de 'Description' au lieu de 'description'
-                    "action_recommandee": str(row.get('action_recommandee', '')),
-                    "action_secondaire": str(row.get('action_secondaire', '')),
-                    "code_probleme": str(row.get('code_probleme', '')),
-                    "code_defaillance": str(row.get('code_defaillance', ''))
-                }
-                result.append(factor)
-            return result
-        
-        return []
-        
-    except Exception as e:
-        print(f"[ERREUR] Exception lors de la lecture des facteurs : {str(e)}", file=sys.stderr)
-        return [{"error": str(e)}]
-
 if __name__ == "__main__":
     try:
         # If a file path is provided as argument, read from file. Otherwise, read from stdin.
         if len(sys.argv) > 1:
-            with open(sys.argv[1], 'r', encoding='utf-8') as f:
+            input_file = sys.argv[1]
+            print(f"[INFO] Lecture du fichier d'entrée: {input_file}", file=sys.stderr)
+            with open(input_file, 'r', encoding='utf-8') as f:
                 input_data = json.load(f)
         else:
+            print("[INFO] Lecture des données depuis stdin", file=sys.stderr)
             input_data = json.loads(sys.stdin.read())
+            
+        print(f"[DEBUG] Données d'entrée reçues: {json.dumps(input_data, ensure_ascii=False)}", file=sys.stderr)
+        
         result = predict(input_data)
+        
+        # NE PAS essayer de convertir PB et FC en float
+        # S'assurer que l'on préserve les valeurs comme des chaînes de caractères
+        for factor in result.get('prediction', {}).get('details', {}).get('influencing_factors', []):
+            # Vérifier que PB et FC sont bien des strings
+            if 'PB' in factor and not isinstance(factor['PB'], str):
+                factor['PB'] = str(factor['PB'])
+            if 'FC' in factor and not isinstance(factor['FC'], str):
+                factor['FC'] = str(factor['FC'])
+                
+            # Conversion des autres valeurs numériques pour la sérialisation
+            for key in ['oil_level', 'downtime']:
+                if key in factor:
+                    try:
+                        factor[key] = float(factor[key])
+                    except (ValueError, TypeError):
+                        factor[key] = 0
+        
         print(json.dumps(result, ensure_ascii=False))
+        
     except Exception as e:
+        print(f"[ERREUR] Exception principale: {str(e)}", file=sys.stderr)
+        import traceback
+        traceback.print_exc(file=sys.stderr)
+        
         error_result = {
             "success": False,
             "error": str(e),
@@ -268,9 +385,17 @@ if __name__ == "__main__":
                         "panne": "0%"
                     },
                     "risk_factors": [],
-                    "fault_diagnosis": None
+                    "fault_diagnosis": None,
+                    "influencing_factors": [{
+                        "facteur_principal": "Erreur",
+                        "type_panne": "Inconnu",
+                        "PB": "0.0",  # Utiliser une chaîne par défaut
+                        "FC": "0.0",  # Utiliser une chaîne par défaut
+                        "oil_level": 0,
+                        "downtime": 0,
+                        "error": str(e)
+                    }]
                 },
                 "message": "Erreur lors de l'exécution du modèle"
             }
         }
-        print(json.dumps(error_result, ensure_ascii=False))
