@@ -1,0 +1,82 @@
+ASSETNUM;assetnum_description
+1001;Équipement principal - Unité 1
+12600;Compresseur industriel série 126
+11450;Pompe hydraulique - Section 114-50
+11230;Système de filtration - Zone 112
+12300;Station de refroidissement - Série 123
+11430;Pompe hydraulique - Section 114-30
+13141;Générateur électrique - Modèle 131-41
+12700;Turbine industrielle - Série 127
+11470;Pompe hydraulique - Section 114-70
+13140;Générateur électrique - Modèle 131-40
+11200;Système de filtration - Unité principale
+11300;Unité de traitement - Série 113
+11460;Pompe hydraulique - Section 114-60
+12210;Système de conditionnement d'air - Zone 122-10
+12100;Système de ventilation - Série 121
+13150;Générateur électrique - Modèle 131-50
+13110;Générateur électrique - Modèle 131-10
+13160;Générateur électrique - Modèle 131-60
+13120;Générateur électrique - Modèle 131-20
+52300;Équipement spécial - Série 523
+1002;Équipement principal - Unité 2
+1000;Équipement principal - Unité centrale
+7111;Convoyeur - Section 71-11
+11210;Système de filtration - Zone 112-10
+13145;Générateur électrique - Modèle 131-45
+13143;Générateur électrique - Modèle 131-43
+13170;Générateur électrique - Modèle 131-70
+12610;Compresseur industriel - Module 126-10
+12710;Turbine industrielle - Module 127-10
+23972;Équipement de test - ID 239-72
+13180;Générateur électrique - Modèle 131-80
+I-95N;Autoroute I-95 Direction Nord
+TRACK 1;Voie de circulation principale
+ASSET12345;Équipement standard - Série 12345
+ASSET1234;Équipement standard - Série 1234
+ASSET123;Équipement standard - Série 123
+ASSET12;Équipement standard - Série 12
+ASSET1;Équipement standard - Unité 1
+CAL101;Équipement de calibration - Type 101
+CAL102;Équipement de calibration - Type 102
+CAL103;Équipement de calibration - Type 103
+SEWER MN 1;Conduite d'égout principale 1
+PIPELINE 1;Conduite principale 1
+CONE-001;Cône de signalisation - Numéro 001
+B12600;Bâtiment 126 - Étage 00
+B12700;Bâtiment 127 - Étage 00
+B12750;Bâtiment 127 - Étage 50
+B12510;Bâtiment 125 - Étage 10
+B12550;Bâtiment 125 - Étage 50
+7112;Convoyeur - Section 71-12
+7113;Convoyeur - Section 71-13
+7114;Convoyeur - Section 71-14
+7115;Convoyeur - Section 71-15
+9000;Système de secours - Unité 9000
+9001;Système de secours - Unité 9001
+9002;Système de secours - Unité 9002
+9010;Système de secours - Unité 9010
+A3BI999;Capteur biométrique A3 - Zone 999
+A4BI999;Capteur biométrique A4 - Zone 999
+A43ABI999;Capteur biométrique A43A - Zone 999
+A37A1BI999;Capteur biométrique A37A1 - Zone 999
+A41BI999;Capteur biométrique A41 - Zone 999
+A16BI999;Capteur biométrique A16 - Zone 999
+A20BI999;Capteur biométrique A20 - Zone 999
+A17ABI999;Capteur biométrique A17A - Zone 999 
+A23ABI999;Capteur biométrique A23A - Zone 999
+A37ABI999;Capteur biométrique A37A - Zone 999
+A23AqBI999;Capteur biométrique A23Aq - Zone 999
+A15BI999;Capteur biométrique A15 - Zone 999
+A12BI999;Capteur biométrique A12 - Zone 999
+L3AZBM999;Module biomédicale L3AZ - Laboratoire 999
+L11BI999;Interface biométrique L11 - Laboratoire 999
+L11BM999;Module biomédicale L11 - Laboratoire 999
+L1AZBM999;Module biomédicale L1AZ - Laboratoire 999
+L2BI999;Interface biométrique L2 - Laboratoire 999
+L8AZBM999;Module biomédicale L8AZ - Laboratoire 999
+L2BM999;Module biomédicale L2 - Laboratoire 999
+L31BM999;Module biomédicale L31 - Laboratoire 999
+L31BI999;Interface biométrique L31 - Laboratoire 999
+L5AZBM999;Module biomédicale L5AZ - Laboratoire 999
+L1DZBM999;Module biomédicale L1DZ - Laboratoire 999

@@ -11,7 +11,6 @@ router.post('/predict', async (req, res) => {
     let pyshell = null;
     
     try {
-        // Remove the req.setTimeout as it's not needed
         console.log('Received request data:', req.body);
         
         if (!req.body || !req.body.data) {
@@ -21,7 +20,6 @@ router.post('/predict', async (req, res) => {
             });
         }
 
-        // Validate required fields
         const requiredFields = ['LOCATION', 'STATUS', 'WOPRIORITY', 'ASSETNUM'];
         const missingFields = requiredFields.filter(field => !req.body.data[field]);
         if (missingFields.length > 0) {
@@ -31,26 +29,30 @@ router.post('/predict', async (req, res) => {
             });
         }
 
-        // Add description if not present
+        // Only send 'Description' (capital D) to Python, avoid duplicates
         const inputData = {
             ...req.body.data,
-            description: req.body.data.description || ''
+            Description: req.body.data.Description || req.body.data.description || ''
         };
 
-        // Write complete data including description
         const supervisedDir = path.join(__dirname, '..', 'ia_model', 'core', 'fault_detection', 'supervised');
         tempFilePath = path.join(supervisedDir, `temp_input_${Date.now()}.json`);
-        fs.writeFileSync(tempFilePath, JSON.stringify(inputData));
+        
+        // Encodage UTF-8 pour le fichier temporaire
+        const jsonData = JSON.stringify(inputData, null, 2);
+        const buffer = Buffer.from(jsonData, 'utf8');
+        fs.writeFileSync(tempFilePath, buffer);
+        
         console.log(`Fichier temporaire créé : ${tempFilePath}`);
 
-        // Configurez les options pour exécuter le script Python
         const options = {
             mode: 'text',
             pythonPath: 'C:\\Users\\omaim\\AppData\\Local\\Programs\\Python\\Python312\\python.exe',
-            pythonOptions: ['-u', '-X', 'utf8'],
+            pythonOptions: ['-u'],
             scriptPath: supervisedDir,
             args: [tempFilePath],
-            timeout: 30000, // Increased timeout to 30 seconds
+            timeout: 60000,
+            encoding: 'latin1',
             stderrParser: line => console.error(`[Python stderr]: ${line}`),
             terminalOptions: { windowsHide: true }
         };
@@ -68,8 +70,7 @@ router.post('/predict', async (req, res) => {
         
         pyshell.on('stderr', function(stderr) {
             console.error(`[Python stderr]: ${stderr}`);
-            hasError = true;
-            errorMessage = stderr;
+            // Ne pas setter hasError ici, juste logguer
         });
         
         pyshell.on('error', function(err) {
@@ -78,18 +79,15 @@ router.post('/predict', async (req, res) => {
             console.error(`[Python error]: ${err.message}`);
         });
         
-        // Add timeout promise
         const timeoutPromise = new Promise((_, reject) => {
-            setTimeout(() => reject(new Error('Timeout')), 30000);
+            setTimeout(() => reject(new Error('Timeout')), 60000);
         });
 
-        // Wait for either completion or timeout
         await Promise.race([
             new Promise((resolve) => pyshell.on('close', resolve)),
             timeoutPromise
         ]);
         
-        // Nettoyez le fichier temporaire
         try {
             if (tempFilePath && fs.existsSync(tempFilePath)) {
                 fs.unlinkSync(tempFilePath);
@@ -103,14 +101,13 @@ router.post('/predict', async (req, res) => {
             return res.status(500).json({
                 success: false,
                 error: "Erreur lors de l'exécution du modèle",
-                details: errorMessage
+                details: errorMessage,
+                input_data: inputData // Ajout des données d'entrée pour le debugging
             });
         }
         
         console.log("Résultats bruts retournés par PythonShell :", output);
         
-        // Trouver la dernière ligne qui contient du JSON valide
-        // Remove the first response sending
         let prediction = null;
         if (Array.isArray(output) && output.length > 0) {
             for (let i = output.length - 1; i >= 0; i--) {
@@ -134,7 +131,6 @@ router.post('/predict', async (req, res) => {
                 }
             };
             
-            // Calculer et afficher l'accuracy
             try {
                 const accuracyOptions = {
                     mode: 'text',
@@ -161,7 +157,6 @@ router.post('/predict', async (req, res) => {
                     pyshellAccuracy.on('close', () => resolve(output));
                 });
 
-                // Ajouter les métriques d'accuracy à la réponse
                 if (accuracyResult && accuracyResult.length > 0) {
                     formattedResponse.prediction.accuracy_metrics = accuracyResult;
                 }
@@ -169,17 +164,17 @@ router.post('/predict', async (req, res) => {
                 console.error("Erreur lors du calcul de l'accuracy:", accuracyError);
             }
 
-            // If fault is detected, analyze factors
             if (prediction.prediction.etat === "En panne") {
                 try {
-                    const classifierOptions = {
-                        mode: 'text',
-                        pythonPath: 'C:\\Users\\omaim\\AppData\\Local\\Programs\\Python\\Python312\\python.exe',
-                        pythonOptions: ['-u', '-X', 'utf8'],
-                        scriptPath: path.join(__dirname, '..', 'ia_model', 'core', 'fault_detection', 'supervised'),
-                        args: [prediction.prediction.type], 
-                        terminalOptions: { windowsHide: true }
-                    };
+                    // COMMENTÉ POUR TESTS
+                    // const classifierOptions = {
+                    //     mode: 'text',
+                    //     pythonPath: 'C:\\Users\\omaim\\AppData\\Local\\Programs\\Python\\Python312\\python.exe',
+                    //     pythonOptions: ['-u', '-X', 'utf8'],
+                    //     scriptPath: path.join(__dirname, '..', 'ia_model', 'core', 'fault_detection', 'supervised'),
+                    //     args: [prediction.prediction.type], 
+                    //     terminalOptions: { windowsHide: true }
+                    // };
 
                     const classifierResult = await new Promise((resolve, reject) => {
                         const pyshellClassifier = new PythonShell('fault_classifier.py', classifierOptions);
@@ -198,22 +193,12 @@ router.post('/predict', async (req, res) => {
                     if (classifierResult && classifierResult.length > 0) {
                         const facteurs = JSON.parse(classifierResult[classifierResult.length - 1]);
                         formattedResponse.prediction.facteurs_influents = facteurs;
-                        
-                        // Ajout des colonnes si disponibles
-                        if (facteurs && Array.isArray(facteurs)) {
-                            formattedResponse.prediction.facteurs_columns = Object.keys(facteurs[0] || {});
-                        } else {
-                            formattedResponse.prediction.facteurs_columns = [];
-                        }
                     }
                 } catch (classifierError) {
-                    console.error("Erreur fault_classifier:", classifierError);
-                    formattedResponse.prediction.facteurs_influents = [];
-                    formattedResponse.prediction.facteurs_columns = [];
+                    console.error("Erreur lors de l'analyse des facteurs influents:", classifierError);
                 }
             }
 
-            // Envoi de la réponse finale
             return res.json(formattedResponse);
         } else {
             return res.status(500).json({
@@ -226,7 +211,6 @@ router.post('/predict', async (req, res) => {
     } catch (error) {
         console.error("Detailed error:", error);
         
-        // Cleanup pyshell if it exists
         if (pyshell) {
             try {
                 pyshell.terminate();
@@ -235,7 +219,6 @@ router.post('/predict', async (req, res) => {
             }
         }
 
-        // Cleanup temp file if it exists
         if (tempFilePath && fs.existsSync(tempFilePath)) {
             try {
                 fs.unlinkSync(tempFilePath);
@@ -258,7 +241,5 @@ router.post('/predict', async (req, res) => {
         });
     }
 });
-
-
 
 module.exports = router;

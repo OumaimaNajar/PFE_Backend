@@ -4,16 +4,26 @@ import pickle
 import os
 import pandas as pd
 from fault_classifier import FaultTypeClassifier
+import joblib
 
 def load_model():
     try:
         model_path = os.path.join(os.path.dirname(__file__), 'random_forest_model.pkl')
-        print(f"Loading model from: {model_path}")
+        print(f"Loading model from: {model_path}", file=sys.stderr)
         with open(model_path, 'rb') as f:
             return pickle.load(f)
     except Exception as e:
-        print(f"Failed to load model: {str(e)}")
+        print(f"Failed to load model: {str(e)}", file=sys.stderr)
         raise
+
+def load_facteur_model():
+    try:
+        model_path = os.path.join(os.path.dirname(__file__), 'facteur_influence_model.pkl')
+        print(f"Loading facteur model from: {model_path}", file=sys.stderr)
+        return joblib.load(model_path)
+    except Exception as e:
+        print(f"Failed to load facteur model: {str(e)}", file=sys.stderr)
+        return None
 
 def predict(input_data):
     try:
@@ -33,14 +43,28 @@ def predict(input_data):
         is_fault = final_fault_prob > 0.5
         etat = "En panne" if is_fault else "Fonctionnel"
         
-        # If fault detected, classify it
+        # If fault detected, classify it and analyze factors
         fault_diagnosis = None
         influencing_factors = []
         if is_fault:
             classifier = FaultTypeClassifier()
-            fault_diagnosis = classifier.predict_fault_type(input_data)
-            if fault_diagnosis and "type" in fault_diagnosis:
-                influencing_factors = get_influencing_factors(fault_diagnosis["type"])
+            fault_diagnosis = classifier.predict_fault_type(
+                input_data.get("Description", ""),
+                input_data.get("ASSETNUM", "")
+            )
+            # Charger le modèle de facteurs influents
+            facteur_model = load_facteur_model()
+            if facteur_model:
+                type_encoder = facteur_model['type_encoder']
+                facteur_encoder = facteur_model['facteur_encoder']
+                rf_model = facteur_model['model']
+                type_panne = fault_diagnosis["etat"]
+                type_panne_enc = type_encoder.transform([type_panne])
+                pred = rf_model.predict(type_panne_enc.reshape(-1, 1))
+                facteur = facteur_encoder.inverse_transform(pred)[0]
+                influencing_factors = [{"facteur_principal": facteur}]
+            else:
+                influencing_factors = []
 
         result = {
             "success": True,
@@ -53,8 +77,8 @@ def predict(input_data):
                         "fonctionnel": f"{final_ok_prob * 100:.2f}%",
                         "panne": f"{final_fault_prob * 100:.2f}%"
                     },
-                    "risk_factors": get_risk_factors(input_data),
-                    "fault_diagnosis": fault_diagnosis,
+                   # "risk_factors": get_risk_factors(input_data),
+                    "fault_diagnosis": fault_diagnosis, 
                     "influencing_factors": influencing_factors
                 },
                 "message": "Analyse complétée avec succès"
@@ -153,18 +177,37 @@ def get_risk_level(fault_prob):
 
 def get_influencing_factors(fault_type):
     try:
-        base_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(__file__)))))
-        csv_path = os.path.join(base_dir, 'data', 'facteurs_influencent_pannes.csv')
+        csv_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), '..', '..', 'data', 'facteurs_influencent_pannes.csv')
         
         if not os.path.exists(csv_path):
-            print(f"[ERREUR] Fichier CSV non trouvé : {csv_path}")
+            print(f"[ERREUR] Fichier CSV non trouvé : {csv_path}", file=sys.stderr)
             return []
-            
-        # Lecture du CSV avec gestion des encodages
+
+        # Essayer plusieurs encodages avec latin1 en premier
         try:
-            df = pd.read_csv(csv_path, sep=';', encoding='utf-8')
-        except UnicodeDecodeError:
             df = pd.read_csv(csv_path, sep=';', encoding='latin1')
+        except UnicodeDecodeError:
+            try:
+                df = pd.read_csv(csv_path, sep=';', encoding='utf-8-sig')
+            except Exception as e:
+                print(f"[ERREUR] Impossible de lire le fichier CSV: {str(e)}", file=sys.stderr)
+                return []
+        
+        # Liste des encodages à tester avec priorité pour le français
+        encodings = ['utf-8-sig', 'iso-8859-1', 'cp1252', 'latin1', 'utf-8']
+        
+        for encoding in encodings:
+            try:
+                # Test de lecture avec pandas
+                df = pd.read_csv(csv_path, sep=';', encoding=encoding)
+                print(f"Encodage réussi avec {encoding}", file=sys.stderr)
+                break
+            except (UnicodeDecodeError, pd.errors.EmptyDataError) as e:
+                print(f"Échec avec l'encodage {encoding}: {str(e)}", file=sys.stderr)
+                continue
+        else:
+            print("[ERREUR] Aucun encodage valide trouvé", file=sys.stderr)
+            return []
             
         # Normalisation du type de panne (suppression des guillemets et du point)
         fault_type_norm = fault_type.upper().strip().replace('"', '').replace('.', '')
@@ -198,20 +241,36 @@ def get_influencing_factors(fault_type):
         return []
         
     except Exception as e:
-        print(f"[ERREUR] Exception lors de la lecture des facteurs : {str(e)}")
+        print(f"[ERREUR] Exception lors de la lecture des facteurs : {str(e)}", file=sys.stderr)
         return [{"error": str(e)}]
 
 if __name__ == "__main__":
-    if len(sys.argv) != 2:
-        print(json.dumps({"error": "Input file path required"}))
-        sys.exit(1)
-
-    input_file = sys.argv[1]
     try:
-        with open(input_file, 'r') as f:
-            input_data = json.load(f)
+        # If a file path is provided as argument, read from file. Otherwise, read from stdin.
+        if len(sys.argv) > 1:
+            with open(sys.argv[1], 'r', encoding='utf-8') as f:
+                input_data = json.load(f)
+        else:
+            input_data = json.loads(sys.stdin.read())
         result = predict(input_data)
-        print(json.dumps(result))
+        print(json.dumps(result, ensure_ascii=False))
     except Exception as e:
-        print(json.dumps({"error": str(e)}))
-        sys.exit(1)
+        error_result = {
+            "success": False,
+            "error": str(e),
+            "prediction": {
+                "etat": "Inconnu",
+                "details": {
+                    "confidence": "0%",
+                    "risk_level": "Inconnu",
+                    "probabilities": {
+                        "fonctionnel": "0%",
+                        "panne": "0%"
+                    },
+                    "risk_factors": [],
+                    "fault_diagnosis": None
+                },
+                "message": "Erreur lors de l'exécution du modèle"
+            }
+        }
+        print(json.dumps(error_result, ensure_ascii=False))
