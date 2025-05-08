@@ -55,7 +55,7 @@ class RandomForestFaultDetector:
             'moteur', 'motor', 'machine', 'équipement', 'equipment'
         ]
         # Ajout de STATUS et WOPRIORITY aux features
-        self.features = ['LOCATION', 'STATUS', 'WOPRIORITY', 'ASSETNUM', 'Description', 'location_description', 'assetnum_description']
+        self.features = ['LOCATION', 'ASSETNUM', 'Description', 'location_description', 'assetnum_description']
         self.label_encoders = defaultdict(LabelEncoder)
         self.feature_categories = {}
         self.status_risk = {
@@ -289,8 +289,7 @@ class RandomForestFaultDetector:
             # Initialisation des données traitées avec valeurs par défaut
             processed_data = {
                 'LOCATION': input_data.get('LOCATION', 'UNKNOWN'),
-                'STATUS': input_data.get('STATUS', 'UNKNOWN'),
-                'WOPRIORITY': input_data.get('WOPRIORITY', '3'),
+                # 'STATUS': input_data.get('STATUS', 'UNKNOWN'),   # SUPPRIMÉ
                 'ASSETNUM': input_data.get('ASSETNUM', 'UNKNOWN'),
                 'Description': input_data.get('Description', ''),
                 'location_description': 'UNKNOWN',
