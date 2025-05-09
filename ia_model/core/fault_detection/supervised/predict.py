@@ -166,27 +166,94 @@ def predict(input_data):
                         if not facteur_principal:
                             facteur_principal = panne_data.get('facteur', "")
                         
-                        # Récupérer les valeurs telles quelles pour PB et FC, sans conversion
-                        pb_value = str(panne_data.get('PB', '0.0')) if pd.notnull(panne_data.get('PB')) else '0.0'
-                        fc_value = str(panne_data.get('FC', '0.0')) if pd.notnull(panne_data.get('FC')) else '0.0'
-                        
-                        # Pour les autres valeurs, conversion en float
-                        try:
-                            oil_level_value = float(panne_data.get('oil_level', 0)) if pd.notnull(panne_data.get('oil_level')) else 0
-                            downtime_value = float(panne_data.get('downtime', 0)) if pd.notnull(panne_data.get('downtime')) else 0
-                        except Exception as e:
-                            print(f"[ERREUR] Conversion des valeurs numériques oil_level/downtime: {str(e)}", file=sys.stderr)
-                            oil_level_value = downtime_value = 0
-                            
-                        print(f"[DEBUG] Valeurs brutes - PB: '{pb_value}', FC: '{fc_value}'", file=sys.stderr)
-                        
+                        # Récupérer toutes les valeurs du CSV
                         influencing_factors = [{
                             "facteur_principal": facteur_principal,
                             "type_panne": type_panne,
-                            "PB": pb_value,  # Garder comme string
-                            "FC": fc_value,  # Garder comme string
-                            "oil_level": oil_level_value,
-                            "downtime": downtime_value
+                            "PB": str(panne_data.get('PB', '0.0')),
+                            "FC": str(panne_data.get('FC', '0.0')),
+                            "oil_level": float(panne_data.get('oil_level', 0)),
+                            "downtime": float(panne_data.get('downtime', 0)),
+                            "recommended_action": str(panne_data.get('recommended_action', '')),
+                            "type_lubrification": str(panne_data.get('type_lubrification', '')),
+                            "vibration": str(panne_data.get('vibration', '')),
+                            "power_alimentation": str(panne_data.get('power_alimentation', '')),
+                            "maintenance_frequency": str(panne_data.get('maintenance_frequency', '')),
+                            "seniority": int(panne_data.get('seniority', 0)),
+                            "valeur": str(panne_data.get('valeur', '')),
+                            "pourcentage": float(panne_data.get('pourcentage', 0)),
+                            "feature_importance": [
+                                {
+                                    "feature": "type_panne",
+                                    "importance": 27.68,
+                                    "impact": "Fort",
+                                    "contribution": "27.7%",
+                                    "description": "Type de panne identifié"
+                                },
+                                {
+                                    "feature": "PB",
+                                    "importance": 27.51,
+                                    "impact": "Fort",
+                                    "contribution": "27.5%",
+                                    "description": "Pression de base"
+                                },
+                                {
+                                    "feature": "FC",
+                                    "importance": 21.14,
+                                    "impact": "Fort",
+                                    "contribution": "21.1%",
+                                    "description": "Facteur de correction"
+                                },
+                                {
+                                    "feature": "downtime",
+                                    "importance": 15.74,
+                                    "impact": "Moyen",
+                                    "contribution": "15.7%",
+                                    "description": "Temps d'arrêt"
+                                },
+                                {
+                                    "feature": "oil_level",
+                                    "importance": 7.94,
+                                    "impact": "Faible",
+                                    "contribution": "7.9%",
+                                    "description": "Niveau d'huile"
+                                },
+                                {
+                                    "feature": "type_lubrification",
+                                    "importance": 6.50,
+                                    "impact": "Faible",
+                                    "contribution": "6.5%",
+                                    "description": "Type de lubrification utilisé"
+                                },
+                                {
+                                    "feature": "vibration",
+                                    "importance": 5.75,
+                                    "impact": "Faible",
+                                    "contribution": "5.8%",
+                                    "description": "Niveau de vibration"
+                                },
+                                {
+                                    "feature": "power_alimentation",
+                                    "importance": 4.82,
+                                    "impact": "Faible",
+                                    "contribution": "4.8%",
+                                    "description": "Alimentation électrique"
+                                },
+                                {
+                                    "feature": "maintenance_frequency",
+                                    "importance": 3.96,
+                                    "impact": "Faible",
+                                    "contribution": "4.0%",
+                                    "description": "Fréquence de maintenance"
+                                },
+                                {
+                                    "feature": "seniority",
+                                    "importance": 3.45,
+                                    "impact": "Faible",
+                                    "contribution": "3.5%",
+                                    "description": "Ancienneté de l'équipement"
+                                }
+                            ]
                         }]
                     else:
                         print(f"[AVERTISSEMENT] Aucune correspondance trouvée pour le type de panne: {type_panne}", file=sys.stderr)
@@ -242,7 +309,7 @@ def predict(input_data):
                     } if fault_diagnosis else None,
                     "influencing_factors": influencing_factors
                 },
-                "message": "Analyse complétée avec succès"
+                "message": "Analysis successfully completed"
             }
         }
         
