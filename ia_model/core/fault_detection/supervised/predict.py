@@ -182,79 +182,59 @@ def predict(input_data):
                             "seniority": int(panne_data.get('seniority', 0)),
                             "valeur": str(panne_data.get('valeur', '')),
                             "pourcentage": float(panne_data.get('pourcentage', 0)),
-                            "feature_importance": [
-                                {
-                                    "feature": "type_panne",
-                                    "importance": 27.68,
-                                    "impact": "Fort",
-                                    "contribution": "27.7%",
-                                    "description": "Type de panne identifié"
-                                },
-                                {
-                                    "feature": "PB",
-                                    "importance": 27.51,
-                                    "impact": "Fort",
-                                    "contribution": "27.5%",
-                                    "description": "Pression de base"
-                                },
-                                {
-                                    "feature": "FC",
-                                    "importance": 21.14,
-                                    "impact": "Fort",
-                                    "contribution": "21.1%",
-                                    "description": "Facteur de correction"
-                                },
-                                {
-                                    "feature": "downtime",
-                                    "importance": 15.74,
-                                    "impact": "Moyen",
-                                    "contribution": "15.7%",
-                                    "description": "Temps d'arrêt"
-                                },
-                                {
-                                    "feature": "oil_level",
-                                    "importance": 7.94,
-                                    "impact": "Faible",
-                                    "contribution": "7.9%",
-                                    "description": "Niveau d'huile"
-                                },
-                                {
-                                    "feature": "type_lubrification",
-                                    "importance": 6.50,
-                                    "impact": "Faible",
-                                    "contribution": "6.5%",
-                                    "description": "Type de lubrification utilisé"
-                                },
-                                {
-                                    "feature": "vibration",
-                                    "importance": 5.75,
-                                    "impact": "Faible",
-                                    "contribution": "5.8%",
-                                    "description": "Niveau de vibration"
-                                },
-                                {
-                                    "feature": "power_alimentation",
-                                    "importance": 4.82,
-                                    "impact": "Faible",
-                                    "contribution": "4.8%",
-                                    "description": "Alimentation électrique"
-                                },
-                                {
-                                    "feature": "maintenance_frequency",
-                                    "importance": 3.96,
-                                    "impact": "Faible",
-                                    "contribution": "4.0%",
-                                    "description": "Fréquence de maintenance"
-                                },
-                                {
-                                    "feature": "seniority",
-                                    "importance": 3.45,
-                                    "impact": "Faible",
-                                    "contribution": "3.5%",
-                                    "description": "Ancienneté de l'équipement"
-                                }
-                            ]
+                            "feature_importance": []
                         }]
+
+                        # Récupérer les importances calculées dynamiquement depuis le modèle
+                        if facteur_model and isinstance(facteur_model, dict) and 'model' in facteur_model:
+                            model = facteur_model['model']
+                            if hasattr(model, 'feature_importances_'):
+                                print(f"[DEBUG] Récupération des feature importances du modèle", file=sys.stderr)
+                                
+                                # Définir les features dans le même ordre que l'entraînement
+                                features = [
+                                    'downtime',
+                                    'oil_level',
+                                    'type_lubrification',
+                                    'vibration',
+                                    'power_alimentation',
+                                    'maintenance_frequency',
+                                    'seniority'
+                                ]
+                                
+                                # Calculer les pourcentages d'importance en ignorant type_panne, PB, FC
+                                importances = model.feature_importances_[3:]  # Ignorer les 3 premières features
+                                total_importance = sum(importances)
+                                
+                                for feature, importance in zip(features, importances):
+                                    percentage = (importance / total_importance) * 100
+                                    impact = "Tres fort" if percentage > 25 else \
+                                            "Fort" if percentage > 20 else \
+                                            "Moyen" if percentage > 10 else "Faible"
+                                            
+                                    description = {
+                                        'downtime': "Temps d'arrêt",
+                                        'oil_level': "Niveau d'huile",
+                                        'type_lubrification': "Type de lubrification utilisé",
+                                        'vibration': "Niveau de vibration",
+                                        'power_alimentation': "Alimentation électrique",
+                                        'maintenance_frequency': "Fréquence de maintenance",
+                                        'seniority': "Ancienneté de l'équipement"
+                                    }
+                                    
+                                    influencing_factors[0]["feature_importance"].append({
+                                        "feature": feature,
+                                        "importance": round(percentage, 2),
+                                        "impact": impact,
+                                        "contribution": f"{percentage:.1f}%",
+                                        "description": description[feature]
+                                    })
+                                
+                                print(f"[INFO] Feature importances récupérées avec succès", file=sys.stderr)
+                            else:
+                                print(f"[AVERTISSEMENT] Le modèle n'a pas d'attribut feature_importances_", file=sys.stderr)
+                        else:
+                            print(f"[AVERTISSEMENT] Structure du modèle de facteurs invalide", file=sys.stderr)
                     else:
                         print(f"[AVERTISSEMENT] Aucune correspondance trouvée pour le type de panne: {type_panne}", file=sys.stderr)
                         influencing_factors = [{
@@ -312,6 +292,12 @@ def predict(input_data):
                 "message": "Analysis successfully completed"
             }
         }
+        
+        # Ajouter les logs pour afficher risk_level et probabilities
+        print(f"\n[INFO] Niveau de risque : {result['prediction']['details']['risk_level']}", file=sys.stderr)
+        print(f"[INFO] Probabilités :", file=sys.stderr)
+        print(f"  - Fonctionnel : {result['prediction']['details']['probabilities']['fonctionnel']}", file=sys.stderr)
+        print(f"  - Panne : {result['prediction']['details']['probabilities']['panne']}", file=sys.stderr)
         
         return result
         

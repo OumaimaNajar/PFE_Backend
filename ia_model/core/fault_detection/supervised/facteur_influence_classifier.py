@@ -297,13 +297,13 @@ class FacteurInfluenceClassifier:
         
         # Entraînement du modèle
         self.model.fit(X_train, y_train)
-        
+       
+       
+        # Calculer les importances des caractéristiques
         # Analyse détaillée des caractéristiques
         feature_importance = self.model.feature_importances_
+        # selection des features
         features = [
-            'type_panne',
-            'PB',
-            'FC',
             'downtime',
             'oil_level',
             'type_lubrification',
@@ -313,28 +313,29 @@ class FacteurInfluenceClassifier:
             'seniority'
         ]
         
-        print("\n[INFO] Importances des caractéristiques calculées par le modèle:", file=sys.stderr)
+        print("\n[INFO] Importances des features calculees par le modele:", file=sys.stderr)
         # Calculer les pourcentages d'importance
-        total_importance = sum(feature_importance)
+        total_importance = sum(feature_importance[3:])  # Ignorer les 3 premières features
         feature_importances = {}
         
         # Convertir les importances en pourcentages et les stocker
-        for feature, importance in zip(features, feature_importance):
+        for feature, importance in zip(features, feature_importance[3:]):  # Commencer à partir de la 4ème feature
+            # Calculer le pourcentage d'importance
+            # Stocker les pourcentages d'importance
             percentage = (importance / total_importance) * 100
             feature_importances[feature] = round(percentage, 2)
             print(f"[INFO] {feature}: {percentage:.2f}%", file=sys.stderr)
             
         # Créer la liste des importances avec les impacts
         self.feature_importances_ = []
+        # Ajouter les importances avec les impacts
         for feature, importance in feature_importances.items():
+            # Categorisation de l'impact en fonction de l'importance
             impact = "Très fort" if importance > 25 else \
                     "Fort" if importance > 20 else \
                     "Moyen" if importance > 10 else "Faible"
             
             description = {
-                'type_panne': "Type de panne identifié",
-                'PB': "Pression de base",
-                'FC': "Facteur de correction",
                 'downtime': "Temps d'arrêt",
                 'oil_level': "Niveau d'huile",
                 'type_lubrification': "Type de lubrification utilisé",
