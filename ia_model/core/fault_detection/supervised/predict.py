@@ -7,6 +7,10 @@ from fault_classifier import FaultTypeClassifier
 import joblib
 import re
 
+# Ajouter en haut du fichier
+from functools import lru_cache
+
+@lru_cache(maxsize=1)
 def load_model():
     try:
         model_path = os.path.join(os.path.dirname(__file__), 'random_forest_model.pkl')
@@ -17,6 +21,7 @@ def load_model():
         print(f"Failed to load model: {str(e)}", file=sys.stderr)
         raise
 
+@lru_cache(maxsize=1)
 def load_facteur_model():
     try:
         model_path = os.path.join(os.path.dirname(__file__), 'facteur_influence_model.pkl')
@@ -35,8 +40,21 @@ def load_factors_csv():
         return None
         
     # Liste des encodages à tester
-    encodings = ['latin1', 'utf-8-sig', 'iso-8859-1', 'cp1252', 'utf-8']
+    encodings = ['latin1', 'utf-8-sig', 'iso-8859-1', 'cp1252', 'utf-8', 'utf-16', 'ascii', 'windows-1250', 'windows-1252']
     
+    # Tentative de détection automatique de l'encodage
+    try:
+        import chardet
+        with open(csv_path, 'rb') as f:
+            result = chardet.detect(f.read())
+        detected_encoding = result['encoding']
+        if detected_encoding and detected_encoding not in encodings:
+            encodings.insert(0, detected_encoding)
+            print(f"[INFO] Encodage détecté automatiquement: {detected_encoding}", file=sys.stderr)
+    except ImportError:
+        print("[INFO] Module chardet non disponible, utilisation de la liste d'encodages prédéfinie", file=sys.stderr)
+    
+    # Reste du code inchangé
     for encoding in encodings:
         try:
             df = pd.read_csv(csv_path, sep=';', encoding=encoding)
@@ -81,10 +99,14 @@ def normalize_string(text):
     text = re.sub(r'\s+', ' ', text)
     return text
 
-def predict(input_data):
+def predict(input_data, preloaded_model=None):
     try:
-        # Load model
-        model_data = load_model()
+        print("[DEBUG] Début de la prédiction avec les données:", file=sys.stderr)
+        print(f"[DEBUG] {json.dumps(input_data, ensure_ascii=False)}", file=sys.stderr)
+        
+        # Load model if not provided
+        model_data = preloaded_model if preloaded_model is not None else load_model()
+        print(f"[DEBUG] Modèle chargé avec succès. Features: {model_data['features']}", file=sys.stderr)
         
         # Process input data for prediction
         processed_data = process_input_data(input_data, model_data)
@@ -97,16 +119,23 @@ def predict(input_data):
         desc = input_data.get('Description', '').lower()
         
         # Détection des mots-clés critiques
-        critical_keywords = ['arrêt d\'urgence', 'critique', 'emergency', 'critical', 'urgent', 'majeure', 'severe']
-        technical_issues = ['surchauffe', 'overheating', 'fuite', 'leak', 'dysfonctionnement', 'malfunction']
-        
+        critical_keywords = [
+            'arrêt d\'urgence', 'critique', 'emergency', 'critical', 'urgent', 'urgente', 
+            'majeure', 'severe', 'grave', 'graves', 'sérieux', 'sérieuse', 'important', 'significatif',
+            'dangereux', 'dangereuse', 'risque', 'prioritaire', 'immédiat', 'immédiate'
+        ]
+        technical_issues = [
+            'surchauffe', 'overheating', 'fuite', 'leak', 'dysfonctionnement', 'malfunction',
+            'hydraulique', 'pression', 'huile', 'oil', 'rupture', 'cassé', 'cassée', 'brisé', 'brisée',
+            'bloqué', 'bloquée', 'vibration', 'bruit', 'noise', 'odeur', 'smell'
+        ]
         critical_count = sum(1 for kw in critical_keywords if kw in desc)
         issues_count = sum(1 for issue in technical_issues if issue in desc)
         
         # Ajustement de la probabilité pour les situations critiques
         if critical_count > 0 or issues_count >= 2:
             # Augmenter la probabilité de panne en fonction de la gravité détectée
-            severity_factor = min(0.95, 0.3 + (critical_count * 0.2) + (issues_count * 0.15))
+            severity_factor = min(0.98, 0.5 + (critical_count * 0.2) + (issues_count * 0.15))
             final_fault_prob = max(prediction_proba[1], severity_factor)
             print(f"[INFO] Situation critique détectée! Probabilité ajustée: {final_fault_prob:.2f}", file=sys.stderr)
         else:
@@ -361,17 +390,48 @@ def process_input_data(input_data, model_data):
         value = input_data.get(feature, 'UNKNOWN')
         if feature in model_data['label_encoders']:
             # Ensure value exists in label encoder classes
-            if value not in model_data['label_encoders'][feature].classes_:
+            if str(value) not in map(str, model_data['label_encoders'][feature].classes_):
+                print(f"[AVERTISSEMENT] Valeur '{value}' non trouvée pour la feature '{feature}', utilisation de 'UNKNOWN'", file=sys.stderr)
                 value = 'UNKNOWN'
                 
             try:
                 processed_data[feature] = model_data['label_encoders'][feature].transform([value])[0]
             except Exception as e:
                 print(f"[ERREUR] Échec de transformation pour {feature}: {str(e)}", file=sys.stderr)
+                # Utiliser 0 comme valeur par défaut pour les erreurs d'encodage
                 processed_data[feature] = 0
         else:
-            processed_data[feature] = value
-            
+            # Pour les features numériques, s'assurer qu'elles sont converties en nombres
+            if feature in ['oil_level', 'downtime', 'vibration', 'seniority']:
+                try:
+                    processed_data[feature] = float(value) if value != 'UNKNOWN' else 0.0
+                except (ValueError, TypeError):
+                    print(f"[AVERTISSEMENT] Conversion en nombre échouée pour {feature}, utilisation de 0", file=sys.stderr)
+                    processed_data[feature] = 0.0
+            else:
+                processed_data[feature] = value
+    
+    # Vérifier que toutes les features requises sont présentes
+    missing_features = [f for f in model_data['features'] if f not in processed_data]
+    if missing_features:
+        print(f"[AVERTISSEMENT] Features manquantes: {missing_features}", file=sys.stderr)
+        # Ajouter des valeurs par défaut pour les features manquantes
+        for feature in missing_features:
+            if feature in ['oil_level', 'downtime', 'vibration', 'seniority']:
+                processed_data[feature] = 0.0
+            else:
+                processed_data[feature] = 0
+    
+    # Vérifier que toutes les valeurs sont numériques avant de retourner
+    for feature, value in processed_data.items():
+        if not isinstance(value, (int, float)):
+            print(f"[AVERTISSEMENT] Conversion forcée de {feature} en nombre", file=sys.stderr)
+            try:
+                processed_data[feature] = float(value)
+            except (ValueError, TypeError):
+                processed_data[feature] = 0.0
+    
+    print(f"[DEBUG] Données prétraitées: {processed_data}", file=sys.stderr)
     return processed_data
 
 # Supprimer cette fonction entière
@@ -407,70 +467,171 @@ def get_risk_level(fault_prob):
         return "Moyen"
     return "Faible"
 
+def monitor_model_performance(prediction_result, actual_outcome=None):
+    """
+    Surveille les performances du modèle en production.
+    
+    Args:
+        prediction_result (dict): Résultat de la prédiction
+        actual_outcome (str, optional): Résultat réel (si disponible)
+        
+    Returns:
+        None
+    """
+    try:
+        # Créer un répertoire pour stocker les données de surveillance
+        monitoring_dir = os.path.join(os.path.dirname(__file__), 'monitoring')
+        os.makedirs(monitoring_dir, exist_ok=True)
+        
+        # Fichier de surveillance
+        monitoring_file = os.path.join(monitoring_dir, f'model_monitoring_{datetime.now().strftime("%Y%m%d")}.csv')
+        
+        # Préparer les données à enregistrer
+        monitoring_data = {
+            'timestamp': datetime.now().isoformat(),
+            'predicted_state': prediction_result.get('prediction', {}).get('etat', 'Inconnu'),
+            'confidence': prediction_result.get('prediction', {}).get('details', {}).get('confidence', '0%'),
+            'actual_outcome': actual_outcome if actual_outcome is not None else 'Unknown'
+        }
+        
+        # Créer un DataFrame
+        monitoring_df = pd.DataFrame([monitoring_data])
+        
+        # Ajouter au fichier CSV (créer s'il n'existe pas)
+        if os.path.exists(monitoring_file):
+            monitoring_df.to_csv(monitoring_file, mode='a', header=False, index=False)
+        else:
+            monitoring_df.to_csv(monitoring_file, index=False)
+            
+        logger.info(f"Données de surveillance enregistrées: {monitoring_data}")
+        
+    except Exception as e:
+        logger.error(f"Erreur lors de la surveillance du modèle: {str(e)}")
+
+def explain_prediction(input_data):
+    """
+    Explique la prédiction en utilisant les valeurs SHAP.
+    
+    Args:
+        input_data (dict): Données d'entrée pour la prédiction
+        
+    Returns:
+        dict: Explication de la prédiction avec les contributions des features
+    """
+    try:
+        # Importer SHAP (nécessite d'installer le package)
+        import shap
+        
+        # Charger le modèle
+        model_data = load_model()
+        model = model_data['model']
+        
+        # Prétraiter les données
+        processed_data = process_input_data(input_data, model_data)
+        X_input = pd.DataFrame([processed_data])
+        
+        # Créer l'explainer SHAP
+        explainer = shap.TreeExplainer(model)
+        shap_values = explainer.shap_values(X_input)
+        
+        # Obtenir les noms des features
+        feature_names = X_input.columns.tolist()
+        
+        # Créer l'explication
+        explanation = []
+        for i, feature in enumerate(feature_names):
+            # Pour un modèle de classification binaire, shap_values est une liste de deux arrays
+            # Le premier pour la classe 0, le second pour la classe 1
+            contribution_class_1 = shap_values[1][0][i]
+            explanation.append({
+                "feature": feature,
+                "contribution": float(contribution_class_1),
+                "impact": "Positif" if contribution_class_1 > 0 else "Négatif",
+                "magnitude": abs(float(contribution_class_1))
+            })
+        
+        # Trier par magnitude décroissante
+        explanation.sort(key=lambda x: x["magnitude"], reverse=True)
+        
+        # Faire une prédiction normale
+        prediction_result = predict(input_data)
+        
+        # Ajouter l'explication à la prédiction
+        prediction_result["explanation"] = explanation
+        
+        return prediction_result
+        
+    except ImportError:
+        print("[AVERTISSEMENT] Le package shap n'est pas installé. L'explication n'est pas disponible.", file=sys.stderr)
+        # Faire une prédiction normale sans explication
+        return predict(input_data)
+    except Exception as e:
+        print(f"[ERREUR] Échec de l'explication: {str(e)}", file=sys.stderr)
+        import traceback
+        traceback.print_exc(file=sys.stderr)
+        return {
+            "success": False,
+            "error": str(e),
+            "message": "Impossible de générer l'explication"
+        }
+# Ajouter en haut du fichier
+import logging
+from datetime import datetime
+
+# Configuration du logger
+def setup_logger():
+    logger = logging.getLogger('predict')
+    logger.setLevel(logging.INFO)
+    
+    # Créer un gestionnaire de fichier qui écrit les logs dans un fichier
+    log_dir = os.path.join(os.path.dirname(__file__), 'logs')
+    os.makedirs(log_dir, exist_ok=True)
+    
+    log_file = os.path.join(log_dir, f'predict_{datetime.now().strftime("%Y%m%d")}.log')
+    file_handler = logging.FileHandler(log_file)
+    file_handler.setLevel(logging.INFO)
+    
+    # Créer un gestionnaire de console qui écrit les logs sur stderr
+    console_handler = logging.StreamHandler(sys.stderr)
+    console_handler.setLevel(logging.INFO)
+    
+    # Créer un formateur et l'ajouter aux gestionnaires
+    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    file_handler.setFormatter(formatter)
+    console_handler.setFormatter(formatter)
+    
+    # Ajouter les gestionnaires au logger
+    logger.addHandler(file_handler)
+    logger.addHandler(console_handler)
+    
+    return logger
+
+# Initialiser le logger
+logger = setup_logger()
+
+# À la fin du fichier, ajoutez ce code pour le traitement des entrées depuis stdin
 if __name__ == "__main__":
     try:
-        # If a file path is provided as argument, read from file. Otherwise, read from stdin.
+        # Lire les données d'entrée depuis stdin ou un fichier
         if len(sys.argv) > 1:
-            input_file = sys.argv[1]
-            print(f"[INFO] Lecture du fichier d'entrée: {input_file}", file=sys.stderr)
-            with open(input_file, 'r', encoding='utf-8') as f:
+            # Si un fichier est spécifié en argument
+            with open(sys.argv[1], 'r', encoding='utf-8') as f:
                 input_data = json.load(f)
         else:
-            print("[INFO] Lecture des données depuis stdin", file=sys.stderr)
-            input_data = json.loads(sys.stdin.read())
-            
-        print(f"[DEBUG] Données d'entrée reçues: {json.dumps(input_data, ensure_ascii=False)}", file=sys.stderr)
+            # Sinon, lire depuis stdin
+            input_data = json.load(sys.stdin)
         
+        # Effectuer la prédiction
         result = predict(input_data)
         
-        # NE PAS essayer de convertir PB et FC en float
-        # S'assurer que l'on préserve les valeurs comme des chaînes de caractères
-        for factor in result.get('prediction', {}).get('details', {}).get('influencing_factors', []):
-            # Vérifier que PB et FC sont bien des strings
-            if 'PB' in factor and not isinstance(factor['PB'], str):
-                factor['PB'] = str(factor['PB'])
-            if 'FC' in factor and not isinstance(factor['FC'], str):
-                factor['FC'] = str(factor['FC'])
-                
-            # Conversion des autres valeurs numériques pour la sérialisation
-            for key in ['oil_level', 'downtime']:
-                if key in factor:
-                    try:
-                        factor[key] = float(factor[key])
-                    except (ValueError, TypeError):
-                        factor[key] = 0
-        
+        # Écrire le résultat sur stdout au format JSON
         print(json.dumps(result, ensure_ascii=False))
         
     except Exception as e:
-        print(f"[ERREUR] Exception principale: {str(e)}", file=sys.stderr)
-        import traceback
-        traceback.print_exc(file=sys.stderr)
-        
         error_result = {
             "success": False,
             "error": str(e),
-            "prediction": {
-                "etat": "Inconnu",
-                "details": {
-                    "confidence": "0%",
-                    "risk_level": "Inconnu",
-                    "probabilities": {
-                        "fonctionnel": "0%",
-                        "panne": "0%"
-                    },
-                    "risk_factors": [],
-                    "fault_diagnosis": None,
-                    "influencing_factors": [{
-                        "facteur_principal": "Erreur",
-                        "type_panne": "Inconnu",
-                        "PB": "0.0",  # Utiliser une chaîne par défaut
-                        "FC": "0.0",  # Utiliser une chaîne par défaut
-                        "oil_level": 0,
-                        "downtime": 0,
-                        "error": str(e)
-                    }]
-                },
-                "message": "Erreur lors de l'exécution du modèle"
-            }
+            "message": "Une erreur s'est produite lors du traitement"
         }
+        print(json.dumps(error_result, ensure_ascii=False))
+        sys.exit(1)

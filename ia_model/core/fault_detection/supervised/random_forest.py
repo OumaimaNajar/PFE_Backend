@@ -43,11 +43,13 @@ class RandomForestFaultDetector:
         )
         self.keywords = [
             # Urgence et criticité
-            'urgent', 'emergency', 'critical', 'arrêt d\'urgence', 'emergency stop',
-            'majeure', 'severe', 'grave', 'important', 'significant', 'major',
+            'urgent', 'urgente', 'urgents', 'urgentes', 'emergency', 'critical', 
+            'arrêt d\'urgence', 'emergency stop', 'majeure', 'majeures',
+            'severe', 'grave', 'graves', 'important', 'importante', 'importants', 'importantes',
+            'significant', 'major', 'critique', 'critiques',
             
             # Pannes matérielles
-            'leak', 'stopped', 'overheating', 'failure', 'broken', 
+            'leak', 'fuite', 'fuites', 'stopped', 'overheating', 'failure', 'broken', 
             'malfunction', 'error', 'defect', 'fault', 'out of order',
             'shutdown', 'crash', 'jammed', 'blocked', 'unresponsive',
             'slow', 'interrupted', 'disconnected', 'unstable', 'corrupted',
@@ -67,11 +69,18 @@ class RandomForestFaultDetector:
             'système principal', 'main system'
         ]
         
-        self.features = ['LOCATION', 'ASSETNUM', 'Description', 'location_description', 'assetnum_description']
-        self.numeric_features = ['oil_level', 'downtime', 'seniority']
+        # Mise à jour des features pour inclure toutes les colonnes disponibles SAUF PB et FC
+        self.features = ['LOCATION', 'ASSETNUM', 'Description', 'location_description', 'assetnum_description',
+                         'type_lubrification', 'oil_level', 'downtime', 'vibration', 
+                         'power_alimentation', 'maintenance_frequency', 'seniority']
+        
+        # Mise à jour des features numériques
+        self.numeric_features = ['oil_level', 'downtime', 'seniority', 'vibration']
+        
+        # Mise à jour des features catégorielles
         self.categorical_features = [
             'LOCATION', 'ASSETNUM', 'Description', 'location_description', 
-            'assetnum_description', 'type_lubrification', 'vibration', 
+            'assetnum_description', 'type_lubrification',
             'power_alimentation', 'maintenance_frequency'
         ]
         
@@ -109,6 +118,20 @@ class RandomForestFaultDetector:
             # Nettoyage des noms de colonnes
             df.columns = df.columns.str.replace('ï»¿', '').str.strip()
             logger.info(f"Données chargées: {len(df)} enregistrements")
+            
+            # Vérification des colonnes supplémentaires
+            additional_columns = ['FC', 'PB', 'type_lubrification', 'oil_level', 'downtime', 
+                                 'vibration', 'power_alimentation', 'maintenance_frequency', 'seniority']
+            
+            missing_columns = [col for col in additional_columns if col not in df.columns]
+            if missing_columns:
+                logger.warning(f"Colonnes manquantes dans le dataset: {missing_columns}")
+                # Création des colonnes manquantes avec valeurs par défaut
+                for col in missing_columns:
+                    if col in self.numeric_features:
+                        df[col] = 0
+                    else:
+                        df[col] = 'UNKNOWN'
         
             # Vérification de la colonne Description
             description_column = next((col for col in df.columns if col.lower() == 'description'), None)
@@ -149,7 +172,11 @@ class RandomForestFaultDetector:
             # Conversion des colonnes numériques
             for col in self.numeric_features:
                 if col in df_cleaned.columns:
-                    df_cleaned[col] = pd.to_numeric(df_cleaned[col], errors='coerce').fillna(0)
+                    # Conversion en pourcentage pour oil_level si nécessaire
+                    if col == 'oil_level' and df_cleaned[col].dtype == 'object':
+                        df_cleaned[col] = df_cleaned[col].str.replace('%', '').astype(float) / 100
+                    else:
+                        df_cleaned[col] = pd.to_numeric(df_cleaned[col], errors='coerce').fillna(0)
             
             # Gestion des catégories
             for col in self.categorical_features:
@@ -181,7 +208,7 @@ class RandomForestFaultDetector:
             logger.info(f"Distribution des pannes: {df_cleaned['PANNE'].value_counts().to_dict()}")
         
             return df_cleaned
-    
+        
         except Exception as e:
             logger.error(f"Erreur lors du chargement des données : {str(e)}", exc_info=True)
             raise
@@ -191,23 +218,35 @@ class RandomForestFaultDetector:
         logger.info("Début du prétraitement des données")
         print("\nPrétraitement des données...")
         
-        for feature in self.features:
-            if feature in self.categorical_features and feature in df.columns:
+        # Préparation des features catégorielles
+        for feature in self.categorical_features:
+            if feature in df.columns:
                 # Gestion des valeurs manquantes et inconnues
                 df[feature] = df[feature].fillna('UNKNOWN')
+                
+                # Création des catégories si elles n'existent pas encore
+                if feature not in self.feature_categories:
+                    self.feature_categories[feature] = df[feature].unique().tolist()
+                    if 'UNKNOWN' not in self.feature_categories[feature]:
+                        self.feature_categories[feature].append('UNKNOWN')
+                
+                # Encodage des catégories
                 df[feature] = df[feature].apply(
                     lambda x: str(x) if str(x) in map(str, self.feature_categories[feature]) else "UNKNOWN"
                 )
                 
-                # Encodage des catégories
                 if feature not in self.label_encoders:
                     self.label_encoders[feature] = LabelEncoder()
                     self.label_encoders[feature].fit(self.feature_categories[feature])
-                df[feature] = self.label_encoders[feature].transform(df[feature])
                 
+                df[feature] = self.label_encoders[feature].transform(df[feature])
                 logger.info(f"Encodage de {feature} terminé avec {len(self.label_encoders[feature].classes_)} classes")
         
-        X = df[self.features]
+        # Sélection des features pour l'entraînement
+        available_features = [f for f in self.features if f in df.columns]
+        logger.info(f"Features disponibles pour l'entraînement: {available_features}")
+        
+        X = df[available_features]
         y = df['PANNE']
         
         X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42, stratify=y)
@@ -219,8 +258,15 @@ class RandomForestFaultDetector:
         """Entraîne le modèle Random Forest"""
         logger.info("Début de l'entraînement du modèle")
         print("\nEntraînement du modèle...")
+        
+        # Sauvegarde des colonnes utilisées pour l'entraînement
+        self.last_training_columns = X_train.columns.tolist()
+        
         self.model.fit(X_train, y_train)
         logger.info("Modèle entraîné avec succès")
+        
+        # Analyse de l'importance des features
+        self.analyze_feature_importance()
         
         # Importance des features
         feature_importances = pd.DataFrame(
@@ -264,7 +310,7 @@ class RandomForestFaultDetector:
         logger.info(f"Métriques d'évaluation: {metrics}")
         logger.info(f"Rapport de classification:\n{report}")
         
-        # Matrice de confusion
+        # Matrice de confusion - Correction ici
         self.plot_confusion_matrix(y_test, y_pred)
         
         return metrics
@@ -312,154 +358,42 @@ class RandomForestFaultDetector:
         logger.info("Matrice de confusion sauvegardée dans 'confusion_matrix.png'")
         plt.show()
 
-    def predict_fault(self, input_data):
-        """Prédit si une panne est détectée avec une logique renforcée"""
-        try:
-            # Vérification et normalisation des données d'entrée
-            if isinstance(input_data, str):
-                try:
-                    input_data = json.loads(input_data)
-                except json.JSONDecodeError:
-                    logger.error("Erreur de décodage JSON des données d'entrée")
-                    return self._error_response("Format de données invalide")
+    def analyze_feature_importance(self):
+        """Analyse et affiche l'importance des features après l'entraînement"""
+        if not hasattr(self.model, 'feature_importances_'):
+            logger.warning("Le modèle n'a pas encore été entraîné ou ne supporte pas l'analyse d'importance")
+            return None
         
-            if not isinstance(input_data, dict):
-                logger.error(f"Format de données invalide: {type(input_data)}")
-                return self._error_response("Format de données invalide")
+        # Récupération des noms de features utilisées lors de l'entraînement
+        feature_names = self.features
+        if len(feature_names) != len(self.model.feature_importances_):
+            # Ajustement si certaines features n'ont pas été utilisées
+            logger.warning(f"Nombre de features ({len(feature_names)}) ne correspond pas aux importances ({len(self.model.feature_importances_)})")
+            # Utiliser les noms des colonnes du dernier entraînement
+            feature_names = [f for f in self.features if f in self.last_training_columns]
         
-            # Initialisation des données
-            processed_data = {
-                'LOCATION': input_data.get('LOCATION', 'UNKNOWN'),
-                'ASSETNUM': input_data.get('ASSETNUM', 'UNKNOWN'),
-                'Description': input_data.get('Description', ''),
-                'location_description': 'UNKNOWN',
-                'assetnum_description': 'UNKNOWN'
-            }
+        # Création du DataFrame des importances
+        feature_importances = pd.DataFrame({
+            'feature': feature_names,
+            'importance': self.model.feature_importances_
+        }).sort_values('importance', ascending=False)
         
-            # Analyse de la description avec une logique plus stricte
-            desc = processed_data['Description'].lower()
-            risk_factors = []
-            risk_score = 0.0
+        # Affichage des résultats
+        print("\nImportance des features :")
+        print(feature_importances)
         
-            # Détection initiale des conditions critiques avec scores plus élevés
-            critical_conditions = {
-                'arrêt d\'urgence': 10.0,  # Score maximal
-                'emergency stop': 10.0,
-                'critique': 8.0,
-                'critical': 8.0,
-                'urgent': 7.0,
-                'majeure': 7.0,
-                'severe': 7.0,
-                'important': 6.0,
-                'importante': 6.0  # Ajout variante féminine
-            }
+        # Visualisation graphique
+        plt.figure(figsize=(10, 6))
+        sns.barplot(x='importance', y='feature', data=feature_importances)
+        plt.title('Importance des Features dans la Détection de Pannes')
+        plt.tight_layout()
         
-            # Vérification des conditions critiques avec cumul amélioré
-            critical_count = 0
-            for condition, score in critical_conditions.items():
-                if condition in desc:
-                    risk_score += score * 2.0  # Multiplicateur augmenté
-                    critical_count += 1
-                    risk_factors.append(f"Condition critique détectée: {condition}")
+        # Sauvegarde du graphique
+        output_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'output')
+        os.makedirs(output_dir, exist_ok=True)
+        plt.savefig(os.path.join(output_dir, 'feature_importance.png'))
         
-            # Bonus pour conditions critiques multiples renforcé
-            if critical_count > 1:
-                risk_score *= 2.5  # Multiplicateur augmenté
-        
-            # Détection des problèmes techniques avec scores plus élevés
-            technical_issues = {
-                'surchauffe': 8.0,
-                'overheating': 8.0,
-                'fuite': 7.0,
-                'leak': 7.0,
-                'dysfonctionnement': 7.0,
-                'malfunction': 7.0,
-                'système de refroidissement': 6.0,
-                'cooling system': 6.0,
-                'moteur principal': 6.0,
-                'main motor': 6.0
-            }
-        
-            # Vérification des problèmes techniques avec cumul
-            detected_issues = []
-            for issue, score in technical_issues.items():
-                if issue in desc:
-                    risk_score += score * 1.5  # Multiplicateur augmenté
-                    detected_issues.append(issue)
-                    risk_factors.append(f"Problème technique détecté: {issue}")
-        
-            # Bonus pour combinaison de problèmes (renforcé)
-            if len(detected_issues) > 1:
-                risk_score *= 3.0  # Multiplicateur significativement augmenté
-                risk_factors.append(f"Combinaison critique de {len(detected_issues)} problèmes détectés")
-        
-            # Diagnostic spécifique avec détection multiple et scores augmentés
-            fault_types = []
-            if any(kw in desc for kw in ['surchauffe', 'overheating']):
-                fault_types.append("SURCHAUFFE")
-                risk_score += 6.0
-            if any(kw in desc for kw in ['fuite', 'leak']):
-                fault_types.append("FUITE")
-                risk_score += 5.0
-            if any(kw in desc for kw in ['arrêt', 'stop', 'shutdown']):
-                fault_types.append("ARRÊT")
-                risk_score += 7.0
-            if any(kw in desc for kw in ['dysfonctionnement', 'malfunction']):
-                fault_types.append("DYSFONCTIONNEMENT")
-                risk_score += 5.0
-        
-            fault_diagnosis = "+".join(fault_types) if fault_types else None
-        
-            # Normalisation du score de risque avec seuil plus élevé
-            risk_score = min(max(risk_score, 0), 10)
-        
-            # Calcul des probabilités avec échelle ajustée - CORRIGEÉ
-            base_fault_prob = min(0.99, (risk_score / 10) * 5.0)  # Multiplicateur augmenté davantage
-        
-            # Ajustement final basé sur la criticité - CORRIGÉ
-            if len(fault_types) >= 2:
-                base_fault_prob = min(0.99, base_fault_prob * 3.0)  # Renforcement significatif
-            if critical_count >= 1:  # Activé dès qu'une condition critique est détectée
-                base_fault_prob = min(0.99, base_fault_prob * 2.5)  # Renforcement significatif
-        
-            final_fault_prob = base_fault_prob
-            final_ok_prob = 1 - final_fault_prob  # Calcul de la probabilité complémentaire
-        
-            # Seuils de risque ajustés - CORRIGÉ
-            risk_level = (
-                "Critique" if final_fault_prob > 0.4 else
-                "Élevé" if final_fault_prob > 0.25 else 
-                "Moyen" if final_fault_prob > 0.1 else 
-                "Faible"
-            )
-        
-            # Construction du résultat avec état ajusté - CORRIGÉ
-            # Abaissement du seuil à 0.35 pour les pannes
-            result = {
-                "success": True,
-                "prediction": {
-                    "etat": "En panne" if final_fault_prob > 0.35 else "Fonctionnel",
-                    "details": {
-                        "confidence": f"{max(final_fault_prob, final_ok_prob) * 100:.2f}%",
-                        "risk_level": risk_level,
-                        "probabilities": {
-                            "fonctionnel": f"{final_ok_prob * 100:.2f}%",
-                            "panne": f"{final_fault_prob * 100:.2f}%"
-                        },
-                        "risk_factors": risk_factors,
-                        "fault_diagnosis": fault_diagnosis,
-                        "influencing_factors": self._get_influencing_factors(fault_diagnosis) if fault_diagnosis else []
-                    },
-                    "message": "Analyse terminée avec succès"
-                }
-            }
-        
-            logger.info(f"Résultat de la prédiction: {result}")
-            return result
-    
-        except Exception as e:
-            logger.error(f"Erreur lors de la prédiction: {str(e)}", exc_info=True)
-            return self._error_response(f"Erreur lors de la prédiction: {str(e)}")
+        return feature_importances
 
     def _get_influencing_factors(self, fault_type):
         """Récupère les facteurs influents pour un type de panne donné"""
