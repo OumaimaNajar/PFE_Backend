@@ -20,7 +20,7 @@ router.post('/predict', async (req, res) => {
             });
         }
 
-        const requiredFields = ['LOCATION', 'STATUS', 'WOPRIORITY', 'ASSETNUM'];
+        const requiredFields = ['LOCATION', 'ASSETNUM', 'Description'];  // Added Description
         const missingFields = requiredFields.filter(field => !req.body.data[field]);
         if (missingFields.length > 0) {
             return res.status(400).json({

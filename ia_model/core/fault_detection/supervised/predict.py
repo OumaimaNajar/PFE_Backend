@@ -92,7 +92,26 @@ def predict(input_data):
         # Make prediction
         X_input = pd.DataFrame([processed_data])
         prediction_proba = model_data['model'].predict_proba(X_input)[0]
-        final_fault_prob = min(0.95, prediction_proba[1] + calculate_risk_score(input_data))
+        
+        # Analyse de la description pour détecter les situations critiques
+        desc = input_data.get('Description', '').lower()
+        
+        # Détection des mots-clés critiques
+        critical_keywords = ['arrêt d\'urgence', 'critique', 'emergency', 'critical', 'urgent', 'majeure', 'severe']
+        technical_issues = ['surchauffe', 'overheating', 'fuite', 'leak', 'dysfonctionnement', 'malfunction']
+        
+        critical_count = sum(1 for kw in critical_keywords if kw in desc)
+        issues_count = sum(1 for issue in technical_issues if issue in desc)
+        
+        # Ajustement de la probabilité pour les situations critiques
+        if critical_count > 0 or issues_count >= 2:
+            # Augmenter la probabilité de panne en fonction de la gravité détectée
+            severity_factor = min(0.95, 0.3 + (critical_count * 0.2) + (issues_count * 0.15))
+            final_fault_prob = max(prediction_proba[1], severity_factor)
+            print(f"[INFO] Situation critique détectée! Probabilité ajustée: {final_fault_prob:.2f}", file=sys.stderr)
+        else:
+            final_fault_prob = min(0.95, prediction_proba[1])
+            
         final_ok_prob = 1 - final_fault_prob
         
         # Determine state
@@ -355,6 +374,7 @@ def process_input_data(input_data, model_data):
             
     return processed_data
 
+# Supprimer cette fonction entière
 def calculate_risk_score(input_data):
     risk_score = 0.0
     
@@ -379,9 +399,11 @@ def calculate_risk_score(input_data):
     return risk_score
 
 def get_risk_level(fault_prob):
-    if fault_prob > 0.7:
-        return "Élevé"
-    elif fault_prob > 0.3:
+    if fault_prob > 0.4:  # Seuil abaissé pour mieux détecter les situations critiques
+        return "Critique"
+    elif fault_prob > 0.2:  # Seuil abaissé pour le niveau élevé
+        return "Eleve"
+    elif fault_prob > 0.1:  # Seuil pour les risques moyens
         return "Moyen"
     return "Faible"
 

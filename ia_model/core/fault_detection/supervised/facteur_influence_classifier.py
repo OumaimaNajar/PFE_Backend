@@ -284,7 +284,7 @@ class FacteurInfluenceClassifier:
                 test_size=0.2,
                 random_state=42
             )
-
+#
         # Amélioration du modèle avec plus de paramètres
         self.model = RandomForestClassifier(
             n_estimators=200,
