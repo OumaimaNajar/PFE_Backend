@@ -1,120 +1,120 @@
 type_panne;facteur;valeur;pourcentage;Description;recommended_action;FC;PB;type_lubrification;oil_level;downtime;vibration;power_alimentation;maintenance_frequency;seniority
-probleme tension;Tension d'alimentation - Isolation des cbles - Temperature des composants;85 dB;40.0;;Verifier les connexions electriques;PB_ELEC;PB_ELEC;semi-solide;5;5.28;non;bonne;trimestrielle;0
-usure mecanique;Charge appliquee - Fatigue du materiau - Lubrification;1500 RPM;100.0;;Remplacer la courroie;PB_MECA;PB_MECA;aucune;4;2.5;oui;faible;trimestrielle;8
+probleme tension;Tension d'alimentation;85 dB;40.0;;Verifier les connexions electriques;PB_ELEC;PB_ELEC;semi-solide;5;5.28;non;bonne;trimestrielle;0
+usure mecanique;Charge appliquee;1500 RPM;100.0;;Remplacer la courroie;PB_MECA;PB_MECA;aucune;4;2.5;oui;faible;trimestrielle;8
 turn western;Pression du systeme;>45°C;100.0;;Verifier l'etat des capteurs;DF_GEN;PB_GEN;aucune;2;1.05;oui;faible;annuelle;20
-defaut logiciel;Version du firmware - CPU Usage - Erreurs memoire;85 dB;66.66;;Redemarrer le systeme;PB_LOG;PB_LOG;graisse;1;2.36;non;bonne;trimestrielle;3
+defaut logiciel;Version du firmware;85 dB;66.66;;Redemarrer le systeme;PB_LOG;PB_LOG;graisse;1;2.36;non;bonne;trimestrielle;3
 usure mecanique;Pression du systeme;1500 RPM;100.0;;Remplacer la courroie;PB_MECA;PB_MECA;semi-solide;2;1.48;oui;faible;annuelle;18
-fuite hydraulique;Pression du systeme - etat des joints - Type de fluide;>45°C;100.0;;Identifier la source de la fuite;PB_HYD;PB_HYD;semi-solide;2;6.05;oui;bonne;hebdomadaire;2
-fuite hydraulique;Pression du systeme - etat des joints - Type de fluide;>45°C;100.0;;Identifier la source de la fuite;PB_HYD;PB_HYD;huile;3;2.74;non;bonne;mensuelle;20
-defaut logiciel;Version du firmware - CPU Usage - Erreurs memoire;1500 RPM;100.0;;Redemarrer le systeme;PB_LOG;PB_LOG;aucune;4;7.4;non;bonne;mensuelle;7
-defaut logiciel;Version du firmware - CPU Usage - Erreurs memoire;Humidite: 90% RH;50.0;;Redemarrer le systeme;PB_LOG;PB_LOG;semi-solide;5;2.22;oui;bonne;trimestrielle;18
-fuite hydraulique;Pression du systeme - etat des joints - Type de fluide;1500 RPM;100.0;;Identifier la source de la fuite;PB_HYD;PB_HYD;graisse;3;1.9;oui;moyenne;mensuelle;4
-fuite hydraulique;Pression du systeme - etat des joints - Type de fluide;>45°C;100.0;;Identifier la source de la fuite;PB_HYD;PB_HYD;graisse;3;2.46;non;faible;mensuelle;7
-defaut logiciel;Version du firmware - CPU Usage - Erreurs memoire;Humidite: 90% RH;100.0;;Redemarrer le systeme;PB_LOG;PB_LOG;huile;2;2.98;oui;faible;hebdomadaire;13
-fuite hydraulique;Pression du systeme - etat des joints - Type de fluide;1500 RPM;100.0;;Identifier la source de la fuite;PB_HYD;PB_HYD;aucune;4;3.43;oui;faible;annuelle;15
-fuite hydraulique;Pression du systeme - etat des joints - Type de fluide;85 dB;100.0;;Identifier la source de la fuite;PB_HYD;PB_HYD;huile;5;5.98;oui;moyenne;annuelle;10
-defaut logiciel;Version du firmware - CPU Usage - Erreurs memoire;85 dB;66.66;;Redemarrer le systeme;PB_LOG;PB_LOG;aucune;5;1.9;non;faible;mensuelle;14
-defaut logiciel;Version du firmware - CPU Usage - Erreurs memoire;Humidite: 90% RH;100.0;;Redemarrer le systeme;PB_LOG;PB_LOG;aucune;3;1.8;non;moyenne;trimestrielle;19
+fuite hydraulique;etat des joints;>45°C;100.0;;Identifier la source de la fuite;PB_HYD;PB_HYD;semi-solide;2;6.05;oui;bonne;hebdomadaire;2
+fuite hydraulique;etat des joints;>45°C;100.0;;Identifier la source de la fuite;PB_HYD;PB_HYD;huile;3;2.74;non;bonne;mensuelle;20
+defaut logiciel;Version du firmware;1500 RPM;100.0;;Redemarrer le systeme;PB_LOG;PB_LOG;aucune;4;7.4;non;bonne;mensuelle;7
+defaut logiciel;CPU Usage;Humidite: 90% RH;50.0;;Redemarrer le systeme;PB_LOG;PB_LOG;semi-solide;5;2.22;oui;bonne;trimestrielle;18
+fuite hydraulique;Type de fluide;1500 RPM;100.0;;Identifier la source de la fuite;PB_HYD;PB_HYD;graisse;3;1.9;oui;moyenne;mensuelle;4
+fuite hydraulique;Pression du système;>45°C;100.0;;Identifier la source de la fuite;PB_HYD;PB_HYD;graisse;3;2.46;non;faible;mensuelle;7
+defaut logiciel;Version du firmware;Humidite: 90% RH;100.0;;Redemarrer le systeme;PB_LOG;PB_LOG;huile;2;2.98;oui;faible;hebdomadaire;13
+fuite hydraulique;Pression du système;1500 RPM;100.0;;Identifier la source de la fuite;PB_HYD;PB_HYD;aucune;4;3.43;oui;faible;annuelle;15
+fuite hydraulique;Type de fluide;85 dB;100.0;;Identifier la source de la fuite;PB_HYD;PB_HYD;huile;5;5.98;oui;moyenne;annuelle;10
+defaut logiciel;CPU Usage;85 dB;66.66;;Redemarrer le systeme;PB_LOG;PB_LOG;aucune;5;1.9;non;faible;mensuelle;14
+defaut logiciel;Erreurs memoire;Humidite: 90% RH;100.0;;Redemarrer le systeme;PB_LOG;PB_LOG;aucune;3;1.8;non;moyenne;trimestrielle;19
 panne pneumatique;Pression du systeme;>45°C;100.0;;Inspecter le systeme pneumatique;PB_PNEU;PB_PNEU;huile;3;4.66;non;bonne;mensuelle;12
-fuite hydraulique;Pression du systeme - etat des joints - Type de fluide;>45°C;100.0;;Identifier la source de la fuite;PB_HYD;PB_HYD;semi-solide;2;7.65;oui;faible;trimestrielle;16
+fuite hydraulique;etat des joints;>45°C;100.0;;Identifier la source de la fuite;PB_HYD;PB_HYD;semi-solide;2;7.65;oui;faible;trimestrielle;16
 surchauffe moteur;Pression du systeme;Humidite: 90% RH;100.0;;Inspecter le systeme de refroidissement;PB_SUR;PB_SUR;huile;2;7.23;oui;moyenne;mensuelle;9
-usure mecanique;Charge appliquee - Fatigue du matériau - Lubrification;Humidite: 90% RH;50.0;;Remplacer la courroie;PB_MECA;PB_MECA;graisse;5;2.82;oui;bonne;mensuelle;18
-probleme tension;Tension d'alimentation - Isolation des cbles - Temperature des composants;85 dB;100.0;;Verifier les connexions electriques;PB_ELEC;PB_ELEC;aucune;5;2.84;non;bonne;hebdomadaire;12
-panne pneumatique;Pression d'air - Fuites dans le circuit - Qualite de l'air;Fissures;50.0;;Inspecter le systeme pneumatique;PB_PNEU;PB_PNEU;aucune;2;2.05;oui;bonne;trimestrielle;17
-fuite hydraulique;Pression du systeme - etat des joints - Type de fluide;1500 RPM;100.0;;Identifier la source de la fuite;PB_HYD;PB_HYD;graisse;1;4.13;non;moyenne;trimestrielle;6
-surchauffe moteur;Niveau de liquide de refroidissement - Encrassement du radiateur - Vitesse du ventilateur;85 dB;100.0;;Inspecter le systeme de refroidissement;PB_SUR;PB_SUR;huile;5;4.26;oui;faible;trimestrielle;5
-fuite hydraulique;Pression du systeme - etat des joints - Type de fluide;Fissures;100.0;;Identifier la source de la fuite;PB_HYD;PB_HYD;semi-solide;2;4.41;non;faible;annuelle;15
+usure mecanique;Fatigue du matériau;Humidite: 90% RH;50.0;;Remplacer la courroie;PB_MECA;PB_MECA;graisse;5;2.82;oui;bonne;mensuelle;18
+probleme tension;Temperature des composants;85 dB;100.0;;Verifier les connexions electriques;PB_ELEC;PB_ELEC;aucune;5;2.84;non;bonne;hebdomadaire;12
+panne pneumatique;Fuites dans le circuit;Fissures;50.0;;Inspecter le systeme pneumatique;PB_PNEU;PB_PNEU;aucune;2;2.05;oui;bonne;trimestrielle;17
+fuite hydraulique;Type de fluide;1500 RPM;100.0;;Identifier la source de la fuite;PB_HYD;PB_HYD;graisse;1;4.13;non;moyenne;trimestrielle;6
+surchauffe moteur;Niveau de liquide de refroidissement;85 dB;100.0;;Inspecter le systeme de refroidissement;PB_SUR;PB_SUR;huile;5;4.26;oui;faible;trimestrielle;5
+fuite hydraulique;Type de fluide;Fissures;100.0;;Identifier la source de la fuite;PB_HYD;PB_HYD;semi-solide;2;4.41;non;faible;annuelle;15
 usure mecanique;Pression du systeme;1500 RPM;100.0;;Remplacer la courroie;PB_MECA;PB_MECA;huile;5;7.45;non;bonne;trimestrielle;1
-surchauffe moteur;Niveau de liquide de refroidissement - Encrassement du radiateur - Vitesse du ventilateur;85 dB;100.0;;Remplacer la courroie;PB_MECA;PB_MECA;aucune;5;5.21;non;moyenne;annuelle;13
-fuite hydraulique;Pression du systeme - etat des joints - Type de fluide;>45°C;100.0;;Identifier la source de la fuite;PB_HYD;PB_HYD;aucune;2;7.06;non;bonne;trimestrielle;4
-usure mecanique;Charge appliquee - Fatigue du materiau - Lubrification;Humidite: 90% RH;50.0;;Remplacer la courroie;PB_MECA;PB_MECA;semi-solide;4;2.91;non;bonne;trimestrielle;10
-vibration excessive;Desequilibre rotor - Fixations desserrees - Usure des roulements;>45°C;100.0;;equilibrer les pieces;PB_VIB;PB_VIB;aucune;4;4.15;non;moyenne;mensuelle;5
-fuite hydraulique;Pression du systeme - etat des joints - Type de fluide;85 dB;100.0;;Identifier la source de la fuite;PB_HYD;PB_HYD;huile;4;4.8;oui;moyenne;trimestrielle;14
-fuite hydraulique;Pression du systeme - etat des joints - Type de fluide;>45°C;100.0;;Identifier la source de la fuite;PB_HYD;PB_HYD;aucune;3;4.02;non;bonne;trimestrielle;3
-defaut logiciel;Version du firmware - CPU Usage - Erreurs memoire;>45°C;100.0;;Redemarrer le systeme;PB_LOG;PB_LOG;graisse;4;2.43;oui;faible;annuelle;17
-fuite hydraulique;Pression du systeme - etat des joints - Type de fluide;>45°C;100.0;;Identifier la source de la fuite;PB_HYD;PB_HYD;semi-solide;1;7.59;non;faible;mensuelle;2
-fuite hydraulique;Pression du systeme - etat des joints - Type de fluide;>45°C;100.0;;Identifier la source de la fuite;PB_HYD;PB_HYD;semi-solide;5;3.56;non;faible;trimestrielle;13
-usure mecanique;Charge appliquee - Fatigue du materiau - Lubrification;1500 RPM;100.0;;Remplacer la courroie;PB_MECA;PB_MECA;semi-solide;3;1.15;oui;bonne;mensuelle;6
-fuite hydraulique;Pression du systeme - etat des joints - Type de fluide;>45°C;100.0;;Identifier la source de la fuite;PB_HYD;PB_HYD;semi-solide;2;3.2;oui;faible;annuelle;0
-fuite hydraulique;Pression du systeme - etat des joints - Type de fluide;1500 RPM;100.0;;Identifier la source de la fuite;PB_HYD;PB_HYD;graisse;3;6.24;oui;faible;trimestrielle;6
-defaut logiciel;Version du firmware - CPU Usage - Erreurs memoire;1500 RPM;100.0;;Redemarrer le systeme;PB_LOG;PB_LOG;aucune;5;3.42;non;faible;trimestrielle;7
-defaut logiciel;Version du firmware - CPU Usage - Erreurs memoire;Humidite: 90% RH;100.0;;Redemarrer le systeme;PB_LOG;PB_LOG;graisse;1;5.9;oui;moyenne;mensuelle;1
-probleme tension;Tension d'alimentation - Isolation des cbles - Temperature des composants;85 dB;40.0;;Verifier les connexions electriques;PB_ELEC;PB_ELEC;semi-solide;2;6.66;oui;moyenne;trimestrielle;4
-defaut logiciel;Version du firmware - CPU Usage - Erreurs memoire;Humidite: 90% RH;100.0;;Redemarrer le systeme;PB_LOG;PB_LOG;huile;4;7.84;non;faible;mensuelle;20
-fuite hydraulique;Pression du systeme - etat des joints - Type de fluide;>45°C;100.0;;Identifier la source de la fuite;PB_HYD;PB_HYD;huile;1;5.55;oui;moyenne;trimestrielle;18
-defaut logiciel;Version du firmware - CPU Usage - Erreurs memoire;1500 RPM;100.0;;Redemarrer le systeme;PB_LOG;PB_LOG;huile;2;5.81;non;faible;mensuelle;8
-panne pneumatique;Pression d'air - Fuites dans le circuit - Qualite de l'air;Humidite: 90% RH;100.0;;Inspecter le systeme pneumatique;PB_PNEU;PB_PNEU;semi-solide;1;3.75;oui;bonne;hebdomadaire;12
-panne pneumatique;Pression d'air - Fuites dans le circuit - Qualite de l'air;Fissures;50.0;;Inspecter le systeme pneumatique;PB_PNEU;PB_PNEU;semi-solide;2;6.79;non;faible;trimestrielle;13
-probleme tension;Tension d'alimentation - Isolation des cbles - Temperature des composants;85 dB;40.0;;Verifier les connexions electriques;PB_ELEC;PB_ELEC;huile;4;0.76;non;bonne;trimestrielle;9
-defaut logiciel;Version du firmware - CPU Usage - Erreurs memoire;1500 RPM;100.0;;Redemarrer le systeme;PB_LOG;PB_LOG;graisse;3;1.33;non;moyenne;mensuelle;4
+surchauffe moteur;Niveau de liquide de refroidissement;85 dB;100.0;;Remplacer la courroie;PB_MECA;PB_MECA;aucune;5;5.21;non;moyenne;annuelle;13
+fuite hydraulique;Type de fluide;>45°C;100.0;;Identifier la source de la fuite;PB_HYD;PB_HYD;aucune;2;7.06;non;bonne;trimestrielle;4
+usure mecanique;Charge appliquee;Humidite: 90% RH;50.0;;Remplacer la courroie;PB_MECA;PB_MECA;semi-solide;4;2.91;non;bonne;trimestrielle;10
+vibration excessive;Usure des roulements;>45°C;100.0;;equilibrer les pieces;PB_VIB;PB_VIB;aucune;4;4.15;non;moyenne;mensuelle;5
+fuite hydraulique;Pression du système;85 dB;100.0;;Identifier la source de la fuite;PB_HYD;PB_HYD;huile;4;4.8;oui;moyenne;trimestrielle;14
+fuite hydraulique;etat des joints;>45°C;100.0;;Identifier la source de la fuite;PB_HYD;PB_HYD;aucune;3;4.02;non;bonne;trimestrielle;3
+defaut logiciel;Version du firmware;>45°C;100.0;;Redemarrer le systeme;PB_LOG;PB_LOG;graisse;4;2.43;oui;faible;annuelle;17
+fuite hydraulique;Type de fluide;>45°C;100.0;;Identifier la source de la fuite;PB_HYD;PB_HYD;semi-solide;1;7.59;non;faible;mensuelle;2
+fuite hydraulique;Pression du système;>45°C;100.0;;Identifier la source de la fuite;PB_HYD;PB_HYD;semi-solide;5;3.56;non;faible;trimestrielle;13
+usure mecanique;Lubrification;1500 RPM;100.0;;Remplacer la courroie;PB_MECA;PB_MECA;semi-solide;3;1.15;oui;bonne;mensuelle;6
+fuite hydraulique;Pression du système;>45°C;100.0;;Identifier la source de la fuite;PB_HYD;PB_HYD;semi-solide;2;3.2;oui;faible;annuelle;0
+fuite hydraulique;etat des joints;1500 RPM;100.0;;Identifier la source de la fuite;PB_HYD;PB_HYD;graisse;3;6.24;oui;faible;trimestrielle;6
+defaut logiciel;CPU Usage;1500 RPM;100.0;;Redemarrer le systeme;PB_LOG;PB_LOG;aucune;5;3.42;non;faible;trimestrielle;7
+defaut logiciel;CPU Usage;Humidite: 90% RH;100.0;;Redemarrer le systeme;PB_LOG;PB_LOG;graisse;1;5.9;oui;moyenne;mensuelle;1
+probleme tension;Tension d'alimentation;85 dB;40.0;;Verifier les connexions electriques;PB_ELEC;PB_ELEC;semi-solide;2;6.66;oui;moyenne;trimestrielle;4
+defaut logiciel;Erreurs memoire;Humidite: 90% RH;100.0;;Redemarrer le systeme;PB_LOG;PB_LOG;huile;4;7.84;non;faible;mensuelle;20
+fuite hydraulique;Pression du système;>45°C;100.0;;Identifier la source de la fuite;PB_HYD;PB_HYD;huile;1;5.55;oui;moyenne;trimestrielle;18
+defaut logiciel;Version du firmware;1500 RPM;100.0;;Redemarrer le systeme;PB_LOG;PB_LOG;huile;2;5.81;non;faible;mensuelle;8
+panne pneumatique;Pression d'air;Humidite: 90% RH;100.0;;Inspecter le systeme pneumatique;PB_PNEU;PB_PNEU;semi-solide;1;3.75;oui;bonne;hebdomadaire;12
+panne pneumatique;Qualite de l'air;Fissures;50.0;;Inspecter le systeme pneumatique;PB_PNEU;PB_PNEU;semi-solide;2;6.79;non;faible;trimestrielle;13
+probleme tension;Tension d'alimentation;85 dB;40.0;;Verifier les connexions electriques;PB_ELEC;PB_ELEC;huile;4;0.76;non;bonne;trimestrielle;9
+defaut logiciel;CPU Usage;1500 RPM;100.0;;Redemarrer le systeme;PB_LOG;PB_LOG;graisse;3;1.33;non;moyenne;mensuelle;4
 fuite hydraulique;Pression du systeme;Fissures;100.0;;Identifier la source de la fuite;PB_HYD;PB_HYD;huile;4;0.63;oui;bonne;trimestrielle;10
-defaut logiciel;Version du firmware - CPU Usage - Erreurs memoire;Humidite: 90% RH;100.0;;Redemarrer le systeme;PB_LOG;PB_LOG;graisse;5;3.06;non;faible;trimestrielle;5
-vibration excessive;Desequilibre rotor - Fixations desserrees - Usure des roulements;>45°C;100.0;;equilibrer les pieces;PB_VIB;PB_VIB;aucune;5;5.56;oui;faible;trimestrielle;12
-fuite hydraulique;Pression du systeme - etat des joints - Type de fluide;1500 RPM;100.0;;Identifier la source de la fuite;PB_HYD;PB_HYD;huile;5;2.43;non;bonne;mensuelle;13
-defaillance capteur;Temperature ambiante - Humidite - age du capteur;>45°C;100.0;;Verifier l'etat des capteurs;DF_CAP;PB_CAP;graisse;2;5.98;non;moyenne;hebdomadaire;12
-defaut logiciel;Version du firmware - CPU Usage - Erreurs memoire;>45°C;100.0;;Redemarrer le systeme;PB_LOG;PB_LOG;huile;2;5.94;non;moyenne;mensuelle;5
-surchauffe moteur;Niveau de liquide de refroidissement - Encrassement du radiateur - Vitesse du ventilateur;85 dB;100.0;;Remplacer la courroie;PB_MECA;PB_MECA;aucune;5;6.77;oui;bonne;trimestrielle;9
-fuite hydraulique;Pression du systeme - etat des joints - Type de fluide;85 dB;100.0;;Identifier la source de la fuite;PB_HYD;PB_HYD;semi-solide;1;6.04;oui;faible;trimestrielle;20
-panne pneumatique;Pression d'air - Fuites dans le circuit - Qualite de l'air;Fissures;50.0;;Inspecter le systeme pneumatique;PB_PNEU;PB_PNEU;huile;1;3.16;oui;moyenne;hebdomadaire;9
-probleme tension;Tension d'alimentation - Isolation des cbles - Temperature des composants;85 dB;100.0;;Verifier les connexions electriques;PB_ELEC;PB_ELEC;graisse;4;7.04;oui;bonne;trimestrielle;0
+defaut logiciel;Erreurs memoire;Humidite: 90% RH;100.0;;Redemarrer le systeme;PB_LOG;PB_LOG;graisse;5;3.06;non;faible;trimestrielle;5
+vibration excessive;Fixations desserrees;>45°C;100.0;;equilibrer les pieces;PB_VIB;PB_VIB;aucune;5;5.56;oui;faible;trimestrielle;12
+fuite hydraulique;etat des joints;1500 RPM;100.0;;Identifier la source de la fuite;PB_HYD;PB_HYD;huile;5;2.43;non;bonne;mensuelle;13
+defaillance capteur;Humidite;>45°C;100.0;;Verifier l'etat des capteurs;DF_CAP;PB_CAP;graisse;2;5.98;non;moyenne;hebdomadaire;12
+defaut logiciel;Version du firmware;>45°C;100.0;;Redemarrer le systeme;PB_LOG;PB_LOG;huile;2;5.94;non;moyenne;mensuelle;5
+surchauffe moteur;Niveau de liquide de refroidissement;85 dB;100.0;;Remplacer la courroie;PB_MECA;PB_MECA;aucune;5;6.77;oui;bonne;trimestrielle;9
+fuite hydraulique;Pression du système;85 dB;100.0;;Identifier la source de la fuite;PB_HYD;PB_HYD;semi-solide;1;6.04;oui;faible;trimestrielle;20
+panne pneumatique;Pression d'air;Fissures;50.0;;Inspecter le systeme pneumatique;PB_PNEU;PB_PNEU;huile;1;3.16;oui;moyenne;hebdomadaire;9
+probleme tension;Tension d'alimentation;85 dB;100.0;;Verifier les connexions electriques;PB_ELEC;PB_ELEC;graisse;4;7.04;oui;bonne;trimestrielle;0
 usure mecanique;Pression du systeme;1500 RPM;100.0;;Remplacer la courroie;PB_MECA;PB_MECA;semi-solide;5;7.0;oui;bonne;trimestrielle;6
 surchauffe moteur;Pression du systeme;Fissures;100.0;;Inspecter le systeme de refroidissement;PB_SUR;PB_SUR;huile;3;6.5;non;moyenne;mensuelle;7
-probleme tension;Tension d'alimentation - Isolation des cbles - Temperature des composants;85 dB;60.0;;Verifier les connexions electriques;PB_ELEC;PB_ELEC;graisse;3;6.96;oui;moyenne;annuelle;9
-defaut logiciel;Version du firmware - CPU Usage - Erreurs memoire;>45°C;100.0;;Redemarrer le systeme;PB_LOG;PB_LOG;graisse;5;5.22;non;bonne;annuelle;2
-fuite hydraulique;Pression du systeme - etat des joints - Type de fluide;Humidite: 90% RH;100.0;;Identifier la source de la fuite;pb_HYD;pb_HYD;huile;2;1.43;non;faible;trimestrielle;13
-probleme tension;Tension d'alimentation - Isolation des cbles - Temperature des composants;85 dB;100.0;;Verifier les connexions electriques;PB_ELEC;PB_ELEC;semi-solide;5;5.61;non;bonne;annuelle;3
-defaut logiciel;Version du firmware - CPU Usage - Erreurs memoire;Humidite: 90% RH;100.0;;Redemarrer le systeme;PB_LOG;PB_LOG;huile;1;2.23;oui;bonne;trimestrielle;17
-probleme tension;Tension d'alimentation - Isolation des cbles - Temperature des composants;Humidite: 90% RH;100.0;;Verifier les connexions electriques;PB_ELEC;PB_ELEC;graisse;4;1.27;oui;faible;trimestrielle;7
-surchauffe moteur;Niveau de liquide de refroidissement - Encrassement du radiateur - Vitesse du ventilateur;85 dB;100.0;;Inspecter le systeme de refroidissement;PB_SUR;PB_SUR;semi-solide;3;3.59;non;moyenne;annuelle;7
-probleme tension;Tension d'alimentation - Isolation des cbles - Temperature des composants;85 dB;100.0;;Verifier les connexions electriques;PB_ELEC;PB_ELEC;graisse;4;6.42;oui;moyenne;hebdomadaire;10
-panne pneumatique;Pression d'air - Fuites dans le circuit - Qualite de l'air;85 dB;60.0;;Inspecter le systeme pneumatique;PB_PNEU;PB_PNEU;huile;4;4.88;non;bonne;hebdomadaire;16
-defaut logiciel;Version du firmware - CPU Usage - Erreurs memoire;>45°C;100.0;;Redemarrer le systeme;PB_LOG;PB_LOG;semi-solide;5;6.83;non;faible;annuelle;18
-probleme tension;Tension d'alimentation - Isolation des cbles - Temperature des composants;Humidite: 90% RH;100.0;;Verifier les connexions electriques;PB_ELEC;PB_ELEC;aucune;4;6.98;non;faible;mensuelle;20
-defaut logiciel;Version du firmware - CPU Usage - Erreurs memoire;Humidite: 90% RH;50.0;;Redemarrer le systme;PB_LOG;PB_LOG;graisse;3;2.01;oui;moyenne;annuelle;20
-panne pneumatique;Pression d'air - Fuites dans le circuit - Qualite de l'air;85 dB;60.0;;Inspecter le systeme pneumatique;PB_PNEU;PB_PNEU;huile;2;4.74;non;faible;annuelle;6
-defaut logiciel;Version du firmware - CPU Usage - Erreurs memoire;Humidite: 90% RH;100.0;;Redemarrer le systeme;PB_LOG;PB_LOG;semi-solide;1;1.05;oui;moyenne;annuelle;12
-surchauffe moteur;Niveau de liquide de refroidissement - Encrassement du radiateur - Vitesse du ventilateur;1500 RPM;100.0;;Inspecter le systeme de refroidissement;PB_SUR;PB_SUR;huile;5;5.28;oui;bonne;mensuelle;3
-fuite hydraulique;Pression du systeme - etat des joints - Type de fluide;>45°C;100.0;;Identifier la source de la fuite;PB_HYD;PB_HYD;huile;1;3.84;oui;faible;hebdomadaire;4
-fuite hydraulique;Pression du systeme - etat des joints - Type de fluide;Fissures;100.0;;Identifier la source de la fuite;PB_HYD;PB_HYD;semi-solide;2;4.39;non;moyenne;trimestrielle;16
-defaut logiciel;Version du firmware - CPU Usage - Erreurs memoire;1500 RPM;100.0;;Redemarrer le systeme;PB_LOG;PB_LOG;semi-solide;1;6.09;oui;moyenne;trimestrielle;20
-defaillance capteur;Temperature ambiante - Humidite - age du capteur;>45°C;100.0;;Verifier l'etat des capteurs;DF_CAP;PB_CAP;huile;4;6.29;non;faible;mensuelle;19
-defaut logiciel;Version du firmware - CPU Usage - Erreurs memoire;>45°C;100.0;;Redemarrer le systeme;PB_LOG;PB_LOG;semi-solide;2;4.31;non;faible;hebdomadaire;6
-probleme tension;Tension d'alimentation - Isolation des cbles - Temperature des composants;85 dB;66.66;;Verifier les connexions electriques;PB_ELEC;PB_ELEC;graisse;5;6.57;oui;bonne;mensuelle;17
-fuite hydraulique;Pression du systeme - etat des joints - Type de fluide;1500 RPM;100.0;;Identifier la source de la fuite;PB_HYD;PB_HYD;huile;2;1.18;oui;bonne;trimestrielle;1
-surchauffe moteur;Niveau de liquide de refroidissement - Encrassement du radiateur - Vitesse du ventilateur;>45°C;0.0;;Inspecter le systeme de refroidissement;PB_SUR;PB_SUR;semi-solide;1;7.77;non;bonne;trimestrielle;15
-surchauffe moteur;Niveau de liquide de refroidissement - Encrassement du radiateur - Vitesse du ventilateur;>45°C;0.0;;Inspecter le systeme de refroidissement;PB_SUR;PB_SUR;huile;1;1.62;non;faible;mensuelle;8
+probleme tension;Tension d'alimentation;85 dB;60.0;;Verifier les connexions electriques;PB_ELEC;PB_ELEC;graisse;3;6.96;oui;moyenne;annuelle;9
+defaut logiciel;Version du firmware;>45°C;100.0;;Redemarrer le systeme;PB_LOG;PB_LOG;graisse;5;5.22;non;bonne;annuelle;2
+fuite hydraulique;Type de fluide;Humidite: 90% RH;100.0;;Identifier la source de la fuite;pb_HYD;pb_HYD;huile;2;1.43;non;faible;trimestrielle;13
+probleme tension;Tension d'alimentation;85 dB;100.0;;Verifier les connexions electriques;PB_ELEC;PB_ELEC;semi-solide;5;5.61;non;bonne;annuelle;3
+defaut logiciel;CPU Usage;Humidite: 90% RH;100.0;;Redemarrer le systeme;PB_LOG;PB_LOG;huile;1;2.23;oui;bonne;trimestrielle;17
+probleme tension;Isolation des cables;Humidite: 90% RH;100.0;;Verifier les connexions electriques;PB_ELEC;PB_ELEC;graisse;4;1.27;oui;faible;trimestrielle;7
+surchauffe moteur;Encrassement du radiateur;85 dB;100.0;;Inspecter le systeme de refroidissement;PB_SUR;PB_SUR;semi-solide;3;3.59;non;moyenne;annuelle;7
+probleme tension;Temperature des composants;85 dB;100.0;;Verifier les connexions electriques;PB_ELEC;PB_ELEC;graisse;4;6.42;oui;moyenne;hebdomadaire;10
+panne pneumatique;Fuites dans le circuit;85 dB;60.0;;Inspecter le systeme pneumatique;PB_PNEU;PB_PNEU;huile;4;4.88;non;bonne;hebdomadaire;16
+defaut logiciel;Erreurs memoire;>45°C;100.0;;Redemarrer le systeme;PB_LOG;PB_LOG;semi-solide;5;6.83;non;faible;annuelle;18
+probleme tension;Temperature des composants;Humidite: 90% RH;100.0;;Verifier les connexions electriques;PB_ELEC;PB_ELEC;aucune;4;6.98;non;faible;mensuelle;20
+defaut logiciel;Erreurs memoire;Humidite: 90% RH;50.0;;Redemarrer le systme;PB_LOG;PB_LOG;graisse;3;2.01;oui;moyenne;annuelle;20
+panne pneumatique;Qualite de l'air;85 dB;60.0;;Inspecter le systeme pneumatique;PB_PNEU;PB_PNEU;huile;2;4.74;non;faible;annuelle;6
+defaut logiciel;Version du firmware;Humidite: 90% RH;100.0;;Redemarrer le systeme;PB_LOG;PB_LOG;semi-solide;1;1.05;oui;moyenne;annuelle;12
+surchauffe moteur;Niveau de liquide de refroidissement;1500 RPM;100.0;;Inspecter le systeme de refroidissement;PB_SUR;PB_SUR;huile;5;5.28;oui;bonne;mensuelle;3
+fuite hydraulique;Type de fluide;>45°C;100.0;;Identifier la source de la fuite;PB_HYD;PB_HYD;huile;1;3.84;oui;faible;hebdomadaire;4
+fuite hydraulique;etat des joints;Fissures;100.0;;Identifier la source de la fuite;PB_HYD;PB_HYD;semi-solide;2;4.39;non;moyenne;trimestrielle;16
+defaut logiciel;CPU Usage;1500 RPM;100.0;;Redemarrer le systeme;PB_LOG;PB_LOG;semi-solide;1;6.09;oui;moyenne;trimestrielle;20
+defaillance capteur;age du capteur;>45°C;100.0;;Verifier l'etat des capteurs;DF_CAP;PB_CAP;huile;4;6.29;non;faible;mensuelle;19
+defaut logiciel;Version du firmware;>45°C;100.0;;Redemarrer le systeme;PB_LOG;PB_LOG;semi-solide;2;4.31;non;faible;hebdomadaire;6
+probleme tension;Temperature des composants;85 dB;66.66;;Verifier les connexions electriques;PB_ELEC;PB_ELEC;graisse;5;6.57;oui;bonne;mensuelle;17
+fuite hydraulique;Pression du système;1500 RPM;100.0;;Identifier la source de la fuite;PB_HYD;PB_HYD;huile;2;1.18;oui;bonne;trimestrielle;1
+surchauffe moteur;Niveau de liquide de refroidissement;>45°C;0.0;;Inspecter le systeme de refroidissement;PB_SUR;PB_SUR;semi-solide;1;7.77;non;bonne;trimestrielle;15
+surchauffe moteur;Encrassement du radiateur;>45°C;0.0;;Inspecter le systeme de refroidissement;PB_SUR;PB_SUR;huile;1;1.62;non;faible;mensuelle;8
 turn western;Pression du systeme;>45°C;100.0;;Verifier l'etat des capteurs;DF_GEN;PB_GEN;huile;1;3.63;oui;moyenne;hebdomadaire;10
-surchauffe moteur;Niveau de liquide de refroidissement - Encrassement du radiateur - Vitesse du ventilateur;85 dB;100.0;;Remplacer la courroie;PB_MECA;PB_MECA;graisse;5;6.19;oui;moyenne;annuelle;4
-probleme tension;Tension d'alimentation - Isolation des cbles - Température des composants;85 dB;100.0;;Verifier les connexions electriques;PB_ELEC;PB_ELEC;aucune;3;2.03;non;faible;mensuelle;20
-probleme tension;Tension d'alimentation - Isolation des cbles - Température des composants;85 dB;100.0;;Verifier les connexions electriques;PB_ELEC;PB_ELEC;huile;4;0.89;oui;bonne;trimestrielle;13
-probleme tension;Tension d'alimentation - Isolation des cbles - Température des composants;Humidite: 90% RH;100.0;;Verifier les connexions electriques;PB_ELEC;PB_ELEC;semi-solide;1;5.24;non;bonne;annuelle;15
+surchauffe moteur;Encrassement du radiateur;85 dB;100.0;;Remplacer la courroie;PB_MECA;PB_MECA;graisse;5;6.19;oui;moyenne;annuelle;4
+probleme tension;Tension d'alimentation;85 dB;100.0;;Verifier les connexions electriques;PB_ELEC;PB_ELEC;aucune;3;2.03;non;faible;mensuelle;20
+probleme tension;Température des composants;85 dB;100.0;;Verifier les connexions electriques;PB_ELEC;PB_ELEC;huile;4;0.89;oui;bonne;trimestrielle;13
+probleme tension;Isolation des cables;Humidite: 90% RH;100.0;;Verifier les connexions electriques;PB_ELEC;PB_ELEC;semi-solide;1;5.24;non;bonne;annuelle;15
 surchauffe moteur;Pression du systeme;Fissures;100.0;;Inspecter le systeme de refroidissement;PB_SUR;PB_SUR;graisse;4;4.07;oui;bonne;hebdomadaire;1
-probleme tension;Tension d'alimentation - Isolation des cbles - Température des composants;Humidite: 90% RH;100.0;;Verifier les connexions electriques;PB_ELEC;PB_ELEC;huile;4;2.87;oui;moyenne;hebdomadaire;18
-vibration excessive;Desequilibre rotor - Fixations desserrees - Usure des roulements;>45°C;100.0;;equilibrer les pieces;PB_VIB;PB_VIB;graisse;5;4.68;oui;moyenne;annuelle;7
-defaillance capteur;Temperature ambiante - Humidite - age du capteur;>45°C;100.0;;Verifier l'etat des capteurs;DF_CAP;PB_CAP;aucune;1;1.92;oui;faible;trimestrielle;17
-fuite hydraulique;Pression du systeme - etat des joints - Type de fluide;>45°C;100.0;;Identifier la source de la fuite;PB_HYD;PB_HYD;huile;3;3.93;non;faible;mensuelle;1
-turn western;Pression du systeme;>45°C;100.0;;Verifier l'etat des capteurs;DF_GEN;PB_GEN;semi-solide;5;5.27;non;faible;hebdomadaire;5
+probleme tension;Température des composants;Humidite: 90% RH;100.0;;Verifier les connexions electriques;PB_ELEC;PB_ELEC;huile;4;2.87;oui;moyenne;hebdomadaire;18
+vibration excessive;Usure des roulements;>45°C;100.0;;equilibrer les pieces;PB_VIB;PB_VIB;graisse;5;4.68;oui;moyenne;annuelle;7
+defaillance capteur;Temperature ambiante;>45°C;100.0;;Verifier l'etat des capteurs;DF_CAP;PB_CAP;aucune;1;1.92;oui;faible;trimestrielle;17
+fuite hydraulique;etat des joints;>45°C;100.0;;Identifier la source de la fuite;PB_HYD;PB_HYD;huile;3;3.93;non;faible;mensuelle;1
+turn western;Type de fluide;>45°C;100.0;;Verifier l'etat des capteurs;DF_GEN;PB_GEN;semi-solide;5;5.27;non;faible;hebdomadaire;5
 usure mecanique;Pression du systeme;1500 RPM;100.0;;Remplacer la courroie;PB_MECA;PB_MECA;semi-solide;2;1.64;non;faible;mensuelle;18
-probleme tension;Tension d'alimentation - Isolation des cbles - Temperature des composants;85 dB;100.0;;Verifier les connexions electriques;PB_ELEC;PB_ELEC;semi-solide;3;4.57;oui;bonne;mensuelle;20
-fuite hydraulique;Pression du systeme - etat des joints - Type de fluide;>45°C;100.0;;Identifier la source de la fuite;PB_HYD;PB_HYD;semi-solide;5;1.46;oui;bonne;annuelle;12
-probleme tension;Tension d'alimentation - Isolation des cbles - Temperature des composants;85 dB;40.0;;Verifier les connexions electriques;PB_ELEC;PB_ELEC;aucune;2;7.18;oui;faible;hebdomadaire;18
-surchauffe moteur;Niveau de liquide de refroidissement - Encrassement du radiateur - Vitesse du ventilateur;>45°C;0.0;;Inspecter le systeme de refroidissement;PB_SUR;PB_SUR;huile;3;4.92;oui;faible;annuelle;8
-probleme tension;Tension d'alimentation - Isolation des cbles - Température des composants;85 dB;66.66;;Verifier les connexions electriques;PB_ELEC;PB_ELEC;semi-solide;2;5.41;non;bonne;mensuelle;17
-defaillance capteur;Temperature ambiante - Humidite - age du capteur;>45°C;25.0;;Verifier l'etat des capteurs;DF_CAP;PB_CAP;aucune;1;3.15;non;faible;trimestrielle;5
+probleme tension;Isolation des cbles;85 dB;100.0;;Verifier les connexions electriques;PB_ELEC;PB_ELEC;semi-solide;3;4.57;oui;bonne;mensuelle;20
+fuite hydraulique;Pression du système;>45°C;100.0;;Identifier la source de la fuite;PB_HYD;PB_HYD;semi-solide;5;1.46;oui;bonne;annuelle;12
+probleme tension;Isolation des cables;85 dB;40.0;;Verifier les connexions electriques;PB_ELEC;PB_ELEC;aucune;2;7.18;oui;faible;hebdomadaire;18
+surchauffe moteur; Encrassement du radiateur;>45°C;0.0;;Inspecter le systeme de refroidissement;PB_SUR;PB_SUR;huile;3;4.92;oui;faible;annuelle;8
+probleme tension;Température des composants;85 dB;66.66;;Verifier les connexions electriques;PB_ELEC;PB_ELEC;semi-solide;2;5.41;non;bonne;mensuelle;17
+defaillance capteur;Temperature ambiante;>45°C;25.0;;Verifier l'etat des capteurs;DF_CAP;PB_CAP;aucune;1;3.15;non;faible;trimestrielle;5
 surchauffe moteur;Pression du systeme;Humidite: 90% RH;100.0;;Inspecter le systeme de refroidissement;PB_SUR;PB_SUR;aucune;4;0.82;non;bonne;annuelle;17
-surchauffe moteur;Niveau de liquide de refroidissement - Encrassement du radiateur - Vitesse du ventilateur;>45°C;0.0;;Inspecter le systeme de refroidissement;PB_SUR;PB_SUR;graisse;4;7.53;oui;moyenne;trimestrielle;20
-defaut logiciel;Version du firmware - CPU Usage - Erreurs memoire;>45°C;100.0;;Redemarrer le systeme;PB_LOG;PB_LOG;semi-solide;4;2.04;oui;faible;mensuelle;12
-fuite hydraulique;Pression du systeme - etat des joints - Type de fluide;Fissures;100.0;;Identifier la source de la fuite;PB_HYD;PB_HYD;aucune;2;5.73;oui;faible;hebdomadaire;9
-panne pneumatique;Pression d'air - Fuites dans le circuit - Qualité de l'air;>45°C;100.0;;Inspecter le systeme pneumatique;PB_PNEU;PB_PNEU;semi-solide;5;5.71;non;faible;hebdomadaire;12
-surchauffe moteur;Niveau de liquide de refroidissement - Encrassement du radiateur - Vitesse du ventilateur;1500 RPM;100.0;;Inspecter le systeme de refroidissement;PB_SUR;PB_SUR;aucune;2;1.68;oui;faible;trimestrielle;14
-surchauffe moteur;Pression du systeme;Fissures;100.0;;Inspecter le systeme de refroidissement;PB_SUR;PB_SUR;aucune;4;0.69;oui;moyenne;mensuelle;2
-fuite hydraulique;Pression du systeme - etat des joints - Type de fluide;Fissures;100.0;;Identifier la source de la fuite;PB_HYD;PB_HYD;semi-solide;5;7.17;non;bonne;hebdomadaire;4
-fuite hydraulique;Pression du systeme - etat des joints - Type de fluide;Humidite: 90% RH;100.0;;Identifier la source de la fuite;pb_HYD;pb_HYD;aucune;2;5.31;oui;moyenne;mensuelle;3
+surchauffe moteur;Vitesse du ventilateur;>45°C;0.0;;Inspecter le systeme de refroidissement;PB_SUR;PB_SUR;graisse;4;7.53;oui;moyenne;trimestrielle;20
+defaut logiciel;CPU Usage;>45°C;100.0;;Redemarrer le systeme;PB_LOG;PB_LOG;semi-solide;4;2.04;oui;faible;mensuelle;12
+fuite hydraulique;etat des joints;Fissures;100.0;;Identifier la source de la fuite;PB_HYD;PB_HYD;aucune;2;5.73;oui;faible;hebdomadaire;9
+panne pneumatique;Pression d'air;>45°C;100.0;;Inspecter le systeme pneumatique;PB_PNEU;PB_PNEU;semi-solide;5;5.71;non;faible;hebdomadaire;12
+surchauffe moteur;Niveau de liquide de refroidissement;1500 RPM;100.0;;Inspecter le systeme de refroidissement;PB_SUR;PB_SUR;aucune;2;1.68;oui;faible;trimestrielle;14
+surchauffe moteur;Encrassement du radiateur;Fissures;100.0;;Inspecter le systeme de refroidissement;PB_SUR;PB_SUR;aucune;4;0.69;oui;moyenne;mensuelle;2
+fuite hydraulique;Type de fluide;Fissures;100.0;;Identifier la source de la fuite;PB_HYD;PB_HYD;semi-solide;5;7.17;non;bonne;hebdomadaire;4
+fuite hydraulique;etat des joints;Humidite: 90% RH;100.0;;Identifier la source de la fuite;pb_HYD;pb_HYD;aucune;2;5.31;oui;moyenne;mensuelle;3
 turn western;Pression du système;>45°C;100.0;;Verifier l'etat des capteurs;DF_GEN;PB_GEN;graisse;2;1.91;non;bonne;annuelle;15
 fuite hydraulique;Pression du système;Fissures;100.0;;Identifier la source de la fuite;PB_HYD;PB_HYD;huile;3;7.06;oui;faible;annuelle;20
-probleme tension;Tension d'alimentation - Isolation des cbles - Temperature des composants;85 dB;100.0;;Verifier les connexions electriques;PB_ELEC;PB_ELEC;aucune;1;6.22;non;moyenne;mensuelle;15
-probleme tension;Tension d'alimentation - Isolation des cbles - Temperature des composants;85 dB;100.0;;Verifier les connexions electriques;PB_ELEC;PB_ELEC;graisse;2;4.19;oui;bonne;mensuelle;2
-fuite hydraulique;Pression du systeme - etat des joints - Type de fluide;>45°C;100.0;;Identifier la source de la fuite;PB_HYD;PB_HYD;huile;1;4.81;non;moyenne;hebdomadaire;10
-fuite hydraulique;Pression du systeme - etat des joints - Type de fluide;>45°C;100.0;;Identifier la source de la fuite;PB_HYD;PB_HYD;semi-solide;3;6.19;oui;moyenne;mensuelle;17
-defaut logiciel;Version du firmware - CPU Usage - Erreurs memoire;>45°C;100.0;;Redemarrer le systeme;PB_LOG;PB_LOG;huile;3;0.9;oui;bonne;annuelle;0
-panne pneumatique;Pression d'air - Fuites dans le circuit - Qualite de l'air;Fissures;50.0;;Inspecter le systeme pneumatique;PB_PNEU;PB_PNEU;graisse;3;5.5;oui;faible;mensuelle;18
+probleme tension;Temperature des composants;85 dB;100.0;;Verifier les connexions electriques;PB_ELEC;PB_ELEC;aucune;1;6.22;non;moyenne;mensuelle;15
+probleme tension;Isolation des cables;85 dB;100.0;;Verifier les connexions electriques;PB_ELEC;PB_ELEC;graisse;2;4.19;oui;bonne;mensuelle;2
+fuite hydraulique;Pression du système;>45°C;100.0;;Identifier la source de la fuite;PB_HYD;PB_HYD;huile;1;4.81;non;moyenne;hebdomadaire;10
+fuite hydraulique;Type de fluide;>45°C;100.0;;Identifier la source de la fuite;PB_HYD;PB_HYD;semi-solide;3;6.19;oui;moyenne;mensuelle;17
+defaut logiciel;Version du firmware;>45°C;100.0;;Redemarrer le systeme;PB_LOG;PB_LOG;huile;3;0.9;oui;bonne;annuelle;0
+panne pneumatique;Pression d'air;Fissures;50.0;;Inspecter le systeme pneumatique;PB_PNEU;PB_PNEU;graisse;3;5.5;oui;faible;mensuelle;18

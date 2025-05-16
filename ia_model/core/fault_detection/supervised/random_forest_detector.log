@@ -4808,3 +4808,39 @@ weighted avg       0.94      0.94      0.93       150
 2025-05-12 22:56:16,724 - RandomForestFaultDetector - INFO - Matrice de confusion sauvegardée dans 'confusion_matrix.png'
 2025-05-12 22:56:35,947 - RandomForestFaultDetector - INFO - Sauvegarde du modèle dans: C:\Users\omaim\backend_ia\ia_model\core\fault_detection\supervised\random_forest_model.pkl
 2025-05-12 22:56:35,968 - RandomForestFaultDetector - INFO - Modèle sauvegardé avec succès. Taille: 589.28 KB
+2025-05-13 11:39:02,758 - RandomForestFaultDetector - INFO - Initialisation du détecteur de pannes avec Random Forest
+2025-05-13 11:39:02,758 - RandomForestFaultDetector - INFO - Features utilisées: ['LOCATION', 'ASSETNUM', 'Description', 'location_description', 'assetnum_description', 'type_lubrification', 'oil_level', 'downtime', 'vibration', 'power_alimentation', 'maintenance_frequency', 'seniority']
+2025-05-13 11:39:02,758 - RandomForestFaultDetector - INFO - Chargement des données depuis: C:\Users\omaim\backend_ia\data\clean_workorders.csv
+2025-05-13 11:39:02,816 - RandomForestFaultDetector - INFO - Données chargées: 500 enregistrements
+2025-05-13 11:39:02,872 - RandomForestFaultDetector - WARNING - Impossible de charger table_assetnum.csv: 'utf-8' codec can't decode byte 0xc9 in position 0: invalid continuation byte
+2025-05-13 11:39:02,898 - RandomForestFaultDetector - INFO - Distribution des pannes: {0: 427, 1: 73}
+2025-05-13 11:39:02,898 - RandomForestFaultDetector - INFO - Début du prétraitement des données
+2025-05-13 11:39:02,908 - RandomForestFaultDetector - INFO - Encodage de LOCATION terminé avec 89 classes
+2025-05-13 11:39:02,917 - RandomForestFaultDetector - INFO - Encodage de ASSETNUM terminé avec 70 classes
+2025-05-13 11:39:02,917 - RandomForestFaultDetector - INFO - Encodage de Description terminé avec 12 classes
+2025-05-13 11:39:02,922 - RandomForestFaultDetector - INFO - Encodage de location_description terminé avec 7 classes
+2025-05-13 11:39:02,924 - RandomForestFaultDetector - INFO - Encodage de assetnum_description terminé avec 1 classes
+2025-05-13 11:39:02,930 - RandomForestFaultDetector - INFO - Encodage de type_lubrification terminé avec 5 classes
+2025-05-13 11:39:02,934 - RandomForestFaultDetector - INFO - Encodage de power_alimentation terminé avec 4 classes
+2025-05-13 11:39:02,940 - RandomForestFaultDetector - INFO - Encodage de maintenance_frequency terminé avec 5 classes
+2025-05-13 11:39:02,942 - RandomForestFaultDetector - INFO - Features disponibles pour l'entraînement: ['LOCATION', 'ASSETNUM', 'Description', 'location_description', 'assetnum_description', 'type_lubrification', 'oil_level', 'downtime', 'vibration', 'power_alimentation', 'maintenance_frequency', 'seniority']
+2025-05-13 11:39:02,963 - RandomForestFaultDetector - INFO - Données divisées: 350 échantillons d'entraînement, 150 échantillons de test
+2025-05-13 11:39:02,963 - RandomForestFaultDetector - INFO - Début de l'entraînement du modèle
+2025-05-13 11:39:03,291 - RandomForestFaultDetector - INFO - Modèle entraîné avec succès
+2025-05-13 11:39:05,109 - RandomForestFaultDetector - INFO - Importance des features: {'importance': {'Description': 0.5090332978240387, 'ASSETNUM': 0.11281327967020982, 'LOCATION': 0.08660870549507527, 'downtime': 0.06593702969471898, 'seniority': 0.06204191304204149, 'location_description': 0.04707725043838203, 'oil_level': 0.035211899345537305, 'power_alimentation': 0.03065835974301814, 'maintenance_frequency': 0.025531564214645856, 'type_lubrification': 0.02508670053233222, 'assetnum_description': 0.0, 'vibration': 0.0}}
+2025-05-13 11:39:05,111 - RandomForestFaultDetector - INFO - Début de l'évaluation du modèle
+2025-05-13 11:39:05,230 - RandomForestFaultDetector - INFO - Métriques d'évaluation: {'Accuracy': 0.94, 'Precision': 1.0, 'Recall': 0.5909090909090909, 'F1 Score': 0.7428571428571429, 'ROC AUC': np.float64(0.9989346590909091)}
+2025-05-13 11:39:05,232 - RandomForestFaultDetector - INFO - Rapport de classification:
+              precision    recall  f1-score   support
+
+           0       0.93      1.00      0.97       128
+           1       1.00      0.59      0.74        22
+
+    accuracy                           0.94       150
+   macro avg       0.97      0.80      0.85       150
+weighted avg       0.94      0.94      0.93       150
+
+2025-05-13 11:39:05,232 - RandomForestFaultDetector - INFO - Génération de la matrice de confusion
+2025-05-13 11:39:05,829 - RandomForestFaultDetector - INFO - Matrice de confusion sauvegardée dans 'confusion_matrix.png'
+2025-05-13 11:45:56,957 - RandomForestFaultDetector - INFO - Sauvegarde du modèle dans: C:\Users\omaim\backend_ia\ia_model\core\fault_detection\supervised\random_forest_model.pkl
+2025-05-13 11:45:56,987 - RandomForestFaultDetector - INFO - Modèle sauvegardé avec succès. Taille: 589.28 KB
