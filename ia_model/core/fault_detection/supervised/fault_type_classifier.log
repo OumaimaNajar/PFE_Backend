@@ -1,0 +1,60 @@
+2025-05-22 11:42:49,205 - FaultTypeClassifier - INFO - Initialisation du classificateur de types de pannes
+2025-05-22 11:42:49,205 - FaultTypeClassifier - INFO - Connexion à MongoDB: mongodb://localhost:27017/, DB: back-ia, Collection: pannes
+2025-05-22 11:42:49,219 - FaultTypeClassifier - WARNING - Colonne site manquante, ajout d'une colonne par défaut
+2025-05-22 11:42:49,223 - FaultTypeClassifier - INFO - Données chargées depuis MongoDB: 49 enregistrements
+2025-05-22 11:42:49,224 - FaultTypeClassifier - INFO - Types de pannes uniques: 11
+2025-05-22 11:42:49,224 - FaultTypeClassifier - INFO - Prétraitement des données
+2025-05-22 11:42:49,227 - FaultTypeClassifier - INFO - Encodage de machine terminé avec 3 classes
+2025-05-22 11:42:49,227 - FaultTypeClassifier - INFO - Encodage de gravite terminé avec 4 classes
+2025-05-22 11:42:49,228 - FaultTypeClassifier - INFO - Encodage de site terminé avec 1 classes
+2025-05-22 11:42:49,228 - FaultTypeClassifier - INFO - Encodage de type_panne terminé avec 11 classes
+2025-05-22 11:42:49,231 - FaultTypeClassifier - ERROR - Erreur dans le processus principal: The least populated class in y has only 1 member, which is too few. The minimum number of groups for any class cannot be less than 2.
+Traceback (most recent call last):
+  File "C:\Users\omaim\backend_ia\ia_model\core\fault_detection\supervised\random_forest_classifier.py", line 395, in main
+    X_train, X_test, y_train, y_test = classifier.preprocess_data(df)
+                                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\omaim\backend_ia\ia_model\core\fault_detection\supervised\random_forest_classifier.py", line 130, in preprocess_data
+    X_train, X_test, y_train, y_test = train_test_split(
+                                       ^^^^^^^^^^^^^^^^^
+  File "C:\Users\omaim\backend_ia\.venv\Lib\site-packages\sklearn\utils\_param_validation.py", line 216, in wrapper
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\omaim\backend_ia\.venv\Lib\site-packages\sklearn\model_selection\_split.py", line 2872, in train_test_split
+    train, test = next(cv.split(X=arrays[0], y=stratify))
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\omaim\backend_ia\.venv\Lib\site-packages\sklearn\model_selection\_split.py", line 1909, in split
+    for train, test in self._iter_indices(X, y, groups):
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\omaim\backend_ia\.venv\Lib\site-packages\sklearn\model_selection\_split.py", line 2318, in _iter_indices
+    raise ValueError(
+ValueError: The least populated class in y has only 1 member, which is too few. The minimum number of groups for any class cannot be less than 2.
+2025-05-22 11:55:52,483 - FaultTypeClassifier - INFO - Initialisation du classificateur de types de pannes
+2025-05-22 11:55:52,484 - FaultTypeClassifier - INFO - Connexion à MongoDB: mongodb://localhost:27017/, DB: back-ia, Collection: pannes
+2025-05-22 11:55:52,536 - FaultTypeClassifier - WARNING - Colonne site manquante, ajout d'une colonne par défaut
+2025-05-22 11:55:52,543 - FaultTypeClassifier - INFO - Données chargées depuis MongoDB: 49 enregistrements
+2025-05-22 11:55:52,544 - FaultTypeClassifier - INFO - Types de pannes uniques: 11
+2025-05-22 11:55:52,545 - FaultTypeClassifier - INFO - Prétraitement des données
+2025-05-22 11:55:52,548 - FaultTypeClassifier - INFO - Encodage de machine terminé avec 3 classes
+2025-05-22 11:55:52,550 - FaultTypeClassifier - INFO - Encodage de gravite terminé avec 4 classes
+2025-05-22 11:55:52,552 - FaultTypeClassifier - INFO - Encodage de site terminé avec 1 classes
+2025-05-22 11:55:52,553 - FaultTypeClassifier - INFO - Encodage de type_panne terminé avec 11 classes
+2025-05-22 11:55:52,562 - FaultTypeClassifier - ERROR - Erreur dans le processus principal: The least populated class in y has only 1 member, which is too few. The minimum number of groups for any class cannot be less than 2.
+Traceback (most recent call last):
+  File "C:\Users\omaim\backend_ia\ia_model\core\fault_detection\supervised\random_forest_classifier.py", line 395, in main
+    X_train, X_test, y_train, y_test = classifier.preprocess_data(df)
+                                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\omaim\backend_ia\ia_model\core\fault_detection\supervised\random_forest_classifier.py", line 130, in preprocess_data
+    X_train, X_test, y_train, y_test = train_test_split(
+                                       ^^^^^^^^^^^^^^^^^
+  File "C:\Users\omaim\backend_ia\.venv\Lib\site-packages\sklearn\utils\_param_validation.py", line 216, in wrapper
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\omaim\backend_ia\.venv\Lib\site-packages\sklearn\model_selection\_split.py", line 2872, in train_test_split
+    train, test = next(cv.split(X=arrays[0], y=stratify))
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\omaim\backend_ia\.venv\Lib\site-packages\sklearn\model_selection\_split.py", line 1909, in split
+    for train, test in self._iter_indices(X, y, groups):
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\omaim\backend_ia\.venv\Lib\site-packages\sklearn\model_selection\_split.py", line 2318, in _iter_indices
+    raise ValueError(
+ValueError: The least populated class in y has only 1 member, which is too few. The minimum number of groups for any class cannot be less than 2.

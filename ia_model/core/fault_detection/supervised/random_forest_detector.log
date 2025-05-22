@@ -4844,3 +4844,226 @@ weighted avg       0.94      0.94      0.93       150
 2025-05-13 11:39:05,829 - RandomForestFaultDetector - INFO - Matrice de confusion sauvegardée dans 'confusion_matrix.png'
 2025-05-13 11:45:56,957 - RandomForestFaultDetector - INFO - Sauvegarde du modèle dans: C:\Users\omaim\backend_ia\ia_model\core\fault_detection\supervised\random_forest_model.pkl
 2025-05-13 11:45:56,987 - RandomForestFaultDetector - INFO - Modèle sauvegardé avec succès. Taille: 589.28 KB
+2025-05-21 11:18:29,407 - RandomForestFaultDetector - INFO - Initialisation du détecteur de pannes avec Random Forest
+2025-05-21 11:18:29,415 - RandomForestFaultDetector - INFO - Features utilisées: ['LOCATION', 'ASSETNUM', 'Description', 'location_description', 'assetnum_description', 'type_lubrification', 'oil_level', 'downtime', 'vibration', 'power_alimentation', 'maintenance_frequency', 'seniority']
+2025-05-21 11:18:29,415 - RandomForestFaultDetector - INFO - Chargement des données depuis MongoDB
+2025-05-21 11:18:29,507 - RandomForestFaultDetector - INFO - Données chargées depuis MongoDB: 500 enregistrements
+2025-05-21 11:18:29,508 - RandomForestFaultDetector - INFO - Données chargées: 500 enregistrements
+2025-05-21 11:18:29,519 - RandomForestFaultDetector - INFO - Données de location chargées depuis MongoDB: 88 enregistrements
+2025-05-21 11:18:29,524 - RandomForestFaultDetector - INFO - Données d'assetnum chargées depuis MongoDB: 69 enregistrements
+2025-05-21 11:18:29,534 - RandomForestFaultDetector - WARNING - Impossible de charger table_location.csv: 'location_description'
+2025-05-21 11:18:29,537 - RandomForestFaultDetector - WARNING - Impossible de charger table_assetnum.csv: 'utf-8' codec can't decode byte 0xc9 in position 0: invalid continuation byte
+2025-05-21 11:18:29,564 - RandomForestFaultDetector - INFO - Distribution des pannes: {0: 427, 1: 73}
+2025-05-21 11:18:29,565 - RandomForestFaultDetector - INFO - Début du prétraitement des données
+2025-05-21 11:18:29,570 - RandomForestFaultDetector - INFO - Encodage de LOCATION terminé avec 89 classes
+2025-05-21 11:18:29,574 - RandomForestFaultDetector - INFO - Encodage de ASSETNUM terminé avec 70 classes
+2025-05-21 11:18:29,577 - RandomForestFaultDetector - INFO - Encodage de Description terminé avec 12 classes
+2025-05-21 11:18:29,581 - RandomForestFaultDetector - INFO - Encodage de location_description terminé avec 1 classes
+2025-05-21 11:18:29,583 - RandomForestFaultDetector - INFO - Encodage de assetnum_description terminé avec 1 classes
+2025-05-21 11:18:29,585 - RandomForestFaultDetector - INFO - Encodage de type_lubrification terminé avec 5 classes
+2025-05-21 11:18:29,587 - RandomForestFaultDetector - INFO - Encodage de power_alimentation terminé avec 4 classes
+2025-05-21 11:18:29,591 - RandomForestFaultDetector - INFO - Encodage de maintenance_frequency terminé avec 5 classes
+2025-05-21 11:18:29,591 - RandomForestFaultDetector - INFO - Features disponibles pour l'entraînement: ['LOCATION', 'ASSETNUM', 'Description', 'location_description', 'assetnum_description', 'type_lubrification', 'oil_level', 'downtime', 'vibration', 'power_alimentation', 'maintenance_frequency', 'seniority']
+2025-05-21 11:18:29,601 - RandomForestFaultDetector - INFO - Données divisées: 350 échantillons d'entraînement, 150 échantillons de test
+2025-05-21 11:18:29,602 - RandomForestFaultDetector - INFO - Début de l'entraînement du modèle
+2025-05-21 11:18:29,819 - RandomForestFaultDetector - INFO - Modèle entraîné avec succès
+2025-05-21 11:18:31,116 - RandomForestFaultDetector - INFO - Importance des features: {'importance': {'Description': 0.49357109162738294, 'ASSETNUM': 0.10765149058630809, 'LOCATION': 0.10410436137825173, 'downtime': 0.09311106273085026, 'seniority': 0.06885835096462266, 'oil_level': 0.0362063666858547, 'power_alimentation': 0.03555548023359735, 'type_lubrification': 0.03413141311385542, 'maintenance_frequency': 0.026810382679276847, 'location_description': 0.0, 'assetnum_description': 0.0, 'vibration': 0.0}}
+2025-05-21 11:18:31,117 - RandomForestFaultDetector - INFO - Début de l'évaluation du modèle
+2025-05-21 11:18:31,171 - RandomForestFaultDetector - INFO - Métriques d'évaluation: {'Accuracy': 0.9466666666666667, 'Precision': 1.0, 'Recall': 0.6363636363636364, 'F1 Score': 0.7777777777777778, 'ROC AUC': np.float64(0.9992897727272727)}
+2025-05-21 11:18:31,172 - RandomForestFaultDetector - INFO - Rapport de classification:
+              precision    recall  f1-score   support
+
+           0       0.94      1.00      0.97       128
+           1       1.00      0.64      0.78        22
+
+    accuracy                           0.95       150
+   macro avg       0.97      0.82      0.87       150
+weighted avg       0.95      0.95      0.94       150
+
+2025-05-21 11:18:31,172 - RandomForestFaultDetector - INFO - Génération de la matrice de confusion
+2025-05-21 11:18:31,482 - RandomForestFaultDetector - INFO - Matrice de confusion sauvegardée dans 'confusion_matrix.png'
+2025-05-21 11:18:41,364 - RandomForestFaultDetector - INFO - Sauvegarde du modèle dans: C:\Users\omaim\backend_ia\ia_model\core\fault_detection\supervised\random_forest_model.pkl
+2025-05-21 11:18:41,516 - RandomForestFaultDetector - INFO - Métadonnées du modèle sauvegardées dans MongoDB
+2025-05-21 11:18:41,518 - RandomForestFaultDetector - INFO - Modèle sauvegardé avec succès. Taille: 624.68 KB
+2025-05-21 11:28:01,214 - RandomForestFaultDetector - INFO - Initialisation du détecteur de pannes avec Random Forest
+2025-05-21 11:28:01,215 - RandomForestFaultDetector - INFO - Tentative de connexion à MongoDB...
+2025-05-21 11:28:01,233 - RandomForestFaultDetector - INFO - Connexion à MongoDB établie avec succès
+2025-05-21 11:28:01,233 - RandomForestFaultDetector - INFO - Base de données sélectionnée : 'back-ia'
+2025-05-21 11:28:01,239 - RandomForestFaultDetector - INFO - Collections disponibles dans la base de données : ['assetnum', 'location', 'model_metadata', 'workorder']
+2025-05-21 11:28:01,289 - RandomForestFaultDetector - INFO - Collection 'workorder' trouvée avec 500 documents
+2025-05-21 11:28:01,291 - RandomForestFaultDetector - INFO - Collection 'location' trouvée avec 88 documents
+2025-05-21 11:28:01,293 - RandomForestFaultDetector - INFO - Collection 'assetnum' trouvée avec 69 documents
+2025-05-21 11:28:01,295 - RandomForestFaultDetector - INFO - Features utilisées: ['LOCATION', 'ASSETNUM', 'Description', 'location_description', 'assetnum_description', 'type_lubrification', 'oil_level', 'downtime', 'vibration', 'power_alimentation', 'maintenance_frequency', 'seniority']
+2025-05-21 11:28:01,297 - RandomForestFaultDetector - INFO - Connexion MongoDB active, chargement des données depuis MongoDB
+2025-05-21 11:28:01,297 - RandomForestFaultDetector - INFO - Chargement des données depuis MongoDB
+2025-05-21 11:28:01,304 - RandomForestFaultDetector - INFO - Requête MongoDB exécutée, 500 documents récupérés
+2025-05-21 11:28:01,310 - RandomForestFaultDetector - INFO - Données chargées depuis MongoDB: 500 enregistrements avec colonnes: ['Description', 'ASSETNUM', 'LOCATION', 'facteur', 'valeur', 'pourcentage', 'action_recommandee', 'action_secondaire', 'FC', 'PB', 'type_lubrification', 'oil_level', 'downtime', 'vibration', 'power_alimentation', 'maintenance_frequency', 'seniority']
+2025-05-21 11:28:01,312 - RandomForestFaultDetector - INFO - Données chargées: 500 enregistrements
+2025-05-21 11:28:01,312 - RandomForestFaultDetector - INFO - Tentative de chargement des données de location depuis MongoDB
+2025-05-21 11:28:01,314 - RandomForestFaultDetector - INFO - Requête MongoDB pour locations exécutée, 88 documents récupérés
+2025-05-21 11:28:01,316 - RandomForestFaultDetector - INFO - Colonnes disponibles dans locations_df: ['LOCATION', 'location_description']
+2025-05-21 11:28:01,321 - RandomForestFaultDetector - INFO - Fusion des données de location réussie, 500 enregistrements après fusion
+2025-05-21 11:28:01,321 - RandomForestFaultDetector - INFO - Tentative de chargement des données d'assetnum depuis MongoDB
+2025-05-21 11:28:01,323 - RandomForestFaultDetector - INFO - Requête MongoDB pour assetnum exécutée, 69 documents récupérés
+2025-05-21 11:28:01,325 - RandomForestFaultDetector - INFO - Colonnes disponibles dans assetnum_df: ['ASSETNUM', 'assetnum_description', '', 'type_lubrification', 'oil_level', 'downtime', 'vibration', 'power_alimentation', 'maintenance_frequency', 'seniority']
+2025-05-21 11:28:01,333 - RandomForestFaultDetector - INFO - Fusion des données d'assetnum réussie, 500 enregistrements après fusion
+2025-05-21 11:28:01,339 - RandomForestFaultDetector - WARNING - Impossible de charger table_location.csv: 'location_description'
+2025-05-21 11:28:01,341 - RandomForestFaultDetector - WARNING - Impossible de charger table_assetnum.csv: 'utf-8' codec can't decode byte 0xc9 in position 0: invalid continuation byte
+2025-05-21 11:28:01,452 - RandomForestFaultDetector - INFO - Distribution des pannes: {0: 427, 1: 73}
+2025-05-21 11:28:01,469 - RandomForestFaultDetector - INFO - Début du prétraitement des données
+2025-05-21 11:28:01,483 - RandomForestFaultDetector - INFO - Encodage de LOCATION terminé avec 89 classes
+2025-05-21 11:28:01,510 - RandomForestFaultDetector - INFO - Encodage de ASSETNUM terminé avec 70 classes
+2025-05-21 11:28:01,516 - RandomForestFaultDetector - INFO - Encodage de Description terminé avec 12 classes
+2025-05-21 11:28:01,519 - RandomForestFaultDetector - INFO - Encodage de location_description terminé avec 1 classes
+2025-05-21 11:28:01,524 - RandomForestFaultDetector - INFO - Encodage de assetnum_description terminé avec 1 classes
+2025-05-21 11:28:01,528 - RandomForestFaultDetector - INFO - Encodage de type_lubrification terminé avec 5 classes
+2025-05-21 11:28:01,533 - RandomForestFaultDetector - INFO - Encodage de power_alimentation terminé avec 4 classes
+2025-05-21 11:28:01,537 - RandomForestFaultDetector - INFO - Encodage de maintenance_frequency terminé avec 5 classes
+2025-05-21 11:28:01,538 - RandomForestFaultDetector - INFO - Features disponibles pour l'entraînement: ['LOCATION', 'ASSETNUM', 'Description', 'location_description', 'assetnum_description', 'type_lubrification', 'oil_level', 'downtime', 'vibration', 'power_alimentation', 'maintenance_frequency', 'seniority']
+2025-05-21 11:28:01,548 - RandomForestFaultDetector - INFO - Données divisées: 350 échantillons d'entraînement, 150 échantillons de test
+2025-05-21 11:28:01,550 - RandomForestFaultDetector - INFO - Début de l'entraînement du modèle
+2025-05-21 11:28:01,835 - RandomForestFaultDetector - INFO - Modèle entraîné avec succès
+2025-05-21 11:28:02,406 - RandomForestFaultDetector - INFO - Importance des features: {'importance': {'Description': 0.49357109162738294, 'ASSETNUM': 0.10765149058630809, 'LOCATION': 0.10410436137825173, 'downtime': 0.09311106273085026, 'seniority': 0.06885835096462266, 'oil_level': 0.0362063666858547, 'power_alimentation': 0.03555548023359735, 'type_lubrification': 0.03413141311385542, 'maintenance_frequency': 0.026810382679276847, 'location_description': 0.0, 'assetnum_description': 0.0, 'vibration': 0.0}}
+2025-05-21 11:28:02,407 - RandomForestFaultDetector - INFO - Début de l'évaluation du modèle
+2025-05-21 11:28:02,456 - RandomForestFaultDetector - INFO - Métriques d'évaluation: {'Accuracy': 0.9466666666666667, 'Precision': 1.0, 'Recall': 0.6363636363636364, 'F1 Score': 0.7777777777777778, 'ROC AUC': np.float64(0.9992897727272727)}
+2025-05-21 11:28:02,457 - RandomForestFaultDetector - INFO - Rapport de classification:
+              precision    recall  f1-score   support
+
+           0       0.94      1.00      0.97       128
+           1       1.00      0.64      0.78        22
+
+    accuracy                           0.95       150
+   macro avg       0.97      0.82      0.87       150
+weighted avg       0.95      0.95      0.94       150
+
+2025-05-21 11:28:02,457 - RandomForestFaultDetector - INFO - Génération de la matrice de confusion
+2025-05-21 11:28:02,737 - RandomForestFaultDetector - INFO - Matrice de confusion sauvegardée dans 'confusion_matrix.png'
+2025-05-21 11:28:07,135 - RandomForestFaultDetector - INFO - Sauvegarde du modèle dans: C:\Users\omaim\backend_ia\ia_model\core\fault_detection\supervised\random_forest_model.pkl
+2025-05-21 11:28:07,162 - RandomForestFaultDetector - INFO - Métadonnées du modèle sauvegardées dans MongoDB
+2025-05-21 11:28:07,165 - RandomForestFaultDetector - INFO - Modèle sauvegardé avec succès. Taille: 624.68 KB
+2025-05-22 11:39:52,831 - RandomForestFaultDetector - INFO - Initialisation du détecteur de pannes avec Random Forest
+2025-05-22 11:39:52,832 - RandomForestFaultDetector - INFO - Tentative de connexion à MongoDB...
+2025-05-22 11:39:52,901 - RandomForestFaultDetector - INFO - Connexion à MongoDB établie avec succès
+2025-05-22 11:39:52,902 - RandomForestFaultDetector - INFO - Base de données sélectionnée : 'back-ia'
+2025-05-22 11:39:52,911 - RandomForestFaultDetector - INFO - Collections disponibles dans la base de données : ['assetnum', 'location', 'model_metadata', 'pannes', 'workorder']
+2025-05-22 11:39:53,009 - RandomForestFaultDetector - INFO - Collection 'workorder' trouvée avec 500 documents
+2025-05-22 11:39:53,023 - RandomForestFaultDetector - INFO - Collection 'location' trouvée avec 88 documents
+2025-05-22 11:39:53,036 - RandomForestFaultDetector - INFO - Collection 'assetnum' trouvée avec 69 documents
+2025-05-22 11:39:53,037 - RandomForestFaultDetector - INFO - Features utilisées: ['LOCATION', 'ASSETNUM', 'Description', 'location_description', 'assetnum_description', 'type_lubrification', 'oil_level', 'downtime', 'vibration', 'power_alimentation', 'maintenance_frequency', 'seniority']
+2025-05-22 11:39:53,038 - RandomForestFaultDetector - INFO - Connexion MongoDB active, chargement des données depuis MongoDB
+2025-05-22 11:39:53,039 - RandomForestFaultDetector - INFO - Chargement des données depuis MongoDB
+2025-05-22 11:39:53,048 - RandomForestFaultDetector - INFO - Requête MongoDB exécutée, 500 documents récupérés
+2025-05-22 11:39:53,079 - RandomForestFaultDetector - INFO - Données chargées depuis MongoDB: 500 enregistrements avec colonnes: ['Description', 'ASSETNUM', 'LOCATION', 'facteur', 'valeur', 'pourcentage', 'action_recommandee', 'action_secondaire', 'FC', 'PB', 'type_lubrification', 'oil_level', 'downtime', 'vibration', 'power_alimentation', 'maintenance_frequency', 'seniority']
+2025-05-22 11:39:53,081 - RandomForestFaultDetector - INFO - Données chargées: 500 enregistrements
+2025-05-22 11:39:53,081 - RandomForestFaultDetector - INFO - Tentative de chargement des données de location depuis MongoDB
+2025-05-22 11:39:53,082 - RandomForestFaultDetector - INFO - Requête MongoDB pour locations exécutée, 88 documents récupérés
+2025-05-22 11:39:53,084 - RandomForestFaultDetector - INFO - Colonnes disponibles dans locations_df: ['LOCATION', 'location_description']
+2025-05-22 11:39:53,094 - RandomForestFaultDetector - INFO - Fusion des données de location réussie, 500 enregistrements après fusion
+2025-05-22 11:39:53,095 - RandomForestFaultDetector - INFO - Tentative de chargement des données d'assetnum depuis MongoDB
+2025-05-22 11:39:53,096 - RandomForestFaultDetector - INFO - Requête MongoDB pour assetnum exécutée, 69 documents récupérés
+2025-05-22 11:39:53,098 - RandomForestFaultDetector - INFO - Colonnes disponibles dans assetnum_df: ['ASSETNUM', 'assetnum_description', '', 'type_lubrification', 'oil_level', 'downtime', 'vibration', 'power_alimentation', 'maintenance_frequency', 'seniority']
+2025-05-22 11:39:53,102 - RandomForestFaultDetector - INFO - Fusion des données d'assetnum réussie, 500 enregistrements après fusion
+2025-05-22 11:39:53,120 - RandomForestFaultDetector - WARNING - Impossible de charger table_location.csv: 'location_description'
+2025-05-22 11:39:53,136 - RandomForestFaultDetector - WARNING - Impossible de charger table_assetnum.csv: 'utf-8' codec can't decode byte 0xc9 in position 0: invalid continuation byte
+2025-05-22 11:39:53,160 - RandomForestFaultDetector - INFO - Distribution des pannes: {0: 427, 1: 73}
+2025-05-22 11:39:53,162 - RandomForestFaultDetector - INFO - Début du prétraitement des données
+2025-05-22 11:39:53,166 - RandomForestFaultDetector - INFO - Encodage de LOCATION terminé avec 89 classes
+2025-05-22 11:39:53,170 - RandomForestFaultDetector - INFO - Encodage de ASSETNUM terminé avec 70 classes
+2025-05-22 11:39:53,172 - RandomForestFaultDetector - INFO - Encodage de Description terminé avec 12 classes
+2025-05-22 11:39:53,174 - RandomForestFaultDetector - INFO - Encodage de location_description terminé avec 1 classes
+2025-05-22 11:39:53,177 - RandomForestFaultDetector - INFO - Encodage de assetnum_description terminé avec 1 classes
+2025-05-22 11:39:53,180 - RandomForestFaultDetector - INFO - Encodage de type_lubrification terminé avec 5 classes
+2025-05-22 11:39:53,182 - RandomForestFaultDetector - INFO - Encodage de power_alimentation terminé avec 4 classes
+2025-05-22 11:39:53,183 - RandomForestFaultDetector - INFO - Encodage de maintenance_frequency terminé avec 5 classes
+2025-05-22 11:39:53,184 - RandomForestFaultDetector - INFO - Features disponibles pour l'entraînement: ['LOCATION', 'ASSETNUM', 'Description', 'location_description', 'assetnum_description', 'type_lubrification', 'oil_level', 'downtime', 'vibration', 'power_alimentation', 'maintenance_frequency', 'seniority']
+2025-05-22 11:39:53,195 - RandomForestFaultDetector - INFO - Données divisées: 350 échantillons d'entraînement, 150 échantillons de test
+2025-05-22 11:39:53,195 - RandomForestFaultDetector - INFO - Début de l'entraînement du modèle
+2025-05-22 11:39:53,368 - RandomForestFaultDetector - INFO - Modèle entraîné avec succès
+2025-05-22 11:39:54,621 - RandomForestFaultDetector - INFO - Importance des features: {'importance': {'Description': 0.49357109162738294, 'ASSETNUM': 0.10765149058630809, 'LOCATION': 0.10410436137825173, 'downtime': 0.09311106273085026, 'seniority': 0.06885835096462266, 'oil_level': 0.0362063666858547, 'power_alimentation': 0.03555548023359735, 'type_lubrification': 0.03413141311385542, 'maintenance_frequency': 0.026810382679276847, 'location_description': 0.0, 'assetnum_description': 0.0, 'vibration': 0.0}}
+2025-05-22 11:39:54,622 - RandomForestFaultDetector - INFO - Début de l'évaluation du modèle
+2025-05-22 11:39:54,659 - RandomForestFaultDetector - INFO - Métriques d'évaluation: {'Accuracy': 0.9466666666666667, 'Precision': 1.0, 'Recall': 0.6363636363636364, 'F1 Score': 0.7777777777777778, 'ROC AUC': np.float64(0.9992897727272727)}
+2025-05-22 11:39:54,660 - RandomForestFaultDetector - INFO - Rapport de classification:
+              precision    recall  f1-score   support
+
+           0       0.94      1.00      0.97       128
+           1       1.00      0.64      0.78        22
+
+    accuracy                           0.95       150
+   macro avg       0.97      0.82      0.87       150
+weighted avg       0.95      0.95      0.94       150
+
+2025-05-22 11:39:54,661 - RandomForestFaultDetector - INFO - Génération de la matrice de confusion
+2025-05-22 11:39:54,873 - RandomForestFaultDetector - INFO - Matrice de confusion sauvegardée dans 'confusion_matrix.png'
+2025-05-22 11:40:39,594 - RandomForestFaultDetector - INFO - Sauvegarde du modèle dans: C:\Users\omaim\backend_ia\ia_model\core\fault_detection\supervised\random_forest_model.pkl
+2025-05-22 11:40:39,668 - RandomForestFaultDetector - INFO - Métadonnées du modèle sauvegardées dans MongoDB
+2025-05-22 11:40:39,669 - RandomForestFaultDetector - INFO - Modèle sauvegardé avec succès. Taille: 624.68 KB
+2025-05-22 12:11:33,608 - RandomForestFaultDetector - INFO - Initialisation du détecteur de pannes avec Random Forest
+2025-05-22 12:11:33,610 - RandomForestFaultDetector - INFO - Tentative de connexion à MongoDB...
+2025-05-22 12:11:33,635 - RandomForestFaultDetector - INFO - Connexion à MongoDB établie avec succès
+2025-05-22 12:11:33,636 - RandomForestFaultDetector - INFO - Base de données sélectionnée : 'back-ia'
+2025-05-22 12:11:33,639 - RandomForestFaultDetector - INFO - Collections disponibles dans la base de données : ['assetnum', 'location', 'model_metadata', 'pannes', 'workorder']
+2025-05-22 12:11:33,646 - RandomForestFaultDetector - INFO - Collection 'workorder' trouvée avec 500 documents
+2025-05-22 12:11:33,649 - RandomForestFaultDetector - INFO - Collection 'location' trouvée avec 88 documents
+2025-05-22 12:11:33,654 - RandomForestFaultDetector - INFO - Collection 'assetnum' trouvée avec 69 documents
+2025-05-22 12:11:33,654 - RandomForestFaultDetector - INFO - Features utilisées: ['LOCATION', 'ASSETNUM', 'Description', 'location_description', 'assetnum_description', 'type_lubrification', 'oil_level', 'downtime', 'vibration', 'power_alimentation', 'maintenance_frequency', 'seniority']
+2025-05-22 12:11:33,657 - RandomForestFaultDetector - INFO - Connexion MongoDB active, chargement des données
+2025-05-22 12:11:33,660 - RandomForestFaultDetector - INFO - Statistiques MongoDB - Taille de la base: 0.29 MB
+2025-05-22 12:11:33,661 - RandomForestFaultDetector - INFO - Nombre total de collections: 5
+2025-05-22 12:11:33,661 - RandomForestFaultDetector - ERROR - Erreur lors du chargement des données MongoDB: Collection objects do not implement truth value testing or bool(). Please compare with None instead: collection is not None
+2025-05-22 12:11:33,662 - RandomForestFaultDetector - ERROR - Erreur lors du traitement des données: Collection objects do not implement truth value testing or bool(). Please compare with None instead: collection is not None
+Traceback (most recent call last):
+  File "C:\Users\omaim\backend_ia\ia_model\core\fault_detection\supervised\random_forest.py", line 165, in load_and_prepare_data
+    if hasattr(self, f"{collection_name}_collection") and getattr(self, f"{collection_name}_collection"):
+                                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\omaim\backend_ia\.venv\Lib\site-packages\pymongo\synchronous\collection.py", line 311, in __bool__
+    raise NotImplementedError(
+NotImplementedError: Collection objects do not implement truth value testing or bool(). Please compare with None instead: collection is not None
+2025-05-22 12:13:10,282 - RandomForestFaultDetector - INFO - Initialisation du détecteur de pannes avec Random Forest
+2025-05-22 12:13:10,284 - RandomForestFaultDetector - INFO - Tentative de connexion à MongoDB...
+2025-05-22 12:13:10,309 - RandomForestFaultDetector - INFO - Connexion à MongoDB établie avec succès
+2025-05-22 12:13:10,310 - RandomForestFaultDetector - INFO - Base de données sélectionnée : 'back-ia'
+2025-05-22 12:13:10,311 - RandomForestFaultDetector - INFO - Collections disponibles dans la base de données : ['assetnum', 'location', 'model_metadata', 'pannes', 'workorder']
+2025-05-22 12:13:10,314 - RandomForestFaultDetector - INFO - Collection 'workorder' trouvée avec 500 documents
+2025-05-22 12:13:10,318 - RandomForestFaultDetector - INFO - Collection 'location' trouvée avec 88 documents
+2025-05-22 12:13:10,322 - RandomForestFaultDetector - INFO - Collection 'assetnum' trouvée avec 69 documents
+2025-05-22 12:13:10,322 - RandomForestFaultDetector - INFO - Features utilisées: ['LOCATION', 'ASSETNUM', 'Description', 'location_description', 'assetnum_description', 'type_lubrification', 'oil_level', 'downtime', 'vibration', 'power_alimentation', 'maintenance_frequency', 'seniority']
+2025-05-22 12:13:10,323 - RandomForestFaultDetector - INFO - Connexion MongoDB active, chargement des données
+2025-05-22 12:13:10,326 - RandomForestFaultDetector - INFO - Statistiques MongoDB - Taille de la base: 0.29 MB
+2025-05-22 12:13:10,327 - RandomForestFaultDetector - INFO - Nombre total de collections: 5
+2025-05-22 12:13:10,329 - RandomForestFaultDetector - INFO - Collection 'workorder': 500 documents
+2025-05-22 12:13:10,332 - RandomForestFaultDetector - INFO - Collection 'location': 88 documents
+2025-05-22 12:13:10,335 - RandomForestFaultDetector - INFO - Collection 'assetnum': 69 documents
+2025-05-22 12:13:10,347 - RandomForestFaultDetector - INFO - Données MongoDB chargées en 0.01 secondes
+2025-05-22 12:13:10,347 - RandomForestFaultDetector - INFO - Nombre de documents récupérés: 500
+2025-05-22 12:13:10,437 - RandomForestFaultDetector - INFO - Distribution des pannes: {0: 427, 1: 73}
+2025-05-22 12:13:10,438 - RandomForestFaultDetector - INFO - Début du prétraitement des données
+2025-05-22 12:13:10,443 - RandomForestFaultDetector - INFO - Encodage de LOCATION terminé avec 89 classes
+2025-05-22 12:13:10,451 - RandomForestFaultDetector - INFO - Encodage de ASSETNUM terminé avec 70 classes
+2025-05-22 12:13:10,455 - RandomForestFaultDetector - INFO - Encodage de Description terminé avec 12 classes
+2025-05-22 12:13:10,458 - RandomForestFaultDetector - INFO - Encodage de location_description terminé avec 7 classes
+2025-05-22 12:13:10,464 - RandomForestFaultDetector - INFO - Encodage de assetnum_description terminé avec 70 classes
+2025-05-22 12:13:10,470 - RandomForestFaultDetector - INFO - Encodage de type_lubrification terminé avec 5 classes
+2025-05-22 12:13:10,473 - RandomForestFaultDetector - INFO - Encodage de power_alimentation terminé avec 4 classes
+2025-05-22 12:13:10,476 - RandomForestFaultDetector - INFO - Encodage de maintenance_frequency terminé avec 5 classes
+2025-05-22 12:13:10,478 - RandomForestFaultDetector - INFO - Features disponibles pour l'entraînement: ['LOCATION', 'ASSETNUM', 'Description', 'location_description', 'assetnum_description', 'type_lubrification', 'oil_level', 'downtime', 'vibration', 'power_alimentation', 'maintenance_frequency', 'seniority']
+2025-05-22 12:13:10,491 - RandomForestFaultDetector - INFO - Données divisées: 350 échantillons d'entraînement, 150 échantillons de test
+2025-05-22 12:13:10,492 - RandomForestFaultDetector - INFO - Début de l'entraînement du modèle
+2025-05-22 12:13:10,812 - RandomForestFaultDetector - INFO - Modèle entraîné avec succès
+2025-05-22 12:13:11,771 - RandomForestFaultDetector - INFO - Importance des features: {'importance': {'Description': 0.46832935404891907, 'ASSETNUM': 0.09488760869326832, 'LOCATION': 0.0787419082387783, 'assetnum_description': 0.0727265233913736, 'downtime': 0.06630677544589728, 'seniority': 0.06417390792623413, 'location_description': 0.04032713226577781, 'oil_level': 0.033521599063837906, 'power_alimentation': 0.03175470062928595, 'maintenance_frequency': 0.025642210859726247, 'type_lubrification': 0.02358827943690123, 'vibration': 0.0}}
+2025-05-22 12:13:11,772 - RandomForestFaultDetector - INFO - Début de l'évaluation du modèle
+2025-05-22 12:13:11,845 - RandomForestFaultDetector - INFO - Métriques d'évaluation: {'Accuracy': 0.9533333333333334, 'Precision': 1.0, 'Recall': 0.6818181818181818, 'F1 Score': 0.8108108108108109, 'ROC AUC': np.float64(0.9957386363636364)}
+2025-05-22 12:13:11,845 - RandomForestFaultDetector - INFO - Rapport de classification:
+              precision    recall  f1-score   support
+
+           0       0.95      1.00      0.97       128
+           1       1.00      0.68      0.81        22
+
+    accuracy                           0.95       150
+   macro avg       0.97      0.84      0.89       150
+weighted avg       0.96      0.95      0.95       150
+
+2025-05-22 12:13:11,846 - RandomForestFaultDetector - INFO - Génération de la matrice de confusion
+2025-05-22 12:13:12,305 - RandomForestFaultDetector - INFO - Matrice de confusion sauvegardée dans 'confusion_matrix.png'
+2025-05-22 12:13:22,185 - RandomForestFaultDetector - INFO - Sauvegarde du modèle dans: C:\Users\omaim\backend_ia\ia_model\core\fault_detection\supervised\random_forest_model.pkl
+2025-05-22 12:13:22,236 - RandomForestFaultDetector - INFO - Métadonnées du modèle sauvegardées dans MongoDB
+2025-05-22 12:13:22,239 - RandomForestFaultDetector - INFO - Modèle sauvegardé avec succès. Taille: 620.73 KB

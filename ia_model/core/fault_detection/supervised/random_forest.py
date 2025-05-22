@@ -21,6 +21,8 @@ from collections import defaultdict
 import logging
 import seaborn as sns
 from sklearn.metrics import roc_auc_score
+from pymongo import MongoClient
+import time
 
 # Configuration du système de logging
 logging.basicConfig(
@@ -41,6 +43,49 @@ class RandomForestFaultDetector:
             random_state=random_state,
             class_weight='balanced'
         )
+        
+        # Connexion à MongoDB
+        try:
+            logger.info("Tentative de connexion à MongoDB...")
+            self.client = MongoClient('mongodb://localhost:27017/', serverSelectionTimeoutMS=5000)
+            # Vérification de la connexion
+            self.client.server_info()  # Ceci va lever une exception si la connexion échoue
+            logger.info("Connexion à MongoDB établie avec succès")
+            
+            self.db = self.client['back-ia']
+            logger.info(f"Base de données sélectionnée : 'back-ia'")
+            
+            # Vérification des collections
+            collections = self.db.list_collection_names()
+            logger.info(f"Collections disponibles dans la base de données : {collections}")
+            
+            if 'workorder' in collections:
+                self.workorder_collection = self.db['workorder']
+                logger.info(f"Collection 'workorder' trouvée avec {self.workorder_collection.count_documents({})} documents")
+            else:
+                logger.warning("Collection 'workorder' non trouvée dans la base de données")
+                
+            if 'location' in collections:
+                self.location_collection = self.db['location']
+                logger.info(f"Collection 'location' trouvée avec {self.location_collection.count_documents({})} documents")
+            else:
+                logger.warning("Collection 'location' non trouvée dans la base de données")
+                
+            if 'assetnum' in collections:
+                self.assetnum_collection = self.db['assetnum']
+                logger.info(f"Collection 'assetnum' trouvée avec {self.assetnum_collection.count_documents({})} documents")
+            else:
+                logger.warning("Collection 'assetnum' non trouvée dans la base de données")
+                
+        except Exception as e:
+            logger.error(f"Erreur lors de la connexion à MongoDB : {str(e)}")
+            print(f"\nERREUR : Impossible de se connecter à MongoDB : {str(e)}")
+            self.client = None
+            self.db = None
+            self.workorder_collection = None
+            self.location_collection = None
+            self.assetnum_collection = None
+        
         self.keywords = [
             # Urgence et criticité
             'urgent', 'urgente', 'urgents', 'urgentes', 'emergency', 'critical', 
@@ -97,120 +142,124 @@ class RandomForestFaultDetector:
         logger.info(f"Features utilisées: {self.features}")
 
     def load_and_prepare_data(self, file_path=None):
-        """Charge et prépare les données avec encodage UTF-8"""
+        """Charge et prépare les données depuis MongoDB"""
         try:
-            if file_path is None:
-                script_dir = os.path.dirname(os.path.abspath(__file__))
-                file_path = os.path.join(
-                    os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(script_dir)))),
-                    'data',
-                    'clean_workorders.csv'
-                )
-        
-            logger.info(f"Chargement des données depuis: {file_path}")
-            if not os.path.exists(file_path):
-                logger.error(f"Fichier non trouvé: {file_path}")
-                raise FileNotFoundError(f"Le fichier n'a pas été trouvé : {file_path}")
+            # Vérification de la connexion MongoDB
+            if self.client is None:
+                logger.error("Pas de connexion MongoDB disponible")
+                raise ValueError("Une connexion MongoDB est requise")
+            
+            try:
+                # Test de la connexion
+                self.client.admin.command('ping')
+                logger.info("Connexion MongoDB active, chargement des données")
+                
+                # Statistiques MongoDB
+                db_stats = self.db.command("dbStats")
+                logger.info(f"Statistiques MongoDB - Taille de la base: {db_stats['dataSize']/1024/1024:.2f} MB")
+                logger.info(f"Nombre total de collections: {db_stats['collections']}")
+                
+                # Logs des statistiques des collections avec la bonne vérification
+                for collection_name in ['workorder', 'location', 'assetnum']:
+                    collection = getattr(self, f"{collection_name}_collection", None)
+                    if collection is not None:
+                        count = collection.count_documents({})
+                        logger.info(f"Collection '{collection_name}': {count} documents")
+                
+                # Chargement des données workorder
+                start_time = time.time()
+                cursor = self.workorder_collection.find({})
+                mongo_data = list(cursor)
+                load_time = time.time() - start_time
+                
+                if not mongo_data:
+                    logger.error("Collection 'workorder' vide")
+                    raise ValueError("Aucune donnée trouvée dans la collection 'workorder'")
+                
+                logger.info(f"Données MongoDB chargées en {load_time:.2f} secondes")
+                logger.info(f"Nombre de documents récupérés: {len(mongo_data)}")
+                
+                # Création du DataFrame principal
+                df = pd.DataFrame(mongo_data)
+                if '_id' in df.columns:
+                    df = df.drop('_id', axis=1)
+                
+                # Fusion avec les données de location
+                if self.location_collection is not None:
+                    location_cursor = self.location_collection.find({})
+                    locations_data = list(location_cursor)
+                    if locations_data:
+                        locations_df = pd.DataFrame(locations_data)
+                        if '_id' in locations_df.columns:
+                            locations_df = locations_df.drop('_id', axis=1)
+                        df = df.merge(locations_df[['LOCATION', 'location_description']], 
+                                    on='LOCATION', how='left')
+                        df['location_description'] = df['location_description'].fillna('UNKNOWN')
+                
+                # Fusion avec les données d'assetnum
+                if self.assetnum_collection is not None:
+                    assetnum_cursor = self.assetnum_collection.find({})
+                    assetnum_data = list(assetnum_cursor)
+                    if assetnum_data:
+                        assetnum_df = pd.DataFrame(assetnum_data)
+                        if '_id' in assetnum_df.columns:
+                            assetnum_df = assetnum_df.drop('_id', axis=1)
+                        df = df.merge(assetnum_df[['ASSETNUM', 'assetnum_description']], 
+                                    on='ASSETNUM', how='left')
+                        df['assetnum_description'] = df['assetnum_description'].fillna('UNKNOWN')
 
-            print(f"\n{'='*50}\nChargement du fichier CSV depuis : {file_path}")
-            df = pd.read_csv(file_path, sep=';', encoding='utf-8')
-        
-            # Nettoyage des noms de colonnes
-            df.columns = df.columns.str.replace('ï»¿', '').str.strip()
-            logger.info(f"Données chargées: {len(df)} enregistrements")
-            
-            # Vérification des colonnes supplémentaires
-            additional_columns = ['FC', 'PB', 'type_lubrification', 'oil_level', 'downtime', 
-                                 'vibration', 'power_alimentation', 'maintenance_frequency', 'seniority']
-            
-            missing_columns = [col for col in additional_columns if col not in df.columns]
-            if missing_columns:
-                logger.warning(f"Colonnes manquantes dans le dataset: {missing_columns}")
-                # Création des colonnes manquantes avec valeurs par défaut
-                for col in missing_columns:
-                    if col in self.numeric_features:
-                        df[col] = 0
-                    else:
-                        df[col] = 'UNKNOWN'
-        
-            # Vérification de la colonne Description
-            description_column = next((col for col in df.columns if col.lower() == 'description'), None)
-            if not description_column:
-                logger.error("Column 'Description' not found in the dataset")
-                print("\nAvailable columns:", df.columns.tolist())
-                raise KeyError("Column 'Description' is required but not found in the dataset")
-        
-            # Chargement des données supplémentaires
-            script_dir = os.path.dirname(os.path.abspath(__file__))
-            base_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(script_dir))))
-        
-            # Données de location
-            location_path = os.path.join(base_dir, 'data', 'table_location.csv')
-            try:
-                locations_df = pd.read_csv(location_path, sep=';', encoding='utf-8')
-                df = df.merge(locations_df[['LOCATION', 'location_description']], 
-                            on='LOCATION', how='left')
-                df['location_description'] = df['location_description'].fillna('UNKNOWN')
+                # Nettoyage et préparation des données
+                df_cleaned = df.dropna().copy()
+                
+                # Traitement des features numériques
+                for col in self.numeric_features:
+                    if col in df_cleaned.columns:
+                        if col == 'oil_level' and df_cleaned[col].dtype == 'object':
+                            df_cleaned[col] = df_cleaned[col].str.replace('%', '').astype(float) / 100
+                        else:
+                            df_cleaned[col] = pd.to_numeric(df_cleaned[col], errors='coerce').fillna(0)
+                
+                # Traitement des features catégorielles
+                for col in self.categorical_features:
+                    if col in df_cleaned.columns:
+                        df_cleaned[col] = df_cleaned[col].fillna('UNKNOWN')
+                    if col not in self.feature_categories:
+                        self.feature_categories[col] = df_cleaned[col].unique().tolist()
+                    if 'UNKNOWN' not in self.feature_categories[col]:
+                        self.feature_categories[col].append('UNKNOWN')
+                
+                # Détection des pannes
+                description_column = next((col for col in df_cleaned.columns if col.lower() == 'description'), None)
+                if not description_column:
+                    raise KeyError("Colonne 'Description' non trouvée dans le dataset")
+                
+                df_cleaned.loc[:, 'PANNE'] = df_cleaned[description_column].apply(
+                    lambda x: 1 if any(
+                        keyword.lower() in str(x).lower() 
+                        for keyword in self.keywords
+                    ) and (
+                        'urgent' in str(x).lower() or
+                        'emergency' in str(x).lower() or
+                        'critical' in str(x).lower() or
+                        'arrêt' in str(x).lower() or
+                        'panne' in str(x).lower() or
+                        'défaillance' in str(x).lower() or
+                        'failure' in str(x).lower()
+                    ) else 0
+                )
+                
+                print(f"\nDistribution des pannes :\n{df_cleaned['PANNE'].value_counts()}")
+                print(f"\nTaux de pannes : {df_cleaned['PANNE'].mean():.2%}")
+                logger.info(f"Distribution des pannes: {df_cleaned['PANNE'].value_counts().to_dict()}")
+                
+                return df_cleaned
+                
             except Exception as e:
-                logger.warning(f"Impossible de charger table_location.csv: {str(e)}")
-                df['location_description'] = 'UNKNOWN'
-        
-            # Données d'assetnum
-            assetnum_path = os.path.join(base_dir, 'data', 'table_assetnum.csv')
-            try:
-                assetnum_df = pd.read_csv(assetnum_path, sep=';', encoding='utf-8')
-                df = df.merge(assetnum_df[['ASSETNUM', 'assetnum_description']], 
-                            on='ASSETNUM', how='left')
-                df['assetnum_description'] = df['assetnum_description'].fillna('UNKNOWN')
-            except Exception as e:
-                logger.warning(f"Impossible de charger table_assetnum.csv: {str(e)}")
-                df['assetnum_description'] = 'UNKNOWN'
-        
-            # Nettoyage des données
-            df_cleaned = df.dropna().copy()
-            
-            # Conversion des colonnes numériques
-            for col in self.numeric_features:
-                if col in df_cleaned.columns:
-                    # Conversion en pourcentage pour oil_level si nécessaire
-                    if col == 'oil_level' and df_cleaned[col].dtype == 'object':
-                        df_cleaned[col] = df_cleaned[col].str.replace('%', '').astype(float) / 100
-                    else:
-                        df_cleaned[col] = pd.to_numeric(df_cleaned[col], errors='coerce').fillna(0)
-            
-            # Gestion des catégories
-            for col in self.categorical_features:
-                if col in df_cleaned.columns:
-                    df_cleaned[col] = df_cleaned[col].fillna('UNKNOWN')
-                if col not in self.feature_categories:
-                    self.feature_categories[col] = df_cleaned[col].unique().tolist()
-                if 'UNKNOWN' not in self.feature_categories[col]:
-                    self.feature_categories[col].append('UNKNOWN')
-        
-            # Détection des pannes avec logique renforcée
-            df_cleaned.loc[:, 'PANNE'] = df_cleaned[description_column].apply(
-                lambda x: 1 if any(
-                    keyword.lower() in str(x).lower() 
-                    for keyword in self.keywords
-                ) and (
-                    'urgent' in str(x).lower() or
-                    'emergency' in str(x).lower() or
-                    'critical' in str(x).lower() or
-                    'arrêt' in str(x).lower() or
-                    'panne' in str(x).lower() or
-                    'défaillance' in str(x).lower() or
-                    'failure' in str(x).lower()
-                ) else 0
-            )
-        
-            print(f"\nDistribution des pannes :\n{df_cleaned['PANNE'].value_counts()}")
-            print(f"\nTaux de pannes : {df_cleaned['PANNE'].mean():.2%}")
-            logger.info(f"Distribution des pannes: {df_cleaned['PANNE'].value_counts().to_dict()}")
-        
-            return df_cleaned
-        
+                logger.error(f"Erreur lors du chargement des données MongoDB: {str(e)}")
+                raise
+                
         except Exception as e:
-            logger.error(f"Erreur lors du chargement des données : {str(e)}", exc_info=True)
+            logger.error(f"Erreur lors du traitement des données: {str(e)}", exc_info=True)
             raise
 
     def preprocess_data(self, df):
@@ -334,6 +383,24 @@ class RandomForestFaultDetector:
         
         with open(file_path, 'wb') as f:
             pickle.dump(model_data, f)
+        
+        # Sauvegarde des métadonnées dans MongoDB
+        try:
+            metadata = {
+                'model_name': 'random_forest_fault_detector',
+                'accuracy': getattr(self, 'accuracy', None),
+                'features': self.features,
+                'timestamp': pd.Timestamp.now().isoformat(),
+                'file_path': file_path
+            }
+            self.db['model_metadata'].update_one(
+                {'model_name': 'random_forest_fault_detector'},
+                {'$set': metadata},
+                upsert=True
+            )
+            logger.info("Métadonnées du modèle sauvegardées dans MongoDB")
+        except Exception as e:
+            logger.warning(f"Erreur lors de la sauvegarde des métadonnées dans MongoDB: {str(e)}")
         
         print(f"\nModèle sauvegardé dans {file_path}")
         print(f"Taille du fichier : {os.path.getsize(file_path)/1024:.2f} KB")

@@ -47,7 +47,7 @@ router.post('/predict', async (req, res) => {
 
         const options = {
             mode: 'text',
-            pythonPath: 'C:\\Users\\omaim\\AppData\\Local\\Programs\\Python\\Python312\\python.exe',
+            pythonPath: 'c:\\Users\\omaim\\backend_ia\\.venv\\Scripts\\python.exe',
             pythonOptions: ['-u'],
             scriptPath: supervisedDir,
             args: [tempFilePath],
@@ -134,7 +134,7 @@ router.post('/predict', async (req, res) => {
             try {
                 const accuracyOptions = {
                     mode: 'text',
-                    pythonPath: 'C:\\Users\\omaim\\AppData\\Local\\Programs\\Python\\Python312\\python.exe',
+                    pythonPath: 'c:\\Users\\omaim\\backend_ia\\.venv\\Scripts\\python.exe',
                     pythonOptions: ['-u', '-X', 'utf8'],
                     scriptPath: path.join(__dirname, '..', 'ia_model', 'core', 'fault_detection', 'supervised'),
                     terminalOptions: { windowsHide: true }
@@ -169,7 +169,7 @@ router.post('/predict', async (req, res) => {
                     // Définir classifierOptions avant de l'utiliser
                     const classifierOptions = {
                         mode: 'text',
-                        pythonPath: 'C:\\Users\\omaim\\AppData\\Local\\Programs\\Python\\Python312\\python.exe',
+                        pythonPath: 'c:\\Users\\omaim\\backend_ia\\.venv\\Scripts\\python.exe',
                         pythonOptions: ['-u', '-X', 'utf8'],
                         scriptPath: path.join(__dirname, '..', 'ia_model', 'core', 'fault_detection', 'supervised'),
                         args: [prediction.prediction.details?.fault_diagnosis?.etat || ''], 

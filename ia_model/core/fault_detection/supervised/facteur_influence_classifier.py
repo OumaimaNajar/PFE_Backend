@@ -5,37 +5,50 @@ from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.preprocessing import LabelEncoder
 import joblib
+from pymongo import MongoClient
 
 class FacteurInfluenceClassifier:
-    def __init__(self, csv_path=None):
-        if csv_path is None:
-            csv_path = os.path.abspath(
-                os.path.join(os.path.dirname(__file__), '..', '..', '..', '..', 'data', 'facteurs_influencent_pannes.csv')
-            )
-        self.csv_path = csv_path
+    def __init__(self):
         self.df = None
         self.model = None
         self.type_encoder = None
         self.facteur_encoder = None
         self.col_encoders = {}
+        
+        # Connexion à MongoDB
+        try:
+            self.client = MongoClient('mongodb://localhost:27017/')
+            self.db = self.client['back-ia']
+            self.facteurs_collection = self.db['facteurs']
+            print("[INFO] Connexion à MongoDB établie avec succès", file=sys.stderr)
+        except Exception as e:
+            print(f"[ERREUR] Impossible de se connecter à MongoDB : {str(e)}", file=sys.stderr)
+            raise
+            
         self._load_data()
         self._train_model()
 
     def _load_data(self):
-        encodings = ['utf-8', 'latin1', 'iso-8859-1', 'cp1252']
-        for encoding in encodings:
-            try:
-                self.df = pd.read_csv(self.csv_path, sep=';', encoding=encoding)
-                print(f"[INFO] CSV chargé avec encodage: {encoding}", file=sys.stderr)
-                # Ajout des logs pour vérifier le contenu
-                print(f"[DEBUG] Colonnes disponibles: {self.df.columns.tolist()}", file=sys.stderr)
-                print(f"[DEBUG] Premières lignes:\n{self.df.head()}", file=sys.stderr)
-                break
-            except UnicodeDecodeError:
-                continue
-        else:
-            raise ValueError("Aucun encodage valide trouvé pour le CSV des facteurs influents.")
-
+        try:
+            # Récupération des données depuis MongoDB uniquement
+            cursor = self.facteurs_collection.find({})
+            data = list(cursor)
+            
+            if not data:
+                raise ValueError("Aucune donnée trouvée dans la collection 'facteurs'")
+                
+            self.df = pd.DataFrame(data)
+            
+            # Suppression de l'ID MongoDB
+            if '_id' in self.df.columns:
+                self.df = self.df.drop('_id', axis=1)
+                
+            print(f"[INFO] Données chargées depuis MongoDB: {len(self.df)} enregistrements", file=sys.stderr)
+            print(f"[DEBUG] Colonnes disponibles: {self.df.columns.tolist()}", file=sys.stderr)
+            
+        except Exception as e:
+            print(f"[ERREUR] Échec du chargement des données depuis MongoDB: {str(e)}", file=sys.stderr)
+            raise
 
     def _prepare_features(self):
         df = self.df.dropna(subset=['type_panne', 'facteur'])
@@ -61,7 +74,7 @@ class FacteurInfluenceClassifier:
         
         for col in required_columns:
             if col not in available_columns:
-                print(f"[WARNING] Colonne '{col}' non trouvée dans le CSV. Une colonne vide sera créée.", file=sys.stderr)
+                print(f"[WARNING] Colonne '{col}' non trouvée dans MongoDB. Une colonne vide sera créée.", file=sys.stderr)
                 # Initialiser les valeurs par défaut selon le type de colonne
                 if col in ['FC', 'type_lubrification', 'vibration', 'power_alimentation', 'maintenance_frequency']:
                     self.df[col] = ''
