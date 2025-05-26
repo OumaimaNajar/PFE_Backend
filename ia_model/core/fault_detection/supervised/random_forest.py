@@ -91,13 +91,14 @@ class RandomForestFaultDetector:
             'urgent', 'urgente', 'urgents', 'urgentes', 'emergency', 'critical', 
             'arrêt d\'urgence', 'emergency stop', 'majeure', 'majeures',
             'severe', 'grave', 'graves', 'important', 'importante', 'importants', 'importantes',
-            'significant', 'major', 'critique', 'critiques',
+            'significant', 'major', 'critique', 'critiques','TEST','SM',
             
             # Pannes matérielles
             'leak', 'fuite', 'fuites', 'stopped', 'overheating', 'failure', 'broken', 
             'malfunction', 'error', 'defect', 'fault', 'out of order',
             'shutdown', 'crash', 'jammed', 'blocked', 'unresponsive',
             'slow', 'interrupted', 'disconnected', 'unstable', 'corrupted',
+            'replace','clean','inspect','check','change','rebuild',
             
             # Mots-clés spécifiques en français
             'défaillance', 'surchauffe', 'panne', 'arrêt', 'problème',
@@ -237,14 +238,32 @@ class RandomForestFaultDetector:
                     lambda x: 1 if any(
                         keyword.lower() in str(x).lower() 
                         for keyword in self.keywords
-                    ) and (
-                        'urgent' in str(x).lower() or
-                        'emergency' in str(x).lower() or
-                        'critical' in str(x).lower() or
-                        'arrêt' in str(x).lower() or
-                        'panne' in str(x).lower() or
-                        'défaillance' in str(x).lower() or
-                        'failure' in str(x).lower()
+                    ) or (
+                        'service' in str(x).lower() or
+                        'inspect' in str(x).lower() or
+                        'check' in str(x).lower() or
+                        'replace' in str(x).lower() or
+                        'clean' in str(x).lower() or
+                        'cleanup' in str(x).lower() or
+                        'repair' in str(x).lower() or
+                        'rebuild' in str(x).lower() or
+                        'overhaul' in str(x).lower() or
+                        'test' in str(x).lower() or
+                        'remove' in str(x).lower() or
+                        'sm:' in str(x).lower() or
+                        'repair as necessary' in str(x).lower() or
+                        'replace wall plate and cleanup' in str(x).lower()
+                    ) or (  # Changement de 'and' en 'or' ici
+                        'urgent' in str(x).lower() or 
+                        'necessary' in str(x).lower() or 
+                        'emergency' in str(x).lower() or 
+                        'critical' in str(x).lower() or 
+                        'arrêt' in str(x).lower() or 
+                        'panne' in str(x).lower() or 
+                        'défaillance' in str(x).lower() or 
+                        'failure' in str(x).lower() or
+                        'repair as necessary' in str(x).lower() or
+                        'replace wall plate and cleanup' in str(x).lower()
                     ) else 0
                 )
                 
