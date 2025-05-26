@@ -6,9 +6,20 @@ import pandas as pd
 from fault_classifier import FaultTypeClassifier
 import joblib
 import re
-
-# Ajouter en haut du fichier
+from pymongo import MongoClient
 from functools import lru_cache
+
+# Configuration de la connexion MongoDB
+def get_mongodb_connection():
+    """Établit la connexion à MongoDB et retourne le client et la base de données"""
+    try:
+        client = MongoClient('mongodb://localhost:27017/')
+        db = client['back-ia']
+        print(f"[INFO] Connexion MongoDB établie avec succès", file=sys.stderr)
+        return client, db
+    except Exception as e:
+        print(f"[ERREUR] Connexion MongoDB impossible: {str(e)}", file=sys.stderr)
+        return None, None
 
 @lru_cache(maxsize=1)
 def load_model():
@@ -31,63 +42,47 @@ def load_facteur_model():
         print(f"Failed to load facteur model: {str(e)}", file=sys.stderr)
         return None
 
-def load_factors_csv():
-    """Chargement du CSV des facteurs d'influence avec gestion de plusieurs encodages."""
-    csv_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), '..', '..', 'data', 'facteurs_influencent_pannes.csv')
-    
-    if not os.path.exists(csv_path):
-        print(f"[ERREUR] Fichier CSV non trouvé : {csv_path}", file=sys.stderr)
+def load_factors_from_mongodb():
+    """Chargement des facteurs depuis MongoDB avec gestion de l'encodage"""
+    client, db = get_mongodb_connection()
+    if client is None or db is None:
         return None
         
-    # Liste des encodages à tester
-    encodings = ['latin1', 'utf-8-sig', 'iso-8859-1', 'cp1252', 'utf-8', 'utf-16', 'ascii', 'windows-1250', 'windows-1252']
-    
-    # Tentative de détection automatique de l'encodage
     try:
-        import chardet
-        with open(csv_path, 'rb') as f:
-            result = chardet.detect(f.read())
-        detected_encoding = result['encoding']
-        if detected_encoding and detected_encoding not in encodings:
-            encodings.insert(0, detected_encoding)
-            print(f"[INFO] Encodage détecté automatiquement: {detected_encoding}", file=sys.stderr)
-    except ImportError:
-        print("[INFO] Module chardet non disponible, utilisation de la liste d'encodages prédéfinie", file=sys.stderr)
-    
-    # Reste du code inchangé
-    for encoding in encodings:
-        try:
-            df = pd.read_csv(csv_path, sep=';', encoding=encoding)
-            print(f"[INFO] CSV chargé avec succès. Encodage: {encoding}", file=sys.stderr)
-            print(f"[DEBUG] Colonnes disponibles: {df.columns.tolist()}", file=sys.stderr)
+        facteurs_collection = db['facteurs']
+        factors_data = list(facteurs_collection.find({}))
+        
+        if not factors_data:
+            print("[ERREUR] Aucune donnée trouvée dans la collection facteurs", file=sys.stderr)
+            return None
             
-            # Vérifier si les colonnes nécessaires existent
-            required_columns = ['type_panne', 'facteur']
-            numerical_columns = ['PB', 'FC', 'oil_level', 'downtime']
+        # Conversion des données avec gestion de l'encodage
+        cleaned_data = []
+        for doc in factors_data:
+            cleaned_doc = {}
+            for key, value in doc.items():
+                if key == '_id':
+                    continue
+                # Conversion des chaînes en UTF-8
+                if isinstance(value, str):
+                    try:
+                        cleaned_doc[key] = value.encode('utf-8').decode('utf-8')
+                    except UnicodeEncodeError:
+                        cleaned_doc[key] = value.encode('utf-8', errors='ignore').decode('utf-8')
+                else:
+                    cleaned_doc[key] = value
+            cleaned_data.append(cleaned_doc)
             
-            missing_columns = [col for col in required_columns if col not in df.columns]
-            if missing_columns:
-                print(f"[AVERTISSEMENT] Colonnes manquantes dans le CSV: {missing_columns}", file=sys.stderr)
-            
-            # Ajouter les colonnes numériques si elles n'existent pas
-            for col in numerical_columns:
-                if col not in df.columns:
-                    print(f"[INFO] Ajout de la colonne manquante '{col}' avec valeurs par défaut", file=sys.stderr)
-                    df[col] = '0.0'  # Utiliser une chaîne par défaut au lieu d'un nombre
-                    
-            # Ne pas convertir les colonnes PB et FC en nombres, les garder comme strings
-            # Pour les autres colonnes numériques, les convertir en nombres
-            for col in ['oil_level', 'downtime']:
-                if col in df.columns:
-                    df[col] = pd.to_numeric(df[col], errors='coerce').fillna(0)
-            
-            return df
-        except Exception as e:
-            print(f"[ERREUR] Échec de chargement avec encodage {encoding}: {str(e)}", file=sys.stderr)
-            continue
-    
-    print("[ERREUR] Impossible de charger le CSV avec tous les encodages testés", file=sys.stderr)
-    return None
+        df = pd.DataFrame(cleaned_data)
+        print(f"[INFO] {len(df)} facteurs chargés depuis MongoDB", file=sys.stderr)
+        return df
+        
+    except Exception as e:
+        print(f"[ERREUR] Échec du chargement des facteurs: {str(e)}", file=sys.stderr)
+        return None
+    finally:
+        if client is not None:
+            client.close()
 
 def normalize_string(text):
     """Normalise les chaînes pour une comparaison cohérente."""
@@ -101,6 +96,12 @@ def normalize_string(text):
 
 def predict(input_data, preloaded_model=None):
     try:
+        # Forcer l'encodage de la sortie en UTF-8
+        if sys.stdout.encoding != 'utf-8':
+            sys.stdout.reconfigure(encoding='utf-8')
+        if sys.stderr.encoding != 'utf-8':
+            sys.stderr.reconfigure(encoding='utf-8')
+            
         print("[DEBUG] Début de la prédiction avec les données:", file=sys.stderr)
         print(f"[DEBUG] {json.dumps(input_data, ensure_ascii=False)}", file=sys.stderr)
         
@@ -122,12 +123,15 @@ def predict(input_data, preloaded_model=None):
         critical_keywords = [
             'arrêt d\'urgence', 'critique', 'emergency', 'critical', 'urgent', 'urgente', 
             'majeure', 'severe', 'grave', 'graves', 'sérieux', 'sérieuse', 'important', 'significatif',
-            'dangereux', 'dangereuse', 'risque', 'prioritaire', 'immédiat', 'immédiate'
+            'dangereux', 'dangereuse', 'risque', 'prioritaire', 'immédiat', 'immédiate',
+            'repair', 'replace', 'rebuild', 'overhaul', 'damaged', 'worn', 'remove', 'inspect','necessary'
         ]
         technical_issues = [
             'surchauffe', 'overheating', 'fuite', 'leak', 'dysfonctionnement', 'malfunction',
             'hydraulique', 'pression', 'huile', 'oil', 'rupture', 'cassé', 'cassée', 'brisé', 'brisée',
-            'bloqué', 'bloquée', 'vibration', 'bruit', 'noise', 'odeur', 'smell'
+            'bloqué', 'bloquée', 'vibration', 'bruit', 'noise', 'odeur', 'smell',
+            'pump', 'generator', 'conveyor', 'motor', 'battery', 'bearing', 'gear', 'chain',
+            'switch', 'electrical', 'plumbing', 'conduit', 'tubing'
         ]
         critical_count = sum(1 for kw in critical_keywords if kw in desc)
         issues_count = sum(1 for issue in technical_issues if issue in desc)
@@ -186,8 +190,8 @@ def predict(input_data, preloaded_model=None):
                     except Exception as e:
                         print(f"[ERREUR] Échec de prédiction du facteur: {str(e)}", file=sys.stderr)
                 
-                # Approche 2: Rechercher le type de panne dans le CSV
-                df = load_factors_csv()
+                # Approche 2: Rechercher le type de panne dans MongoDB
+                df = load_factors_from_mongodb()
                 if df is not None:
                     # Normaliser pour la comparaison
                     df['type_panne_norm'] = df['type_panne'].apply(normalize_string)
@@ -371,8 +375,8 @@ def predict(input_data, preloaded_model=None):
                     "influencing_factors": [{
                         "facteur_principal": "Erreur",
                         "type_panne": "Inconnu",
-                        "PB": "0.0",  # Utiliser une chaîne par défaut
-                        "FC": "0.0",  # Utiliser une chaîne par défaut
+                        "PB": "0.0",  
+                        "FC": "0.0", 
                         "oil_level": 0,
                         "downtime": 0,
                         "error": str(e)
