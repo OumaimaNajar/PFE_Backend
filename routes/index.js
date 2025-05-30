@@ -70,7 +70,11 @@ router.post('/predict', async (req, res) => {
         
         pyshell.on('stderr', function(stderr) {
             console.error(`[Python stderr]: ${stderr}`);
-            // Ne pas setter hasError ici, juste logguer
+            // Only set error if the message contains 'ERROR' or 'CRITICAL'
+            if (stderr.includes('ERROR') || stderr.includes('CRITICAL')) {
+                hasError = true;
+                errorMessage = stderr;
+            }
         });
         
         pyshell.on('error', function(err) {
@@ -251,6 +255,208 @@ router.post('/predict', async (req, res) => {
             success: false,
             error: errorMessage,
             details: error.message || String(error)
+        });
+    }
+});
+
+// Route pour la proximité des techniciens
+router.post('/proximity', async (req, res) => {
+    let tempFilePath = null;
+    let pyshell = null;
+    
+    try {
+        console.log('Received proximity request data:', req.body);
+        
+        if (!req.body || !req.body.data) {
+            return res.status(400).json({ 
+                success: false, 
+                error: "Missing required data fields" 
+            });
+        }
+
+        const requiredFields = ['Latitude', 'Longitude'];
+        const missingFields = requiredFields.filter(field => !req.body.data[field]);
+        if (missingFields.length > 0) {
+            return res.status(400).json({
+                success: false,
+                error: `Missing required fields: ${missingFields.join(', ')}`
+            });
+        }
+
+        const proximityDir = path.join(__dirname, '..', 'ia_model', 'core', 'proximity');
+        tempFilePath = path.join(proximityDir, `temp_input_${Date.now()}.json`);
+        
+        const jsonData = JSON.stringify(req.body.data, null, 2);
+        const buffer = Buffer.from(jsonData, 'utf8');
+        fs.writeFileSync(tempFilePath, buffer);
+
+        console.log('Created temporary file:', tempFilePath);
+
+        const options = {
+            mode: 'text',
+            pythonPath: 'c:\\Users\\omaim\\backend_ia\\.venv\\Scripts\\python.exe',
+            pythonOptions: ['-u'],
+            scriptPath: proximityDir,
+            args: [tempFilePath],
+            encoding: 'utf8',
+            terminalOptions: { windowsHide: true }
+        };
+
+        console.log('Starting Python process with options:', options);
+
+        pyshell = new PythonShell('proximity_model.py', options);
+        
+        let output = [];
+        let hasError = false;
+        let errorMessage = '';
+        
+        pyshell.on('message', function(message) {
+            console.log(`[Python stdout]: ${message}`);
+            output.push(message);
+        });
+
+        pyshell.on('stderr', function(stderr) {
+            // Only log the stderr output without marking it as an error
+            console.log(`[Python log]: ${stderr}`);
+        });
+
+        // Modify the error handling to only respond with error for actual errors
+        pyshell.on('error', function(err) {
+            console.error(`[Python error]: ${err.message}`);
+            hasError = true;
+            errorMessage = err.message;
+        });
+
+        // Ajouter un timeout de 30 secondes
+        const timeoutPromise = new Promise((_, reject) => {
+            setTimeout(() => reject(new Error('Timeout')), 30000);
+        });
+
+        await Promise.race([
+            new Promise((resolve) => pyshell.on('close', resolve)),
+            timeoutPromise
+        ]);
+
+        pyshell.on('close', () => {
+            try {
+                if (tempFilePath && fs.existsSync(tempFilePath)) {
+                    fs.unlinkSync(tempFilePath);
+                }
+                
+                if (output.length > 0) {
+                    const result = JSON.parse(output[output.length - 1]);
+                    if (result.success && result.techniciens && result.techniciens.length > 0) {
+                        return res.json({
+                            success: true,
+                            technicians: result.techniciens,
+                            message: "Techniciens trouvés"
+                        });
+                    } else {
+                        return res.json({
+                            success: false,
+                            message: "Aucun technicien trouvé à proximité",
+                            details: result
+                        });
+                    }
+                } else {
+                    return res.json({
+                        success: false,
+                        message: "Aucune réponse du modèle"
+                    });
+                }
+            } catch (e) {
+                return res.status(500).json({
+                    success: false,
+                    message: "Erreur de traitement",
+                    error: e.message
+                });
+            }
+        });
+
+        if (hasError) {
+            throw new Error(`Erreur Python: ${errorMessage}`);
+        }
+        
+        if (tempFilePath && fs.existsSync(tempFilePath)) {
+            fs.unlinkSync(tempFilePath);
+            console.log('Temporary file deleted:', tempFilePath);
+        }
+        
+        if (!output.length) {
+            throw new Error('Aucune donnée reçue du modèle Python');
+        }
+
+        if (hasError) {
+            return res.status(500).json({
+                success: false,
+                error: "Erreur lors de l'exécution du modèle",
+                details: errorMessage
+            });
+        } else if (output.length > 0) {
+            try {
+                const result = JSON.parse(output[output.length - 1]);
+                return res.json({
+                    success: true,
+                    data: result
+                });
+            } catch (e) {
+                return res.status(500).json({
+                    success: false,
+                    error: "Invalid response format from Python model"
+                });
+            }
+        }
+
+        let result;
+        try {
+            result = JSON.parse(output[output.length - 1]);
+        } catch (parseError) {
+            console.error('Error parsing Python output:', output);
+            throw new Error('Invalid JSON output from Python');
+        }
+
+        return res.json({
+            success: true,
+            techniciens: result.techniciens
+        });
+        
+    } catch (error) {
+        console.error("Detailed error:", error);
+        
+        if (pyshell) {
+            try {
+                pyshell.terminate();
+                console.log('Python process terminated');
+            } catch (termError) {
+                console.error("Error terminating Python shell:", termError);
+            }
+        }
+
+        if (tempFilePath && fs.existsSync(tempFilePath)) {
+            try {
+                fs.unlinkSync(tempFilePath);
+                console.log('Temporary file deleted after error');
+            } catch (unlinkError) {
+                console.error("Error deleting temp file:", unlinkError);
+            }
+        }
+
+        let clientError = "Erreur lors du traitement de la requête";
+        let statusCode = 500;
+
+        if (error.message === 'Timeout') {
+            clientError = "Le serveur met trop de temps à répondre";
+        } else if (error.message.includes('ENOENT')) {
+            clientError = "Erreur de configuration Python";
+        } else if (error.message.includes('MongoDB')) {
+            clientError = "Erreur de connexion à la base de données";
+            statusCode = 503;
+        }
+
+        return res.status(statusCode).json({
+            success: false,
+            error: clientError,
+            details: error.message
         });
     }
 });

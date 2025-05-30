@@ -708,3 +708,45 @@
 2025-05-26 22:24:42,450 - FaultClassifier - INFO - Collection 'pannes' trouv√©e avec 49 documents
 2025-05-26 22:24:42,451 - FaultClassifier - INFO - Chargement des donn√©es depuis MongoDB...
 2025-05-26 22:24:42,454 - FaultClassifier - INFO - Donn√©es charg√©es depuis MongoDB: 49 enregistrements
+2025-05-26 22:44:43,405 - FaultClassifier - INFO - Tentative de connexion ‡ MongoDB...
+2025-05-26 22:44:43,519 - FaultClassifier - INFO - Connexion ‡ MongoDB Ètablie avec succËs
+2025-05-26 22:44:43,519 - FaultClassifier - INFO - Base de donnÈes sÈlectionnÈe : 'back-ia'
+2025-05-26 22:44:43,532 - FaultClassifier - INFO - Collections disponibles dans la base de donnÈes : ['assetnum', 'location', 'model_metadata', 'facteurs', 'pannes', 'workorder']
+2025-05-26 22:44:43,646 - FaultClassifier - INFO - Collection 'pannes' trouvÈe avec 49 documents
+2025-05-26 22:44:43,646 - FaultClassifier - INFO - Chargement des donnÈes depuis MongoDB...
+2025-05-26 22:44:43,669 - FaultClassifier - INFO - DonnÈes chargÈes depuis MongoDB: 49 enregistrements
+2025-05-26 22:44:50,819 - FaultClassifier - INFO - Tentative de connexion √† MongoDB...
+2025-05-26 22:44:50,840 - FaultClassifier - INFO - Connexion √† MongoDB √©tablie avec succ√®s
+2025-05-26 22:44:50,840 - FaultClassifier - INFO - Base de donn√©es s√©lectionn√©e : 'back-ia'
+2025-05-26 22:44:50,842 - FaultClassifier - INFO - Collections disponibles dans la base de donn√©es : ['assetnum', 'location', 'model_metadata', 'facteurs', 'pannes', 'workorder']
+2025-05-26 22:44:50,846 - FaultClassifier - INFO - Collection 'pannes' trouv√©e avec 49 documents
+2025-05-26 22:44:50,847 - FaultClassifier - INFO - Chargement des donn√©es depuis MongoDB...
+2025-05-26 22:44:50,854 - FaultClassifier - INFO - Donn√©es charg√©es depuis MongoDB: 49 enregistrements
+2025-05-26 22:49:36,114 - FaultClassifier - INFO - Tentative de connexion ‡ MongoDB...
+2025-05-26 22:49:36,141 - FaultClassifier - INFO - Connexion ‡ MongoDB Ètablie avec succËs
+2025-05-26 22:49:36,142 - FaultClassifier - INFO - Base de donnÈes sÈlectionnÈe : 'back-ia'
+2025-05-26 22:49:36,144 - FaultClassifier - INFO - Collections disponibles dans la base de donnÈes : ['assetnum', 'location', 'model_metadata', 'facteurs', 'pannes', 'workorder']
+2025-05-26 22:49:36,147 - FaultClassifier - INFO - Collection 'pannes' trouvÈe avec 49 documents
+2025-05-26 22:49:36,147 - FaultClassifier - INFO - Chargement des donnÈes depuis MongoDB...
+2025-05-26 22:49:36,170 - FaultClassifier - INFO - DonnÈes chargÈes depuis MongoDB: 49 enregistrements
+2025-05-26 22:49:43,693 - FaultClassifier - INFO - Tentative de connexion √† MongoDB...
+2025-05-26 22:49:43,713 - FaultClassifier - INFO - Connexion √† MongoDB √©tablie avec succ√®s
+2025-05-26 22:49:43,714 - FaultClassifier - INFO - Base de donn√©es s√©lectionn√©e : 'back-ia'
+2025-05-26 22:49:43,715 - FaultClassifier - INFO - Collections disponibles dans la base de donn√©es : ['assetnum', 'location', 'model_metadata', 'facteurs', 'pannes', 'workorder']
+2025-05-26 22:49:43,719 - FaultClassifier - INFO - Collection 'pannes' trouv√©e avec 49 documents
+2025-05-26 22:49:43,720 - FaultClassifier - INFO - Chargement des donn√©es depuis MongoDB...
+2025-05-26 22:49:43,726 - FaultClassifier - INFO - Donn√©es charg√©es depuis MongoDB: 49 enregistrements
+2025-05-26 22:54:49,992 - FaultClassifier - INFO - Tentative de connexion ‡ MongoDB...
+2025-05-26 22:54:50,014 - FaultClassifier - INFO - Connexion ‡ MongoDB Ètablie avec succËs
+2025-05-26 22:54:50,014 - FaultClassifier - INFO - Base de donnÈes sÈlectionnÈe : 'back-ia'
+2025-05-26 22:54:50,015 - FaultClassifier - INFO - Collections disponibles dans la base de donnÈes : ['assetnum', 'location', 'model_metadata', 'facteurs', 'pannes', 'workorder']
+2025-05-26 22:54:50,018 - FaultClassifier - INFO - Collection 'pannes' trouvÈe avec 49 documents
+2025-05-26 22:54:50,019 - FaultClassifier - INFO - Chargement des donnÈes depuis MongoDB...
+2025-05-26 22:54:50,034 - FaultClassifier - INFO - DonnÈes chargÈes depuis MongoDB: 49 enregistrements
+2025-05-26 22:54:55,327 - FaultClassifier - INFO - Tentative de connexion √† MongoDB...
+2025-05-26 22:54:55,410 - FaultClassifier - INFO - Connexion √† MongoDB √©tablie avec succ√®s
+2025-05-26 22:54:55,410 - FaultClassifier - INFO - Base de donn√©es s√©lectionn√©e : 'back-ia'
+2025-05-26 22:54:55,412 - FaultClassifier - INFO - Collections disponibles dans la base de donn√©es : ['assetnum', 'location', 'model_metadata', 'facteurs', 'pannes', 'workorder']
+2025-05-26 22:54:55,414 - FaultClassifier - INFO - Collection 'pannes' trouv√©e avec 49 documents
+2025-05-26 22:54:55,415 - FaultClassifier - INFO - Chargement des donn√©es depuis MongoDB...
+2025-05-26 22:54:55,421 - FaultClassifier - INFO - Donn√©es charg√©es depuis MongoDB: 49 enregistrements
