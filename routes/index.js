@@ -2,6 +2,8 @@ const express = require('express');
 const path = require('path');
 const { PythonShell } = require('python-shell');
 const fs = require('fs');
+const { promisify } = require('util');
+const setTimeoutPromise = promisify(setTimeout);
 
 const router = express.Router();
 
@@ -71,7 +73,7 @@ router.post('/predict', async (req, res) => {
         pyshell.on('stderr', function(stderr) {
             console.error(`[Python stderr]: ${stderr}`);
             // Only set error if the message contains 'ERROR' or 'CRITICAL'
-            if (stderr.includes('ERROR') || stderr.includes('CRITICAL')) {
+            if (stderr && (stderr.includes('ERROR') || stderr.includes('CRITICAL'))) {
                 hasError = true;
                 errorMessage = stderr;
             }
@@ -266,7 +268,7 @@ router.post('/proximity', async (req, res) => {
     
     try {
         console.log('Received proximity request data:', req.body);
-        
+                                                                                                                                                                                                                            
         if (!req.body || !req.body.data) {
             return res.status(400).json({ 
                 success: false, 
@@ -462,3 +464,41 @@ router.post('/proximity', async (req, res) => {
 });
 
 module.exports = router;
+
+async function deleteFileWithRetry(filePath, maxRetries = 5, delayMs = 1000) {
+    if (!fs.existsSync(filePath)) {
+        console.log(`Le fichier ${filePath} n'existe pas, aucune suppression nécessaire`);
+        return;
+    }
+
+    for (let attempt = 1; attempt <= maxRetries; attempt++) {
+        try {
+            // Attendre un peu que le processus Python se termine complètement
+            if (attempt === 1) {
+                await setTimeoutPromise(500);
+            }
+
+            fs.unlinkSync(filePath);
+            console.log(`Fichier ${filePath} supprimé avec succès`);
+            return;
+        } catch (err) {
+            if (err.code === 'ENOENT') {
+                console.log(`Le fichier ${filePath} n'existe plus`);
+                return;
+            } else if (err.code === 'EBUSY' && attempt < maxRetries) {
+                const waitTime = delayMs * attempt; // Délai progressif
+                console.log(`Fichier occupé, nouvelle tentative dans ${waitTime}ms (${attempt}/${maxRetries})`);
+                await setTimeoutPromise(waitTime);
+            } else if (attempt === maxRetries) {
+                console.error(`Impossible de supprimer le fichier après ${maxRetries} tentatives:`, err);
+                throw err;
+            } else {
+                throw err;
+            }
+        }
+    }
+}
+
+// Utilisation de la fonction
+const tempFilePath = 'C:\\Users\\omaim\\backend_ia\\ia_model\\core\\proximity\\temp_input_1750113078889.json';
+deleteFileWithRetry(tempFilePath);

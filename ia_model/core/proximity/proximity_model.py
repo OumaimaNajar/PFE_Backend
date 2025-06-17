@@ -42,7 +42,8 @@ class TechnicianProximityAI:
         self.last_training = None
         self.model_version = "2.0"
         self.training_stats = {}
-        
+        self.temp_file = None  # Pour suivre le fichier temporaire
+
     def load_and_prepare_data(self) -> pd.DataFrame:
         try:
             logger.info(f"Tentative de connexion à MongoDB: {self.client.address if self.client else 'Non connecté'}")
@@ -498,6 +499,17 @@ class TechnicianProximityAI:
         
         travel_time = (distance_km / base_speed) * 60
         return max(5, int(travel_time))  # Minimum 5 minutes
+
+
+    def cleanup_temp_file(self):
+        """Nettoie le fichier temporaire s'il existe"""
+        try:
+            if self.temp_file and os.path.exists(self.temp_file):
+                with open(self.temp_file, 'r') as f:
+                    f.close()
+                logger.info(f"Fichier temporaire {self.temp_file} fermé")
+        except Exception as e:
+            logger.error(f"Erreur lors de la fermeture du fichier temporaire: {e}")
 
 
     def predict_from_json(self, json_file_path: str) -> Dict:
